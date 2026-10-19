@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="GGD">
+<meta name="theme-color" content="#000000">
+<title>GGD Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: terminal-style stack. KPI strip, chart + sector panel side by side, full-width positions grid. */
+:root{
+  --bg:#000;
+  --panel:#07090c;
+  --line:#23272e;
+  --grid:#15181d;
+  --gray:#8b9099;
+  --gray-hi:#c9ccd2;
+  --head:#3b3e44;
+  --head-fg:#f1f1f1;
+  --fg:#e9eaec;
+  --yellow:#f5c400;
+  --olive:#2a2810;
+  --blue:#2f8bff;
+  --blue-soft:#3aa0ff;
+  --green:#19e03a;
+  --green-dim:#0d9f26;
+  --red:#ff2b2b;
+  --red-dim:#a91616;
+  --ui:"IBM Plex Sans Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;font:14px/1.35 var(--ui);-webkit-text-size-adjust:100%;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px;max-width:1800px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+button,input,select{font:inherit;color:inherit}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+.pos{color:var(--green)} .neg{color:var(--red)} .flat{color:var(--gray-hi)}
+.muted{color:var(--gray)}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.brand{font-weight:700;font-size:22px;letter-spacing:.02em;color:var(--yellow);white-space:nowrap}
+.brand small{color:var(--gray);font-weight:500;font-size:12px;letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
+.status{display:flex;align-items:center;gap:8px;color:var(--gray);font-size:12px;flex:1 1 220px;min-width:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gray);flex:none}
+.dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot.err{background:var(--red)}
+.dot.busy{background:var(--yellow)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:#14171c;border:1px solid #333842;padding:6px 12px;cursor:pointer;border-radius:2px;color:var(--fg)}
+.btn:hover{border-color:var(--gray)}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.btn.primary{background:var(--yellow);border-color:var(--yellow);color:#000;font-weight:600}
+.btn.danger{border-color:var(--red-dim);color:var(--red)}
+.btn.sm{padding:3px 8px;font-size:12px}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.kpi{background:var(--panel);padding:10px 12px;min-width:0}
+.kpi .lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--gray)}
+.kpi .val{font-family:var(--num);font-size:20px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .sub{font-family:var(--num);font-size:12px;margin-top:1px;overflow-wrap:anywhere}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:480px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .val{font-size:17px}}
+
+/* panels */
+.row2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}
+@media (max-width:1000px){.row2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);min-width:0;display:flex;flex-direction:column}
+.ph{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.ph h2{margin:0;font-size:14px;font-weight:600;color:var(--fg)}
+.ph .sub{font-size:11px;color:var(--gray)}
+.seg{display:flex;border:1px solid #333842}
+.seg button{background:transparent;border:0;padding:3px 8px;font-size:12px;cursor:pointer;color:var(--gray-hi);border-right:1px solid #333842}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--yellow);color:#000;font-weight:600}
+.chartbox{position:relative;height:300px;padding:6px 4px 4px}
+@media (max-width:600px){.chartbox{height:240px}}
+canvas{display:block;width:100%;height:100%}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--gray-hi);padding:0 10px 8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.tip{position:absolute;pointer-events:none;background:#101318;border:1px solid #3a3f48;padding:5px 8px;font:12px/1.4 var(--num);white-space:nowrap;z-index:2}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--gray);padding:20px;font-size:13px}
+
+/* sector active contribution (Bloomberg style) */
+.sac{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px}
+.sac-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.sac-title{font-weight:700;font-size:15px}
+.sac-sub{font-size:11px;color:var(--gray-hi)}
+.sac-total{font-family:var(--num);font-weight:600;font-size:15px;text-align:right}
+.sac-date{font-size:11px;color:var(--gray-hi);text-align:right}
+.sac-bars{display:grid;grid-template-columns:minmax(80px,38%) minmax(0,1fr);gap:7px 8px;align-items:center;margin-top:6px}
+.sac-lab{font-size:12px;text-align:right;color:var(--gray-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sac-track{position:relative;height:22px}
+.sac-zero{position:absolute;top:-4px;bottom:-4px;width:1px;background:#4a4f58}
+.sac-bar{position:absolute;top:2px;bottom:2px}
+.sac-bar.p{background:linear-gradient(180deg,#3dff5a 0%,#12c22e 45%,#0a8a1f 100%);border:1px solid #6dff83}
+.sac-bar.n{background:linear-gradient(180deg,#ff5a5a 0%,#d01c1c 45%,#8a0a0a 100%);border:1px solid #ff8383}
+.sac-val{position:absolute;top:50%;transform:translateY(-50%);font:11px var(--num);color:var(--fg);white-space:nowrap}
+.sac-axis{position:relative;height:16px;margin-left:calc(38% + 8px);font:10px var(--num);color:var(--gray-hi)}
+.sac-axis span{position:absolute;transform:translateX(-50%);top:2px}
+.empty{color:var(--gray);font-size:13px;padding:24px 12px;text-align:center}
+
+/* positions table */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:1680px;font-size:12.5px}
+thead th{background:var(--head);color:var(--head-fg);font-weight:500;text-align:right;padding:6px 8px;border-right:1px solid #55595f;white-space:nowrap;position:sticky;top:0;z-index:1}
+thead th.l{text-align:left}
+tbody td{padding:5px 8px;text-align:right;border-bottom:1px solid #111418;white-space:nowrap;font-family:var(--num);font-variant-numeric:tabular-nums}
+tbody td.l{text-align:left;font-family:var(--ui)}
+tbody tr:hover td{background:#0d1117}
+tr.total td{background:var(--olive)!important;color:var(--yellow);font-weight:600;border-bottom:1px solid #4a4718}
+.stick{position:sticky;left:0;background:var(--bg);z-index:1}
+thead th.stick{background:var(--head);z-index:2}
+tr.total td.stick{background:var(--olive)}
+.tk{color:var(--yellow);font-weight:600;font-family:var(--num)}
+.nm{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.rng{display:inline-flex;align-items:center;gap:6px}
+.rng .bar{position:relative;width:70px;height:12px}
+.rng .bar::before{content:"";position:absolute;left:0;right:0;top:9px;height:1px;background:#3a3f48}
+.rng .tri{position:absolute;top:1px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--blue-soft);transform:translateX(-6px)}
+.rowbtns{display:flex;gap:4px;justify-content:flex-end}
+.icon{background:none;border:1px solid transparent;color:var(--gray);cursor:pointer;padding:1px 6px;font-size:12px}
+.icon:hover{color:var(--fg);border-color:#333842}
+.est{color:var(--gray);font-size:10px;margin-left:3px}
+
+/* dialogs */
+dialog{background:#0b0e12;color:var(--fg);border:1px solid #3a3f48;padding:0;max-width:min(560px,calc(100vw - 24px));width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--head)}
+.dlg-h h3{margin:0;font-size:15px}
+.dlg-b{padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.dlg-b .full{grid-column:1/-1}
+@media (max-width:480px){.dlg-b{grid-template-columns:minmax(0,1fr)}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray)}
+label.f input,label.f select,textarea{background:#000;border:1px solid #333842;padding:7px 8px;font-family:var(--num);font-size:16px;text-transform:none;letter-spacing:0;color:var(--fg);border-radius:0;width:100%}
+textarea{min-height:70px;resize:vertical;font-size:12px}
+.dlg-f{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.hint{font-size:12px;color:var(--gray);text-transform:none;letter-spacing:0}
+div.f{display:flex;flex-direction:column;gap:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);min-width:0}
+div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family:var(--num);font-size:16px;text-transform:none;letter-spacing:0;color:var(--fg);border-radius:0;width:100%}
+.sug{border:1px solid #3a3f48;background:#05070a;max-height:280px;overflow-y:auto;text-transform:none;letter-spacing:0}
+.sug .it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 9px;border-bottom:1px solid #15181d;cursor:pointer;color:var(--fg);font-size:13px}
+.sug .it:last-child{border-bottom:0}
+.sug .it[aria-selected="true"],.sug .it:hover{background:#142033}
+.sug .s1{font-family:var(--num);color:var(--yellow);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug .s1 em{font-style:normal;color:var(--gray-hi);font-weight:400;margin-left:6px}
+.sug .s2{grid-column:1;color:var(--gray-hi);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug .px{grid-row:1/3;grid-column:2;align-self:center;text-align:right;font-family:var(--num);font-size:12px;color:var(--fg)}
+.sug .px small{display:block;color:var(--gray);font-size:10px}
+.tag{display:inline-block;font:600 9px var(--ui);letter-spacing:.06em;padding:1px 4px;margin-left:6px;border:1px solid var(--blue);color:var(--blue-soft);vertical-align:1px}
+.sug .note{padding:8px 9px;color:var(--gray);font-size:12px}
+.picked{font-size:12px;color:var(--green);text-transform:none;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#14171c;border:1px solid #333842;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--fg)}
+.chip[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+.msg{font-size:12px;min-height:16px}
+.foot{font-size:11px;color:var(--gray);line-height:1.5}
+.foot b{color:var(--gray-hi);font-weight:500}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></div>
+    <div class="actions">
+      <button class="btn primary" id="addBtn" type="button">+ Position</button>
+      <button class="btn" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn" id="setBtn" type="button">Settings</button>
+    </div>
+  </header>
+
+  <section class="kpis" aria-label="Portfolio summary">
+    <div class="kpi"><div class="lab">Market value</div><div class="val" id="kVal">–</div><div class="sub muted" id="kCost">cost –</div></div>
+    <div class="kpi"><div class="lab">Day</div><div class="val" id="kDayPct">–</div><div class="sub" id="kDayAbs">–</div></div>
+    <div class="kpi"><div class="lab">1 Week</div><div class="val" id="kW">–</div><div class="sub" id="kWb">–</div></div>
+    <div class="kpi"><div class="lab">1 Month</div><div class="val" id="kM">–</div><div class="sub" id="kMb">–</div></div>
+    <div class="kpi"><div class="lab">1 Year</div><div class="val" id="kY">–</div><div class="sub" id="kYb">–</div></div>
+    <div class="kpi"><div class="lab">Total P&amp;L</div><div class="val" id="kPnl">–</div><div class="sub" id="kPnlPct">–</div></div>
+  </section>
+
+  <div class="row2">
+    <section class="panel" aria-label="Performance chart">
+      <div class="ph">
+        <div><h2>GGD vs S&amp;P 500</h2><div class="sub">Time-weighted return, rebased to 0%</div></div>
+        <div class="seg" id="rangeSeg">
+          <button type="button" data-r="1W" aria-pressed="false">1W</button>
+          <button type="button" data-r="1M" aria-pressed="false">1M</button>
+          <button type="button" data-r="3M" aria-pressed="false">3M</button>
+          <button type="button" data-r="YTD" aria-pressed="false">YTD</button>
+          <button type="button" data-r="1Y" aria-pressed="false">1Y</button>
+          <button type="button" data-r="ALL" aria-pressed="true">All</button>
+        </div>
+      </div>
+      <div class="chartbox" id="chartBox"><canvas id="chart"></canvas><div class="tip" id="tip" hidden></div><div class="overlay" id="chartMsg" hidden></div></div>
+      <div class="legend"><span><i style="background:var(--blue)"></i>GGD Portfolio <b class="num" id="lgP"></b></span><span><i style="background:var(--yellow)"></i>S&amp;P 500 <b class="num" id="lgB"></b></span></div>
+    </section>
+
+    <section class="panel" aria-label="Sector active contribution">
+      <div class="ph">
+        <h2>Sector attribution</h2>
+        <div class="seg" id="sacSeg">
+          <button type="button" data-m="D" aria-pressed="false">1D</button>
+          <button type="button" data-m="O" aria-pressed="true">Since open</button>
+        </div>
+      </div>
+      <div class="sac" id="sac"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-label="Positions">
+    <div class="ph"><h2>Positions <span class="muted" id="posCount"></span></h2><div class="sub">P&amp;L in position currency · totals in <span id="baseLbl2">EUR</span></div></div>
+    <div class="tblwrap">
+      <table>
+        <thead><tr>
+          <th class="l stick">Ticker</th><th class="l">Name</th><th class="l">Market</th>
+          <th>Open Px</th><th>Current Px</th><th>Close Px</th><th>% Exposure</th><th>Shares</th>
+          <th>Pos. Gain</th><th>Pos. Gain %</th><th>Bench %</th><th>52 Wk Range</th>
+          <th>1W</th><th>1M</th><th>YTD</th><th>1Y</th><th>10Y</th><th>IPO Px</th><th>Since IPO</th><th></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyPos" hidden>No positions yet. Use <b>+ Position</b> to add one: ticker, shares, price per share, currency and benchmark.</div>
+  </section>
+
+  <p class="foot">
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = your entry price. <b>Close Px</b> = previous session close. <b>Bench %</b> = benchmark move since your open date. <b>1W/1M/1Y</b> header figures are holdings-weighted returns of the current portfolio. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+  </p>
+</div>
+
+<!-- Add / edit position -->
+<dialog id="posDlg">
+  <form method="dialog" id="posForm" novalidate>
+    <div class="dlg-h"><h3 id="posDlgTitle">Open position</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <div class="f full"><label for="fTicker">Ticker, company name or ISIN</label>
+        <input id="fTicker" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="LDO, Leonardo or IT0003856405" role="combobox" aria-expanded="false" aria-controls="tickSug">
+        <div class="sug" id="tickSug" role="listbox" hidden></div>
+        <div class="picked" id="tickPicked" hidden></div>
+      </div>
+      <label class="f">Shares<input id="fShares" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Price per share<input id="fPrice" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Currency<input id="fCcy" maxlength="3" autocapitalize="characters" placeholder="USD"></label>
+      <label class="f">Open date<input id="fDate" type="date"></label>
+      <div class="f"><label for="fBench">Benchmark</label>
+        <input id="fBench" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" value="SP:SPX" placeholder="S&amp;P 500, DAX, ETF, ISIN" role="combobox" aria-expanded="false" aria-controls="benchSug">
+        <div class="sug" id="benchSug" role="listbox" hidden></div>
+      </div>
+      <label class="f">Benchmark level at open<input id="fBenchOpen" type="number" inputmode="decimal" step="any"><span class="hint" id="benchHint">Filled automatically</span></label>
+      <div class="full msg" id="posMsg"></div>
+    </div>
+    <div class="dlg-f">
+      <button class="btn danger" type="button" id="delBtn" hidden>Close position</button>
+      <span></span>
+      <div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit" id="posSave">Save</button></div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Settings / sync -->
+<dialog id="setDlg">
+  <form method="dialog" id="setForm" novalidate>
+    <div class="dlg-h"><h3>Settings &amp; sync</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <label class="f">Base currency<input id="sBase" maxlength="3" autocapitalize="characters"></label>
+      <label class="f">Refresh every (sec)<input id="sRefresh" type="number" min="15" step="5"></label>
+      <div class="full hint" style="border-top:1px solid var(--line);padding-top:10px">Sync between Mac and phone uses a <b>private GitHub repo</b>. Fill this once per device, or paste a sync code from the other device.</div>
+      <label class="f">GitHub owner<input id="sOwner" autocomplete="off" spellcheck="false" placeholder="your-username"></label>
+      <label class="f">Private data repo<input id="sRepo" autocomplete="off" spellcheck="false" placeholder="ggd-portfolio-data"></label>
+      <label class="f">File path<input id="sPath" autocomplete="off" spellcheck="false" placeholder="portfolio.json"></label>
+      <label class="f">Branch<input id="sBranch" autocomplete="off" spellcheck="false" placeholder="main"></label>
+      <label class="f full">Fine-grained token<input id="sToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
+      <label class="f full">Sync code<textarea id="sCode" spellcheck="false" placeholder="Paste a code generated on your other device"></textarea></label>
+      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <div class="full msg" id="setMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Save &amp; connect</button></div></div>
+  </form>
+</dialog>
+
+<!-- in-page confirm -->
+<dialog id="cfmDlg">
+  <div class="dlg-h"><h3 id="cfmTitle">Confirm</h3></div>
+  <div class="dlg-b"><p class="full" id="cfmText" style="margin:0"></p></div>
+  <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" id="cfmNo">Cancel</button><button class="btn danger" type="button" id="cfmYes">Confirm</button></div></div>
+</dialog>
+
+<script>
+"use strict";
+/* ============================== constants ============================== */
+const SCAN_URL = "https://scanner.tradingview.com/global/scan";
+const SPX = "SP:SPX";
+const COLS = ["name","description","exchange","currency","open","close","change",
+  "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
+  "price_52_week_high","price_52_week_low","sector","type"];
+const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
+const INDICES = [
+  ["SP:SPX","S&P 500","sp500 s&p500 spx standard poors usa"],["NASDAQ:NDX","Nasdaq 100","ndx nasdaq100"],["NASDAQ:IXIC","Nasdaq Composite","ixic composite"],
+  ["DJ:DJI","Dow Jones Industrial Average","dow jones dji"],["TVC:RUT","Russell 2000","rut russell small cap"],["XETR:DAX","DAX","dax germany"],
+  ["INDEX:FTSEMIB","FTSE MIB","ftsemib ftse mib italia italy milano borsa"],["STOXX:SX5E","Euro Stoxx 50","sx5e eurostoxx euro stoxx 50"],
+  ["STOXX:SXXP","Stoxx Europe 600","sxxp stoxx 600 europe"],["FTSE:UKX","FTSE 100","ukx ftse100 uk london"],["EURONEXT:PX1","CAC 40","cac40 px1 france"],
+  ["BME:IBC","IBEX 35","ibex spain"],["SIX:SMI","Swiss Market Index","smi switzerland"],["TVC:NI225","Nikkei 225","nikkei ni225 japan"],
+  ["TVC:HSI","Hang Seng","hsi hang seng hong kong"],["CBOE:VIX","VIX","vix volatility"]];
+const LS_DATA = "ggd.data.v1", LS_CFG = "ggd.sync.v1", LS_UI = "ggd.ui.v1";
+
+/* ============================== state ============================== */
+let DB = { v:1, base:"EUR", refresh:60, positions:[], snaps:{} };   // synced document
+let Q = {};      // quotes by TradingView symbol
+let FX = {};     // currency -> units of base per 1 unit
+let SYNC = null; // {owner, repo, path, branch, token}
+let SHA = null;  // sha of remote file
+let UI = { range:"ALL", sac:"O" };
+let timer = null, lastSnapWrite = 0, busy = false, lastOk = null;
+
+const $ = id => document.getElementById(id);
+const ls = {
+  get(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+/* ============================== formatting ============================== */
+const isNum = x => typeof x === "number" && isFinite(x);
+function dp(x){ const a = Math.abs(x); return a === 0 ? 2 : a < 1 ? 4 : a < 10 ? 3 : 2; }
+function fN(x, d){ if(!isNum(x)) return "–"; return x.toLocaleString("en-US",{minimumFractionDigits:d ?? dp(x), maximumFractionDigits:d ?? dp(x)}); }
+function fPx(x){ return fN(x); }
+function fMoney(x, ccy, d=2){ if(!isNum(x)) return "–"; return (x<0?"-":"") + Math.abs(x).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}) + (ccy ? " " + ccy : ""); }
+function fSigned(x, d=2, unit=""){ if(!isNum(x)) return "–"; const s = x>0?"+":x<0?"-":""; return s + Math.abs(x).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}) + unit; }
+function cls(x){ return !isNum(x) ? "muted" : x>0.00001 ? "pos" : x<-0.00001 ? "neg" : "flat"; }
+function pct(x, d=2){ return `<span class="${cls(x)}">${fSigned(x,d,"%")}</span>`; }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ============================== dates ============================== */
+function dkey(d){ const z = n => String(n).padStart(2,"0"); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; }
+function kts(k){ const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d).getTime(); }
+function today(){ return dkey(new Date()); }
+function shift(k, {d=0,m=0,y=0}){ const [Y,M,D] = k.split("-").map(Number); const t = new Date(Y+y, M-1+m, D+d); return dkey(t); }
+function prevBizDay(k){ let t = shift(k,{d:-1}); while([0,6].includes(new Date(kts(t)).getDay())) t = shift(t,{d:-1}); return t; }
+function ytdStart(k){ return `${Number(k.slice(0,4))-1}-12-31`; }
+
+/* ============================== TradingView feed ============================== */
+async function scan(tickers, cols = COLS){
+  if(!tickers.length) return {};
+  const r = await fetch(SCAN_URL, { method:"POST", body: JSON.stringify({ symbols:{ tickers }, columns: cols }) });
+  if(!r.ok) throw new Error("TradingView HTTP " + r.status);
+  const j = await r.json(); const out = {};
+  (j.data || []).forEach(row => { const o = {}; cols.forEach((c,i) => o[c] = row.d[i]); out[row.s] = o; });
+  return out;
+}
+function normCcy(c){ return (c || "").toUpperCase(); }
+function majorCcy(c){ c = normCcy(c); return c === "GBX" ? "GBP" : c === "ZAC" ? "ZAR" : c === "ILA" ? "ILS" : c; }
+function minorFactor(c){ c = normCcy(c); return (c === "GBX" || c === "ZAC" || c === "ILA") ? 0.01 : 1; }
+function toBase(amount, ccy){ const r = FX[majorCcy(ccy)]; return isNum(r) ? amount * r * minorFactor(ccy) : NaN; }
+function conv(amount, from, to){ const a = toBase(amount, from), r = FX[majorCcy(to)]; return isNum(a) && isNum(r) ? a / (r * minorFactor(to)) : NaN; }
+
+const SUG_COLS = ["name","description","exchange","currency","close","type","is_primary","Value.Traded","isin"];
+async function searchSymbols(raw, signal){
+  const q = raw.trim(), U = q.toUpperCase();
+  if(q.length < 1) return [];
+  const toObj = (sym, d) => ({ sym, ...d });
+  if(/^[A-Z0-9_]+:[^\s]+$/.test(U)){
+    const r = await scan([U], SUG_COLS);
+    return r[U] ? [toObj(U, r[U])] : [];
+  }
+  const post = filter => fetch(SCAN_URL, { method:"POST", signal, body: JSON.stringify({ filter, columns:SUG_COLS, range:[0,20], sort:{ sortBy:"Value.Traded", sortOrder:"desc" } }) })
+    .then(r => r.ok ? r.json() : { data:[] }).catch(e => { if(e.name === "AbortError") throw e; return { data:[] }; });
+  const isIsin = ISIN_RE.test(U);
+  const reqs = isIsin ? [post([{ left:"isin", operation:"equal", right:U }])]
+    : [post([{ left:"name", operation:"match", right:U }]), q.length >= 3 ? post([{ left:"description", operation:"match", right:q }]) : Promise.resolve({ data:[] })];
+  const res = await Promise.all(reqs);
+  const seen = new Map();
+  res.forEach(j => (j.data || []).forEach(row => { if(seen.has(row.s)) return; const o = {}; SUG_COLS.forEach((c,i) => o[c] = row.d[i]); seen.set(row.s, toObj(row.s, o)); }));
+  const score = h => {
+    let sc = Math.log10((h["Value.Traded"] || 0) + 1) * 10;
+    if(h.is_primary) sc += 300;
+    if(!isIsin){ const n = (h.name || "").toUpperCase(); if(n === U) sc += 1000; else if(n.startsWith(U)) sc += 400; }
+    if(h.exchange === "OTC") sc -= 150;
+    return sc;
+  };
+  const hits = [...seen.values()].sort((a,b) => score(b) - score(a));
+  const lq = q.toLowerCase();
+  const idx = isIsin ? [] : INDICES.filter(([s,n,k]) => s.toLowerCase().includes(lq) || n.toLowerCase().includes(lq) || k.includes(lq))
+    .map(([s,n]) => ({ sym:s, name:s.split(":")[1], description:n, exchange:s.split(":")[0], type:"index", currency:"", close:Q[s]?.close, is_primary:true }));
+  return [...idx, ...hits].slice(0, 12);
+}
+
+/* ============================== derived quote helpers ============================== */
+function prevClose(q){ return isNum(q?.close) && isNum(q?.change) ? q.close / (1 + q.change/100) : NaN; }
+function anchorPx(q, perf){ const p = q?.[perf]; return isNum(p) && isNum(q.close) ? q.close / (1 + p/100) : NaN; }
+function ipoPx(q){ return anchorPx(q, "Perf.All"); }
+function pricePoints(sym){
+  // known daily prices for a symbol: snapshots + TradingView performance anchors + live
+  const q = Q[sym], t = today(), pts = new Map();
+  const snapKeys = Object.keys(DB.snaps).sort();
+  for(const k of snapKeys){ const v = DB.snaps[k]?.q?.[sym]; if(isNum(v)) pts.set(k, v); }
+  if(q){
+    const add = (k, v) => { if(isNum(v) && !pts.has(k)) pts.set(k, v); };
+    add(shift(t,{y:-1}), anchorPx(q,"Perf.Y"));
+    add(shift(t,{m:-6}), anchorPx(q,"Perf.6M"));
+    add(shift(t,{m:-3}), anchorPx(q,"Perf.3M"));
+    add(ytdStart(t), anchorPx(q,"Perf.YTD"));
+    add(shift(t,{m:-1}), anchorPx(q,"Perf.1M"));
+    add(shift(t,{d:-7}), anchorPx(q,"Perf.W"));
+    add(prevBizDay(t), prevClose(q));
+    if(isNum(q.close)) pts.set(t, q.close);
+  }
+  return [...pts.entries()].map(([k,v]) => [kts(k), v, k]).sort((a,b) => a[0]-b[0]);
+}
+function interp(pts, ts){
+  if(!pts.length) return NaN;
+  if(ts <= pts[0][0]) return pts[0][1];
+  if(ts >= pts[pts.length-1][0]) return pts[pts.length-1][1];
+  for(let i=1;i<pts.length;i++){ if(ts <= pts[i][0]){ const [t0,v0] = pts[i-1], [t1,v1] = pts[i]; return v0 + (v1-v0) * (ts-t0)/(t1-t0); } }
+  return NaN;
+}
+
+/* ============================== position math ============================== */
+function calc(p){
+  const q = Q[p.sym] || {}, bq = Q[p.bench] || {};
+  const iccy = normCcy(q.currency || p.iccy || p.ccy);
+  const curInPos = conv(q.close, iccy, p.ccy);              // live price in position currency
+  const value = p.shares * curInPos;                        // position currency
+  const cost = p.shares * p.price;
+  const valueBase = toBase(value, p.ccy), costBase = toBase(cost, p.ccy);
+  const gain = value - cost, gainPct = cost ? (value/cost - 1) * 100 : NaN;
+  let benchOpen = p.benchOpen, benchEst = !!p.benchEst;
+  if(!isNum(benchOpen) && isNum(bq.close)){ benchOpen = p.date >= today() ? bq.close : interp(pricePoints(p.bench), kts(p.date)); benchEst = true; }
+  const benchPct = isNum(bq.close) && isNum(benchOpen) && benchOpen ? (bq.close/benchOpen - 1) * 100 : NaN;
+  let dayPct = q.change, dayBase;
+  if(p.date === today()){ dayPct = gainPct; dayBase = valueBase - costBase; }
+  else dayBase = isNum(q.change) ? valueBase - valueBase / (1 + q.change/100) : NaN;
+  const benchDay = bq.change;
+  return { q, bq, iccy, benchEst, curInPos, value, cost, valueBase, costBase, gain, gainPct, benchPct, dayPct, dayBase, benchDay,
+    sector: q.sector || (q.type === "fund" ? "Funds / ETFs" : q.type === "index" ? "Index" : "Other") };
+}
+
+/* ============================== rendering: KPIs ============================== */
+function weighted(rows, key){
+  let w = 0, s = 0;
+  rows.forEach(r => { const v = r.c.q[key]; if(isNum(v) && isNum(r.c.valueBase)){ s += r.c.valueBase * v; w += r.c.valueBase; } });
+  return w ? s / w : NaN;
+}
+function render(){
+  const base = DB.base;
+  $("baseLbl").textContent = base; $("baseLbl2").textContent = base;
+  const rows = DB.positions.map(p => ({ p, c: calc(p) }));
+  const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
+  const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
+  const day = rows.reduce((a,r) => a + (isNum(r.c.dayBase) ? r.c.dayBase : 0), 0);
+  const spx = Q[SPX] || {};
+  $("kVal").textContent = rows.length ? fMoney(tot, base) : "–";
+  $("kCost").textContent = rows.length ? "cost " + fMoney(cost, base) : "no positions";
+  const dayPct = tot - day ? day / (tot - day) * 100 : NaN;
+  $("kDayPct").innerHTML = rows.length ? pct(dayPct) : "–";
+  $("kDayAbs").innerHTML = rows.length ? `<span class="${cls(day)}">${fSigned(day,2," "+base)}</span> <span class="muted">· SPX ${fSigned(spx.change,2,"%")}</span>` : `<span class="muted">SPX ${fSigned(spx.change,2,"%")}</span>`;
+  const per = [["kW","kWb","Perf.W"],["kM","kMb","Perf.1M"],["kY","kYb","Perf.Y"]];
+  per.forEach(([a,b,k]) => {
+    const v = weighted(rows, k), bv = spx[k];
+    $(a).innerHTML = rows.length ? pct(v) : "–";
+    $(b).innerHTML = rows.length ? `<span class="${cls(isNum(v)&&isNum(bv)?v-bv:NaN)}">${fSigned(isNum(v)&&isNum(bv)?v-bv:NaN,2," pp")}</span> <span class="muted">vs SPX ${fSigned(bv,2,"%")}</span>` : `<span class="muted">SPX ${fSigned(bv,2,"%")}</span>`;
+  });
+  $("kPnl").innerHTML = rows.length ? `<span class="${cls(tot-cost)}">${fSigned(tot-cost,2," "+base)}</span>` : "–";
+  $("kPnlPct").innerHTML = rows.length && cost ? pct((tot/cost-1)*100) : "–";
+  renderTable(rows, tot);
+  renderSector(rows, tot);
+  drawChart();
+}
+
+/* ============================== rendering: table ============================== */
+function rangeCell(q){
+  const lo = q.price_52_week_low, hi = q.price_52_week_high, c = q.close;
+  if(!isNum(lo) || !isNum(hi) || !isNum(c)) return "–";
+  const f = hi > lo ? Math.min(1, Math.max(0, (c - lo) / (hi - lo))) : 0.5;
+  return `<span class="rng"><span>${fPx(lo)}</span><span class="bar" title="${(f*100).toFixed(0)}% of range"><span class="tri" style="left:${(f*100).toFixed(1)}%"></span></span><span>${fPx(hi)}</span></span>`;
+}
+function renderTable(rows, tot){
+  const tb = $("tbody");
+  $("emptyPos").hidden = rows.length > 0;
+  $("posCount").textContent = rows.length ? `(${rows.length})` : "";
+  if(!rows.length){ tb.innerHTML = ""; return; }
+  const sorted = [...rows].sort((a,b) => (b.c.valueBase||0) - (a.c.valueBase||0));
+  let html = "";
+  const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
+  const benchW = (() => { let s=0,w=0; rows.forEach(r=>{ if(isNum(r.c.benchPct)&&isNum(r.c.costBase)){ s+=r.c.benchPct*r.c.costBase; w+=r.c.costBase; } }); return w? s/w : NaN; })();
+  html += `<tr class="total"><td class="l stick">GGD</td><td class="l">Portfolio total</td><td class="l">${esc(DB.base)}</td>
+    <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td>
+    <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
+    <td>${fSigned(weighted(rows,"Perf.W"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.1M"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.YTD"),2,"%")}</td>
+    <td>${fSigned(weighted(rows,"Perf.Y"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.10Y"),2,"%")}</td><td>–</td><td>–</td><td></td></tr>`;
+  for(const {p, c} of sorted){
+    const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
+    const ipo = ipoPx(q);
+    html += `<tr>
+      <td class="l stick"><span class="tk">${esc(p.sym.split(":")[1] || p.sym)}</span></td>
+      <td class="l nm" title="${esc((q.description || p.name || "") + (p.isin ? " · " + p.isin : ""))}">${esc(q.description || p.name || "–")}</td>
+      <td class="l">${esc(q.exchange || p.sym.split(":")[0])}</td>
+      <td>${fPx(p.price)} <span class="muted">${esc(p.ccy)}</span></td>
+      <td>${fPx(q.close)} <span class="muted">${esc(c.iccy)}</span></td>
+      <td>${fPx(prevClose(q))}</td>
+      <td>${fN(w,2)}</td>
+      <td>${fN(p.shares, Number.isInteger(p.shares)?0:4)}</td>
+      <td class="${cls(c.gain)}">${fSigned(c.gain,2)} <span class="muted">${esc(p.ccy)}</span></td>
+      <td>${pct(c.gainPct)}</td>
+      <td title="${esc(p.bench)} since ${esc(p.date)}">${pct(c.benchPct)}${c.benchEst?'<span class="est">est</span>':''}</td>
+      <td>${rangeCell(q)}</td>
+      <td>${pct(q["Perf.W"])}</td><td>${pct(q["Perf.1M"])}</td><td>${pct(q["Perf.YTD"])}</td>
+      <td>${pct(q["Perf.Y"])}</td><td>${pct(q["Perf.10Y"])}</td>
+      <td>${fPx(ipo)}</td><td>${pct(q["Perf.All"],1)}</td>
+      <td><div class="rowbtns"><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
+    </tr>`;
+  }
+  tb.innerHTML = html;
+}
+
+/* ============================== rendering: sector active contribution ============================== */
+function niceStep(range){ const raw = range / 4, mag = Math.pow(10, Math.floor(Math.log10(raw || 1))); const n = raw/mag; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10) * mag; }
+function renderSector(rows, tot){
+  const el = $("sac");
+  if(!rows.length || !tot){ el.innerHTML = `<div class="empty">Active contribution by sector appears once you hold positions.</div>`; return; }
+  const by = {};
+  for(const {c} of rows){
+    const w = c.valueBase / tot;
+    const act = UI.sac === "D" ? (c.dayPct - c.benchDay) : (c.gainPct - c.benchPct);
+    if(!isNum(w) || !isNum(act)) continue;
+    by[c.sector] = (by[c.sector] || 0) + w * act;
+  }
+  const items = Object.entries(by).sort((a,b) => b[1]-a[1]);
+  if(!items.length){ el.innerHTML = `<div class="empty">Waiting for benchmark data.</div>`; return; }
+  const total = items.reduce((a,[,v]) => a+v, 0);
+  const lo = Math.min(0, ...items.map(i=>i[1])), hi = Math.max(0, ...items.map(i=>i[1]));
+  const step = niceStep((hi - lo) || 0.1);
+  const head = (hi - lo || 0.1) * 0.22;
+  const aMin = lo < 0 ? Math.floor((lo - head)/step)*step : 0;
+  const aMax = Math.max(hi > 0 ? Math.ceil((hi + head)/step)*step : 0, aMin + step);
+  const X = v => (v - aMin) / (aMax - aMin) * 100;
+  const z = X(0);
+  const now = new Date();
+  let bars = "";
+  for(const [s, v] of items){
+    const a = X(Math.min(0,v)), b = X(Math.max(0,v));
+    const valPos = v >= 0 ? `left:calc(${b}% + 4px)` : `right:calc(${100-a}% + 4px)`;
+    bars += `<div class="sac-lab" title="${esc(s)}">${esc(s)}</div>
+      <div class="sac-track"><span class="sac-zero" style="left:${z}%"></span>
+      <span class="sac-bar ${v>=0?'p':'n'}" style="left:${a}%;width:${Math.max(0.4,b-a)}%"></span>
+      <span class="sac-val" style="${valPos}">${fN(v,3)}</span></div>`;
+  }
+  let ticks = "";
+  for(let t = aMin; t <= aMax + step/2; t += step){ ticks += `<span style="left:${X(t)}%">${fN(Math.abs(t)<1e-9?0:t, step<0.1?2:step<1?2:1)}</span>`; }
+  el.innerHTML = `<div class="sac-head"><div><div class="sac-title">Total Active Contribution</div>
+      <div class="sac-sub">GGD vs per-position benchmarks · ${UI.sac==="D"?"1 day":"since open"}</div><div class="sac-sub">Sector · TradingView, pp</div></div>
+      <div><div class="sac-total ${cls(total)}">${fN(total,3)}</div><div class="sac-date">${now.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"})}</div></div></div>
+    <div class="sac-bars">${bars}</div><div class="sac-axis">${ticks}</div>`;
+}
+
+/* ============================== chart ============================== */
+function rangeStart(r){ const t = today(); return r==="1W"?shift(t,{d:-7}):r==="1M"?shift(t,{m:-1}):r==="3M"?shift(t,{m:-3}):r==="YTD"?ytdStart(t):r==="1Y"?shift(t,{y:-1}):null; }
+function buildSeries(){
+  const pos = DB.positions.filter(p => Q[p.sym]);
+  if(!pos.length) return null;
+  const inception = pos.map(p => p.date).sort()[0];
+  const rs = rangeStart(UI.range);
+  const start = rs && rs > inception ? rs : inception;
+  const startTs = kts(start), endTs = kts(today());
+  // per-position price paths in instrument currency, starting at the entry
+  const paths = pos.map(p => {
+    const c = calc(p);
+    const entryInstr = conv(p.price, p.ccy, c.iccy);
+    const pts = pricePoints(p.sym).filter(x => x[2] > p.date);
+    pts.unshift([kts(p.date), entryInstr, p.date]);
+    return { p, iccy: c.iccy, pts, open: kts(p.date) };
+  });
+  const bpts = pricePoints(SPX);
+  const keys = new Set([start]);
+  paths.forEach(x => x.pts.forEach(pt => { if(pt[0] >= startTs && pt[0] <= endTs) keys.add(pt[2]); }));
+  bpts.forEach(pt => { if(pt[0] >= startTs && pt[0] <= endTs) keys.add(pt[2]); });
+  const grid = [...keys].map(k => [kts(k), k]).sort((a,b) => a[0]-b[0]);
+  if(grid.length < 2) return { grid, P:[], B:[], start };
+  const val = (x, ts) => toBase(x.p.shares * interp(x.pts, ts), x.iccy);
+  const P = [0], B = [0];
+  let idx = 1; const b0 = interp(bpts, grid[0][0]);
+  for(let i=1;i<grid.length;i++){
+    const t0 = grid[i-1][0], t1 = grid[i][0];
+    let s0 = 0, s1 = 0;
+    paths.forEach(x => { if(x.open <= t0){ const a = val(x,t0), b = val(x,t1); if(isNum(a)&&isNum(b)){ s0 += a; s1 += b; } } });
+    if(s0 > 0) idx *= s1 / s0;
+    P.push((idx - 1) * 100);
+    const bv = interp(bpts, t1);
+    B.push(isNum(b0) && b0 ? (bv / b0 - 1) * 100 : NaN);
+  }
+  return { grid, P, B, start };
+}
+let chartGeom = null;
+function drawChart(){
+  const cv = $("chart"), box = $("chartBox"), msg = $("chartMsg");
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  const s = buildSeries();
+  $("lgP").textContent = ""; $("lgB").textContent = "";
+  chartGeom = null;
+  if(!s){ msg.hidden = false; msg.textContent = DB.positions.length ? "Loading prices…" : "Add a position to start the performance chart."; return; }
+  if(s.grid.length < 2){ msg.hidden = false; msg.textContent = "History starts at your earliest open date. Points build up daily; set a past open date to see history now."; return; }
+  msg.hidden = true;
+  const css = getComputedStyle(document.documentElement);
+  const C = n => css.getPropertyValue(n).trim();
+  const padL = 8, padR = 52, padT = 10, padB = 22;
+  const all = [...s.P, ...s.B].filter(isNum);
+  let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+  if(hi - lo < 0.5){ hi += 0.25; lo -= 0.25; }
+  const step = niceStep(hi - lo); lo = Math.floor(lo/step)*step; hi = Math.ceil(hi/step)*step;
+  const t0 = s.grid[0][0], t1 = s.grid[s.grid.length-1][0];
+  const x = t => padL + (t - t0) / ((t1 - t0) || 1) * (W - padL - padR);
+  const y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
+  g.font = `11px ${C("--num")}`; g.textBaseline = "middle";
+  for(let v = lo; v <= hi + step/2; v += step){
+    const yy = Math.round(y(v)) + .5;
+    g.strokeStyle = Math.abs(v) < 1e-9 ? "#4a4f58" : C("--grid"); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(padL, yy); g.lineTo(W - padR, yy); g.stroke();
+    g.fillStyle = C("--gray"); g.textAlign = "left"; g.fillText(fSigned(Math.abs(v)<1e-9?0:v, step<1?1:0, "%"), W - padR + 6, yy);
+  }
+  // x labels
+  g.textAlign = "center"; g.textBaseline = "alphabetic"; g.fillStyle = C("--gray");
+  const nLab = Math.max(2, Math.min(6, Math.floor((W - padR) / 90)));
+  for(let i=0;i<nLab;i++){
+    const t = t0 + (t1 - t0) * i / (nLab - 1);
+    const d = new Date(t);
+    const txt = (t1 - t0) > 200*864e5 ? d.toLocaleDateString("en-GB",{month:"short",year:"2-digit"}) : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"});
+    g.textAlign = i===0 ? "left" : i===nLab-1 ? "right" : "center";
+    g.fillText(txt, x(t), H - 6);
+  }
+  const line = (arr, color, fill) => {
+    g.beginPath(); let started = false;
+    arr.forEach((v,i) => { if(!isNum(v)) return; const xx = x(s.grid[i][0]), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
+    g.strokeStyle = color; g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
+    if(fill){
+      g.lineTo(x(t1), y(0)); g.lineTo(x(t0), y(0)); g.closePath();
+      const gr = g.createLinearGradient(0, padT, 0, H - padB); gr.addColorStop(0, "rgba(47,139,255,.22)"); gr.addColorStop(1, "rgba(47,139,255,0)");
+      g.fillStyle = gr; g.fill();
+    }
+    const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(x(t1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
+  };
+  line(s.B, C("--yellow"), false);
+  line(s.P, C("--blue"), true);
+  $("lgP").innerHTML = `<span class="${cls(s.P.at(-1))}">${fSigned(s.P.at(-1),2,"%")}</span>`;
+  $("lgB").innerHTML = `<span class="${cls(s.B.at(-1))}">${fSigned(s.B.at(-1),2,"%")}</span>`;
+  chartGeom = { s, x, y, W, H, padR };
+}
+function chartHover(ev){
+  const tip = $("tip");
+  if(!chartGeom){ tip.hidden = true; return; }
+  const r = $("chart").getBoundingClientRect();
+  const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+  const { s, x } = chartGeom;
+  let best = 0, bd = Infinity;
+  s.grid.forEach((gp,i) => { const d = Math.abs(x(gp[0]) - px); if(d < bd){ bd = d; best = i; } });
+  const d = new Date(s.grid[best][0]);
+  tip.innerHTML = `${d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}<br><span style="color:var(--blue)">GGD</span> ${fSigned(s.P[best],2,"%")}<br><span style="color:var(--yellow)">SPX</span> ${fSigned(s.B[best],2,"%")}`;
+  tip.hidden = false;
+  const tx = Math.min(Math.max(4, x(s.grid[best][0]) + 10), r.width - tip.offsetWidth - 4);
+  tip.style.left = tx + "px"; tip.style.top = "10px";
+}
+
+/* ============================== storage & GitHub sync ============================== */
+function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/\s/g,"")))); }
+function ghUrl(){ const c = SYNC; return `https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${c.path.split("/").map(encodeURIComponent).join("/")}`; }
+function ghHeaders(){ return { Authorization: `Bearer ${SYNC.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }; }
+async function ghGet(){
+  const r = await fetch(`${ghUrl()}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: ghHeaders(), cache: "no-store" });
+  if(r.status === 404) return { data:null, sha:null };
+  if(!r.ok) throw new Error(r.status === 401 ? "GitHub token rejected (401)" : r.status === 403 ? "GitHub access denied (403): check token permissions" : "GitHub HTTP " + r.status);
+  const j = await r.json();
+  return { data: JSON.parse(b64d(j.content)), sha: j.sha };
+}
+async function ghPut(data, sha, msg){
+  const body = { message: msg || "Update portfolio", content: b64e(JSON.stringify(data, null, 1)), branch: SYNC.branch };
+  if(sha) body.sha = sha;
+  const r = await fetch(ghUrl(), { method:"PUT", headers: { ...ghHeaders(), "Content-Type":"application/json" }, body: JSON.stringify(body) });
+  if(r.status === 409 || r.status === 422) { const e = new Error("conflict"); e.conflict = true; throw e; }
+  if(!r.ok) throw new Error("GitHub save failed (HTTP " + r.status + ")");
+  const j = await r.json(); return j.content.sha;
+}
+function sanitize(d){
+  const o = { v:1, base:"EUR", refresh:60, positions:[], snaps:{}, ...(d || {}) };
+  if(!Array.isArray(o.positions)) o.positions = [];
+  if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
+  return o;
+}
+async function commit(mutator, msg){
+  // apply a change on top of the latest copy, so edits from Mac and phone never overwrite each other
+  if(SYNC){
+    for(let attempt = 0; attempt < 3; attempt++){
+      try{
+        const { data, sha } = await ghGet();
+        const next = sanitize(data || DB);
+        mutator(next);
+        SHA = await ghPut(next, sha, msg);
+        DB = next; ls.set(LS_DATA, DB); return true;
+      }catch(e){ if(!e.conflict){ setStatus("err", e.message); mutator(DB); ls.set(LS_DATA, DB); return false; } }
+    }
+    setStatus("err","Sync conflict, try again"); return false;
+  }
+  mutator(DB); ls.set(LS_DATA, DB); return true;
+}
+async function pull(){
+  if(!SYNC) return;
+  const { data, sha } = await ghGet();
+  if(!data){ SHA = null; await commit(() => {}, "Create portfolio file"); return; }
+  if(sha !== SHA){ DB = sanitize(data); SHA = sha; ls.set(LS_DATA, DB); }
+}
+
+/* ============================== refresh loop ============================== */
+function setStatus(kind, txt){ $("dot").className = "dot " + (kind || ""); $("statusTxt").textContent = txt; }
+async function refresh(){
+  if(busy) return; busy = true; setStatus("busy", "Updating…");
+  try{
+    if(SYNC){ try{ await pull(); }catch(e){ setStatus("err", e.message); } }
+    const base = majorCcy(DB.base);
+    const syms = new Set([SPX]);
+    const ccys = new Set();
+    DB.positions.forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
+    ccys.delete(base);
+    const fxSyms = []; ccys.forEach(c => fxSyms.push(`FX_IDC:${c}${base}`, `FX_IDC:${base}${c}`));
+    const res = await scan([...syms, ...fxSyms]);
+    Q = {}; [...syms].forEach(s => { if(res[s]) Q[s] = res[s]; });
+    FX = { [base]: 1 };
+    ccys.forEach(c => { const d = res[`FX_IDC:${c}${base}`]?.close, inv = res[`FX_IDC:${base}${c}`]?.close; FX[c] = isNum(d) ? d : isNum(inv) && inv ? 1/inv : NaN; });
+    // keep instrument currency stored on each position up to date
+    DB.positions.forEach(p => { if(Q[p.sym]?.currency) p.iccy = Q[p.sym].currency; });
+    lastOk = new Date();
+    const missing = [...new Set(DB.positions.flatMap(p => [p.sym, p.bench]).filter(s => s && !Q[s]))];
+    const fxMissing = [...ccys].filter(c => !isNum(FX[c]));
+    let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only");
+    if(missing.length) t += ` · no data: ${missing.join(", ")}`;
+    if(fxMissing.length) t += ` · no FX: ${fxMissing.join(", ")}`;
+    setStatus(missing.length || fxMissing.length ? "err" : "live", t);
+    render();
+    maybeSnapshot();
+  }catch(e){
+    setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
+    render();
+  }finally{ busy = false; }
+}
+function snapshotNow(){
+  const q = {}; Object.entries(Q).forEach(([s,v]) => { if(isNum(v.close)) q[s] = v.close; });
+  return { t: Date.now(), q };
+}
+async function maybeSnapshot(){
+  if(!DB.positions.length || !Object.keys(Q).length) return;
+  const k = today(), cur = DB.snaps[k];
+  const stale = !cur || Date.now() - (cur.t || 0) > 2*3600e3;
+  if(!stale || Date.now() - lastSnapWrite < 10*60e3) return;
+  lastSnapWrite = Date.now();
+  const snap = snapshotNow();
+  await commit(d => { d.snaps[k] = snap; }, "Daily snapshot " + k);
+}
+function schedule(){ clearInterval(timer); timer = setInterval(() => { if(!document.hidden) refresh(); }, Math.max(15, DB.refresh || 60) * 1000); }
+
+/* ============================== position dialog ============================== */
+let editing = null, chosen = null, benchAuto = false;
+function showPicked(h){
+  const el = $("tickPicked");
+  if(!h){ el.hidden = true; el.textContent = ""; return; }
+  el.hidden = false;
+  el.textContent = `Selected: ${h.sym} · ${h.description || ""}${h.isin ? " · " + h.isin : ""}${h.currency ? " · " + normCcy(h.currency) : ""}`;
+}
+function openPos(p){
+  editing = p || null; chosen = p ? { sym:p.sym, currency:p.iccy, description:p.name, isin:p.isin } : null;
+  $("posDlgTitle").textContent = p ? "Edit position" : "Open position";
+  $("delBtn").hidden = !p;
+  $("fTicker").value = p ? p.sym : ""; $("fShares").value = p ? p.shares : ""; $("fPrice").value = p ? p.price : "";
+  $("fCcy").value = p ? p.ccy : ""; $("fDate").value = p ? p.date : today();
+  $("fBench").value = p ? p.bench : SPX; $("fBenchOpen").value = p && isNum(p.benchOpen) ? p.benchOpen : "";
+  benchAuto = p ? !!p.benchEst : false;
+  $("benchHint").textContent = p ? (p.benchEst ? "Estimated from TradingView history" : "Saved at open") : "Filled automatically";
+  $("posMsg").textContent = ""; showPicked(chosen);
+  tickAC.close(); benchAC.close();
+  $("posDlg").showModal();
+  if(!p) $("fTicker").focus();
+}
+function pickTicker(h){
+  chosen = h;
+  $("fTicker").value = h.sym; showPicked(h);
+  if(!editing || !$("fCcy").value) $("fCcy").value = normCcy(h.currency);
+  if(!$("fPrice").value && isNum(h.close)) $("fPrice").value = h.close;
+  $("posMsg").textContent = "";
+  fillBenchOpen();
+}
+function pickBench(h){ $("fBench").value = h.sym; fillBenchOpen(true); }
+
+/* type-ahead: suggestions appear while typing (ticker, company name, ISIN) */
+function autocomplete(input, list, onPick, onType){
+  let items = [], active = -1, ctrl = null, timer = null, seq = 0;
+  const close = () => { list.hidden = true; list.innerHTML = ""; items = []; active = -1; input.setAttribute("aria-expanded","false"); };
+  const paint = () => {
+    if(!items.length){ list.innerHTML = `<div class="note">No match on TradingView. Try the company name, the ISIN, or EXCHANGE:TICKER.</div>`; list.hidden = false; return; }
+    list.innerHTML = items.map((h,i) => `<div class="it" role="option" id="${list.id}-${i}" data-i="${i}" aria-selected="${i===active}">
+      <div class="s1">${esc(h.name || h.sym.split(":")[1])}<em>${esc(h.exchange || h.sym.split(":")[0])}</em>${h.is_primary ? '<span class="tag">PRIMARY</span>' : ''}${h.type === "index" ? '<span class="tag">INDEX</span>' : h.type === "fund" ? '<span class="tag">ETF/FUND</span>' : ''}</div>
+      <div class="s2">${esc(h.description || "")}${h.isin ? " · " + esc(h.isin) : ""}</div>
+      <div class="px">${isNum(h.close) ? fPx(h.close) : ""}<small>${esc(normCcy(h.currency))}</small></div></div>`).join("");
+    list.hidden = false; input.setAttribute("aria-expanded","true");
+    const a = list.querySelector('[aria-selected="true"]'); if(a) a.scrollIntoView({ block:"nearest" });
+  };
+  const run = async () => {
+    const v = input.value; const my = ++seq;
+    if(v.trim().length < 1){ close(); return; }
+    if(ctrl) ctrl.abort(); ctrl = new AbortController();
+    list.hidden = false; list.innerHTML = `<div class="note">Searching TradingView…</div>`;
+    try{ const r = await searchSymbols(v, ctrl.signal); if(my !== seq) return; items = r; active = r.length ? 0 : -1; paint(); }
+    catch(e){ if(e.name !== "AbortError" && my === seq){ list.innerHTML = `<div class="note">Search failed: ${esc(e.message)}</div>`; } }
+  };
+  const pick = i => { const h = items[i]; if(!h) return; close(); onPick(h); };
+  input.addEventListener("input", () => { if(onType) onType(); clearTimeout(timer); timer = setTimeout(run, 220); });
+  input.addEventListener("keydown", e => {
+    if(e.key === "ArrowDown" && items.length){ e.preventDefault(); active = (active + 1) % items.length; paint(); }
+    else if(e.key === "ArrowUp" && items.length){ e.preventDefault(); active = (active - 1 + items.length) % items.length; paint(); }
+    else if(e.key === "Enter"){ e.preventDefault(); if(!list.hidden && active >= 0) pick(active); else run(); }
+    else if(e.key === "Escape" && !list.hidden){ e.preventDefault(); e.stopPropagation(); close(); }
+  });
+  list.addEventListener("mousedown", e => e.preventDefault());
+  list.addEventListener("click", e => { const it = e.target.closest(".it"); if(it) pick(+it.dataset.i); });
+  input.addEventListener("blur", () => setTimeout(close, 150));
+  return { close, run };
+}
+let tickAC = { close(){}, run(){} }, benchAC = { close(){}, run(){} };
+async function fillBenchOpen(force){
+  const b = $("fBench").value.trim().toUpperCase(), d = $("fDate").value;
+  if(!b || !d) return;
+  if($("fBenchOpen").value && !force) return;
+  try{
+    let bq = Q[b];
+    if(!bq){ const r = await scan([b]); bq = r[b]; if(bq) Q[b] = bq; }
+    if(!bq){ $("benchHint").textContent = "Benchmark not found on TradingView"; return; }
+    if(d >= today()){ $("fBenchOpen").value = +bq.close.toFixed(4); benchAuto = false; $("benchHint").textContent = "Current level"; }
+    else { const v = interp(pricePoints(b), kts(d)); $("fBenchOpen").value = isNum(v) ? +v.toFixed(4) : ""; benchAuto = true; $("benchHint").textContent = "Estimated from TradingView history, edit if you know it"; }
+  }catch(e){ $("benchHint").textContent = "Benchmark lookup failed"; }
+}
+async function savePos(ev){
+  ev.preventDefault();
+  const sym = $("fTicker").value.trim().toUpperCase();
+  const shares = parseFloat($("fShares").value), price = parseFloat($("fPrice").value);
+  const ccy = $("fCcy").value.trim().toUpperCase(), date = $("fDate").value || today();
+  let bench = $("fBench").value.trim().toUpperCase() || SPX;
+  if(!bench.includes(":")){ try{ const h = await searchSymbols(bench); if(h.length){ bench = h[0].sym; $("fBench").value = bench; } }catch(e){} }
+  let benchOpen = parseFloat($("fBenchOpen").value);
+  const m = $("posMsg"); m.className = "full msg neg";
+  if(!chosen || chosen.sym !== sym){
+    if(sym.includes(":")){ try{ const r = await searchSymbols(sym); if(r.length) chosen = r[0]; }catch(e){} }
+    if(!chosen || chosen.sym !== sym){ m.textContent = "Pick the stock from the suggestion list (type the ticker, name or ISIN, then tap the right line)."; tickAC.run(); return; }
+  }
+  const s = sym;
+  if(!(shares > 0)){ m.textContent = "Enter the number of shares."; return; }
+  if(!(price > 0)){ m.textContent = "Enter the price per share."; return; }
+  if(!/^[A-Z]{3}$/.test(ccy)){ m.textContent = "Currency must be a 3-letter code, e.g. USD, EUR, GBP (GBX for pence)."; return; }
+  if(!isNum(benchOpen)){ await fillBenchOpen(true); benchOpen = parseFloat($("fBenchOpen").value); }
+  const benchEst = date < today() && benchAuto;
+  const rec = { id: editing ? editing.id : (Date.now().toString(36) + Math.random().toString(36).slice(2,6)),
+    sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
+    shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now() };
+  $("posSave").disabled = true;
+  await commit(d => { const i = d.positions.findIndex(x => x.id === rec.id); if(i >= 0) d.positions[i] = rec; else d.positions.push(rec); }, (editing ? "Edit " : "Open ") + s);
+  $("posSave").disabled = false;
+  $("posDlg").close();
+  lastSnapWrite = 0; refresh();
+}
+function confirmBox(title, text){
+  return new Promise(res => {
+    $("cfmTitle").textContent = title; $("cfmText").textContent = text;
+    const d = $("cfmDlg"); d.showModal();
+    $("cfmYes").onclick = () => { d.close(); res(true); };
+    $("cfmNo").onclick = () => { d.close(); res(false); };
+  });
+}
+
+/* ============================== settings ============================== */
+function openSettings(){
+  $("sBase").value = DB.base; $("sRefresh").value = DB.refresh || 60;
+  const c = SYNC || {};
+  $("sOwner").value = c.owner || ""; $("sRepo").value = c.repo || "ggd-portfolio-data"; $("sPath").value = c.path || "portfolio.json";
+  $("sBranch").value = c.branch || "main"; $("sToken").value = c.token || ""; $("sCode").value = ""; $("setMsg").textContent = "";
+  $("setDlg").showModal();
+}
+async function saveSettings(ev){
+  ev.preventDefault();
+  const m = $("setMsg"); m.className = "full msg muted";
+  const base = $("sBase").value.trim().toUpperCase() || "EUR", rf = Math.max(15, parseInt($("sRefresh").value) || 60);
+  const cfg = { owner:$("sOwner").value.trim(), repo:$("sRepo").value.trim(), path:$("sPath").value.trim() || "portfolio.json", branch:$("sBranch").value.trim() || "main", token:$("sToken").value.trim() };
+  if(cfg.owner && cfg.repo && cfg.token){
+    m.textContent = "Connecting to GitHub…";
+    const prev = SYNC; SYNC = cfg;
+    try{
+      const { data, sha } = await ghGet();
+      if(data){ DB = sanitize(data); SHA = sha; m.textContent = "Connected. Loaded portfolio from GitHub."; }
+      else { SHA = await ghPut(DB, null, "Create portfolio file"); m.textContent = "Connected. Uploaded this device's portfolio."; }
+      ls.set(LS_CFG, SYNC);
+    }catch(e){ SYNC = prev; m.className = "full msg neg"; m.textContent = e.message + ". Check owner, repo, branch and token."; return; }
+  }
+  if(base !== DB.base || rf !== DB.refresh) await commit(d => { d.base = base; d.refresh = rf; }, "Settings");
+  ls.set(LS_DATA, DB); schedule();
+  $("setDlg").close(); refresh();
+}
+function syncCode(cfg){ return "GGD1." + b64e(JSON.stringify(cfg)); }
+function exportJson(){
+  const blob = new Blob([JSON.stringify(DB, null, 1)], { type:"application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ggd-portfolio-${today()}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ============================== wiring ============================== */
+function init(){
+  const saved = ls.get(LS_DATA); if(saved) DB = sanitize(saved);
+  SYNC = ls.get(LS_CFG);
+  const ui = ls.get(LS_UI); if(ui) UI = { ...UI, ...ui };
+  document.querySelectorAll("#rangeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.r === UI.range)); b.onclick = () => { UI.range = b.dataset.r; ls.set(LS_UI, UI); document.querySelectorAll("#rangeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawChart(); }; });
+  document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
+  $("addBtn").onclick = () => openPos(null);
+  $("refreshBtn").onclick = () => refresh();
+  $("setBtn").onclick = openSettings;
+  document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
+  tickAC = autocomplete($("fTicker"), $("tickSug"), pickTicker, () => { chosen = null; showPicked(null); });
+  benchAC = autocomplete($("fBench"), $("benchSug"), pickBench);
+  $("fDate").addEventListener("change", () => fillBenchOpen(true));
+  $("fBenchOpen").addEventListener("input", () => { benchAuto = false; $("benchHint").textContent = "Entered by you"; });
+  $("posForm").addEventListener("submit", savePos);
+  $("delBtn").onclick = async () => {
+    if(!editing) return;
+    const ok = await confirmBox("Close position", `Remove ${editing.sym} (${editing.shares} shares) from the portfolio? Past chart history keeps its effect.`);
+    if(!ok) return;
+    const id = editing.id;
+    await commit(d => { d.positions = d.positions.filter(x => x.id !== id); }, "Close " + editing.sym);
+    $("posDlg").close(); refresh();
+  };
+  $("tbody").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if(b){ const p = DB.positions.find(x => x.id === b.dataset.edit); if(p) openPos(p); } });
+  $("setForm").addEventListener("submit", saveSettings);
+  $("copyCode").onclick = async () => {
+    const cfg = { owner:$("sOwner").value.trim(), repo:$("sRepo").value.trim(), path:$("sPath").value.trim()||"portfolio.json", branch:$("sBranch").value.trim()||"main", token:$("sToken").value.trim() };
+    if(!cfg.owner || !cfg.repo || !cfg.token){ $("setMsg").textContent = "Fill owner, repo and token first."; return; }
+    const code = syncCode(cfg); $("sCode").value = code;
+    try{ await navigator.clipboard.writeText(code); $("setMsg").textContent = "Sync code copied. It contains your token: send it only to yourself."; }
+    catch(e){ $("sCode").select(); $("setMsg").textContent = "Select and copy the code above. It contains your token."; }
+  };
+  $("applyCode").onclick = () => {
+    try{
+      const raw = $("sCode").value.trim(); if(!raw.startsWith("GGD1.")) throw 0;
+      const c = JSON.parse(b64d(raw.slice(5)));
+      $("sOwner").value = c.owner; $("sRepo").value = c.repo; $("sPath").value = c.path; $("sBranch").value = c.branch; $("sToken").value = c.token;
+      $("setMsg").textContent = "Code applied. Press Save & connect.";
+    }catch(e){ $("setMsg").textContent = "That code is not valid."; }
+  };
+  $("unlinkBtn").onclick = async () => {
+    if(!SYNC) { $("setMsg").textContent = "Sync is already off."; return; }
+    if(!(await confirmBox("Turn off sync", "This device keeps a local copy and stops syncing. The GitHub file is not deleted."))) return;
+    SYNC = null; SHA = null; ls.del(LS_CFG); $("setDlg").close(); refresh();
+  };
+  $("exportBtn").onclick = exportJson;
+  $("importBtn").onclick = () => $("importFile").click();
+  $("importFile").onchange = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    try{ const d = sanitize(JSON.parse(await f.text())); await commit(x => { Object.assign(x, d); }, "Import"); $("setMsg").textContent = `Imported ${d.positions.length} positions.`; refresh(); }
+    catch(err){ $("setMsg").textContent = "Import failed: not a GGD portfolio file."; }
+    e.target.value = "";
+  };
+  const cb = $("chartBox");
+  cb.addEventListener("mousemove", chartHover); cb.addEventListener("touchmove", chartHover, { passive:true }); cb.addEventListener("touchstart", chartHover, { passive:true });
+  cb.addEventListener("mouseleave", () => $("tip").hidden = true);
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
+  render(); refresh(); schedule();
+}
+init();
+</script>
+</body>
+</html>
