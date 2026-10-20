@@ -25,6 +25,8 @@
   --head-fg:#f1f1f1;
   --fg:#e9eaec;
   --yellow:#f5c400;
+  --orange:#fb8b1e;
+  --orange-hi:#ffa647;
   --olive:#2a2810;
   --blue:#2f8bff;
   --blue-soft:#3aa0ff;
@@ -60,7 +62,9 @@ button,input,select{font:inherit;color:inherit}
 .btn{background:#14171c;border:1px solid #333842;padding:6px 12px;cursor:pointer;border-radius:2px;color:var(--fg)}
 .btn:hover{border-color:var(--gray)}
 .btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-.btn.primary{background:var(--yellow);border-color:var(--yellow);color:#000;font-weight:600}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#000;font-weight:600}
+.btn.primary:hover{background:var(--orange-hi);border-color:var(--orange-hi)}
+.btn:disabled{opacity:.5;cursor:default}
 .btn.danger{border-color:var(--red-dim);color:var(--red)}
 .btn.sm{padding:3px 8px;font-size:12px}
 
@@ -83,7 +87,7 @@ button,input,select{font:inherit;color:inherit}
 .seg{display:flex;border:1px solid #333842}
 .seg button{background:transparent;border:0;padding:3px 8px;font-size:12px;cursor:pointer;color:var(--gray-hi);border-right:1px solid #333842}
 .seg button:last-child{border-right:0}
-.seg button[aria-pressed="true"]{background:var(--yellow);color:#000;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--orange);color:#000;font-weight:600}
 .chartbox{position:relative;height:300px;padding:6px 4px 4px}
 @media (max-width:600px){.chartbox{height:240px}}
 canvas{display:block;width:100%;height:100%}
@@ -132,7 +136,30 @@ tr.total td.stick{background:var(--olive)}
 .rowbtns{display:flex;gap:4px;justify-content:flex-end}
 .icon{background:none;border:1px solid transparent;color:var(--gray);cursor:pointer;padding:1px 6px;font-size:12px}
 .icon:hover{color:var(--fg);border-color:#333842}
+.act{background:transparent;border:1px solid var(--orange);color:var(--orange);cursor:pointer;padding:1px 9px;font:600 12px var(--ui)}
+.act:hover{background:var(--orange);color:#000}
+.act:focus-visible,.icon:focus-visible,.tabs button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--orange);overflow-x:auto}
+.tabs button{background:#14171c;border:1px solid #333842;border-bottom:0;padding:7px 16px;cursor:pointer;color:var(--gray-hi);font:600 13px var(--ui);white-space:nowrap}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
+.tabs button span{font-weight:400;opacity:.8}
+.view{display:flex;flex-direction:column;gap:12px}
+.wadd{position:relative;flex:1 1 260px;max-width:440px;min-width:0}
+.wadd input{background:#000;border:1px solid #333842;padding:6px 8px;font:16px var(--num);color:var(--fg);width:100%;border-radius:0}
+.wadd .sug{position:absolute;left:0;right:0;top:100%;z-index:6}
+table.wtbl{min-width:1300px}
+table.ttbl{min-width:1050px}
+.xinfo{font-size:13px;color:var(--gray-hi)}
+.xinfo b{color:var(--fg);font-family:var(--num);font-weight:500}
+.qtyrow{display:flex;gap:6px}
+.qtyrow input{flex:1;min-width:0}
+.xest{font-size:13px;padding:8px 10px;border:1px solid var(--line);background:#05070a}
 .est{color:var(--gray);font-size:10px;margin-left:3px}
+td.ipo{text-align:center;font-family:var(--ui)}
+td.ipo span{display:inline-block;border:1px dashed #4a4f58;color:var(--gray-hi);padding:1px 10px;font-size:11.5px;letter-spacing:.04em;white-space:nowrap}
+td.ipo b{color:var(--yellow);font-weight:600;font-family:var(--num)}
 
 /* dialogs */
 dialog{background:#0b0e12;color:var(--fg);border:1px solid #3a3f48;padding:0;max-width:min(560px,calc(100vw - 24px));width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}
@@ -158,12 +185,13 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .sug .s2{grid-column:1;color:var(--gray-hi);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sug .px{grid-row:1/3;grid-column:2;align-self:center;text-align:right;font-family:var(--num);font-size:12px;color:var(--fg)}
 .sug .px small{display:block;color:var(--gray);font-size:10px}
+.tag.held{border-color:var(--green-dim);color:var(--green)}
 .tag{display:inline-block;font:600 9px var(--ui);letter-spacing:.06em;padding:1px 4px;margin-left:6px;border:1px solid var(--blue);color:var(--blue-soft);vertical-align:1px}
 .sug .note{padding:8px 9px;color:var(--gray);font-size:12px}
 .picked{font-size:12px;color:var(--green);text-transform:none;letter-spacing:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:#14171c;border:1px solid #333842;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--fg)}
-.chip[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+.chip[aria-pressed="true"]{border-color:var(--orange);color:var(--orange)}
 .msg{font-size:12px;min-height:16px}
 .foot{font-size:11px;color:var(--gray);line-height:1.5}
 .foot b{color:var(--gray-hi);font-weight:500}
@@ -192,6 +220,13 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <div class="kpi"><div class="lab">Total P&amp;L</div><div class="val" id="kPnl">–</div><div class="sub" id="kPnlPct">–</div></div>
   </section>
 
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button type="button" role="tab" id="tab-pf" data-tab="pf" aria-selected="true">Portfolio</button>
+    <button type="button" role="tab" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
+    <button type="button" role="tab" id="tab-tr" data-tab="tr" aria-selected="false">Trades <span id="trCount"></span></button>
+  </nav>
+
+  <div class="view" id="view-pf" role="tabpanel" aria-labelledby="tab-pf">
   <div class="row2">
     <section class="panel" aria-label="Performance chart">
       <div class="ph">
@@ -236,9 +271,46 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     </div>
     <div class="empty" id="emptyPos" hidden>No positions yet. Use <b>+ Position</b> to add one: ticker, shares, price per share, currency and benchmark.</div>
   </section>
+  </div>
+
+  <div class="view" id="view-wl" role="tabpanel" aria-labelledby="tab-wl" hidden>
+  <section class="panel" aria-label="Watchlist">
+    <div class="ph"><h2>Watchlist</h2>
+      <div class="wadd"><input id="wInput" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Add: ticker, name or ISIN" aria-label="Add to watchlist" role="combobox" aria-expanded="false" aria-controls="wSug"><div class="sug" id="wSug" role="listbox" hidden></div></div>
+    </div>
+    <div class="tblwrap">
+      <table class="wtbl">
+        <thead><tr>
+          <th class="l stick">Ticker</th><th class="l">Name</th><th class="l">Market</th>
+          <th>Last</th><th>Day %</th><th>Close Px</th><th>52 Wk Range</th>
+          <th>1W</th><th>1M</th><th>YTD</th><th>1Y</th><th>10Y</th><th>IPO Px</th><th>Since IPO</th><th class="l">Sector</th><th></th>
+        </tr></thead>
+        <tbody id="wBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="wEmpty">Your watchlist is empty. Type a ticker, company name or ISIN in the box above and tap a suggestion to add it.</div>
+    <div class="msg" id="wMsg" style="padding:0 10px 8px"></div>
+  </section>
+  </div>
+
+  <div class="view" id="view-tr" role="tabpanel" aria-labelledby="tab-tr" hidden>
+  <section class="panel" aria-label="Trades">
+    <div class="ph"><h2>Realized trades</h2><div class="sub">Every sale and its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
+    <div class="tblwrap">
+      <table class="ttbl">
+        <thead><tr>
+          <th class="l stick">Date</th><th class="l">Ticker</th><th class="l">Name</th><th>Shares sold</th><th>Avg cost</th><th>Sell Px</th>
+          <th>Realized P&amp;L</th><th>Realized %</th><th>P&amp;L (<span id="baseLbl4">EUR</span>)</th><th></th>
+        </tr></thead>
+        <tbody id="trBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="trEmpty">No sales yet. Use <b>Sell</b> on a position: the gain or loss lands here and in Total P&amp;L.</div>
+  </section>
+  </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = your entry price. <b>Close Px</b> = previous session close. <b>Bench %</b> = benchmark move since your open date. <b>1W/1M/1Y</b> header figures are holdings-weighted returns of the current portfolio. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = your entry price. <b>Close Px</b> = previous session close. <b>Bench %</b> = benchmark move since your open date. <b>Header 1W/1M/1Y</b> = your portfolio's own time-weighted return over that window, counted only from your first open date (so a new portfolio shows its return since opening). The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves. <b>Total P&amp;L</b> = unrealized gains on what you hold + realized gains from sales. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -264,10 +336,28 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <div class="full msg" id="posMsg"></div>
     </div>
     <div class="dlg-f">
-      <button class="btn danger" type="button" id="delBtn" hidden>Close position</button>
+      <button class="btn danger" type="button" id="delBtn" hidden>Delete position</button>
       <span></span>
       <div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit" id="posSave">Save</button></div>
     </div>
+  </form>
+</dialog>
+
+<!-- Sell -->
+<dialog id="sellDlg">
+  <form method="dialog" id="sellForm" novalidate>
+    <div class="dlg-h"><h3 id="sellTitle">Sell</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <div class="full xinfo" id="xInfo"></div>
+      <div class="f full"><label for="xQty">Shares to sell</label>
+        <div class="qtyrow"><input id="xQty" type="number" inputmode="decimal" step="any" min="0"><button class="btn primary" type="button" id="xAll">Sell all</button></div>
+      </div>
+      <label class="f">Price per share (<span id="xCcy"></span>)<input id="xPx" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Sell date<input id="xDate" type="date"></label>
+      <div class="full xest" id="xEst"></div>
+      <div class="full msg neg" id="xMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit" id="xGo">Sell</button></div></div>
   </form>
 </dialog>
 
@@ -307,7 +397,7 @@ const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
   "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
-  "price_52_week_high","price_52_week_low","sector","type"];
+  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date"];
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
 const INDICES = [
   ["SP:SPX","S&P 500","sp500 s&p500 spx standard poors usa"],["NASDAQ:NDX","Nasdaq 100","ndx nasdaq100"],["NASDAQ:IXIC","Nasdaq Composite","ixic composite"],
@@ -319,12 +409,13 @@ const INDICES = [
 const LS_DATA = "ggd.data.v1", LS_CFG = "ggd.sync.v1", LS_UI = "ggd.ui.v1";
 
 /* ============================== state ============================== */
-let DB = { v:1, base:"EUR", refresh:60, positions:[], snaps:{} };   // synced document
+let DB = { v:1, base:"EUR", refresh:60, positions:[], closed:[], watch:[], snaps:{} };   // synced document
 let Q = {};      // quotes by TradingView symbol
 let FX = {};     // currency -> units of base per 1 unit
 let SYNC = null; // {owner, repo, path, branch, token}
 let SHA = null;  // sha of remote file
-let UI = { range:"ALL", sac:"O" };
+let UI = { range:"ALL", sac:"O", tab:"pf" };
+let NOW = Date.now();
 let timer = null, lastSnapWrite = 0, busy = false, lastOk = null;
 
 const $ = id => document.getElementById(id);
@@ -368,7 +459,7 @@ function minorFactor(c){ c = normCcy(c); return (c === "GBX" || c === "ZAC" || c
 function toBase(amount, ccy){ const r = FX[majorCcy(ccy)]; return isNum(r) ? amount * r * minorFactor(ccy) : NaN; }
 function conv(amount, from, to){ const a = toBase(amount, from), r = FX[majorCcy(to)]; return isNum(a) && isNum(r) ? a / (r * minorFactor(to)) : NaN; }
 
-const SUG_COLS = ["name","description","exchange","currency","close","type","is_primary","Value.Traded","isin"];
+const SUG_COLS = ["name","description","exchange","currency","close","type","is_primary","Value.Traded","isin","market_cap_basic"];
 async function searchSymbols(raw, signal){
   const q = raw.trim(), U = q.toUpperCase();
   if(q.length < 1) return [];
@@ -380,15 +471,20 @@ async function searchSymbols(raw, signal){
   const post = filter => fetch(SCAN_URL, { method:"POST", signal, body: JSON.stringify({ filter, columns:SUG_COLS, range:[0,20], sort:{ sortBy:"Value.Traded", sortOrder:"desc" } }) })
     .then(r => r.ok ? r.json() : { data:[] }).catch(e => { if(e.name === "AbortError") throw e; return { data:[] }; });
   const isIsin = ISIN_RE.test(U);
-  const reqs = isIsin ? [post([{ left:"isin", operation:"equal", right:U }])]
-    : [post([{ left:"name", operation:"match", right:U }]), q.length >= 3 ? post([{ left:"description", operation:"match", right:q }]) : Promise.resolve({ data:[] })];
+  const TYPES = { left:"type", operation:"in_range", right:["stock","fund","dr","index"] };   // no crypto/DEX tokens
+  const reqs = isIsin ? [post([{ left:"isin", operation:"equal", right:U }, TYPES])]
+    : [post([{ left:"name", operation:"match", right:U }, TYPES]), q.length >= 3 ? post([{ left:"description", operation:"match", right:q }, TYPES]) : Promise.resolve({ data:[] })];
   const res = await Promise.all(reqs);
   const seen = new Map();
   res.forEach(j => (j.data || []).forEach(row => { if(seen.has(row.s)) return; const o = {}; SUG_COLS.forEach((c,i) => o[c] = row.d[i]); seen.set(row.s, toObj(row.s, o)); }));
   const score = h => {
-    let sc = Math.log10((h["Value.Traded"] || 0) + 1) * 10;
+    let sc = Math.log10((h["Value.Traded"] || 0) + 1) * 4 + Math.log10((h.market_cap_basic || 0) + 1) * 20;
     if(h.is_primary) sc += 300;
-    if(!isIsin){ const n = (h.name || "").toUpperCase(); if(n === U) sc += 1000; else if(n.startsWith(U)) sc += 400; }
+    if(!isIsin){
+      const n = (h.name || "").toUpperCase(), ds = (h.description || "").toUpperCase();
+      if(n === U) sc += 1000; else if(n.startsWith(U)) sc += 400;
+      if(ds.startsWith(U)) sc += 350; else if(ds.includes(" " + U)) sc += 120;
+    }
     if(h.exchange === "OTC") sc -= 150;
     return sc;
   };
@@ -403,23 +499,42 @@ async function searchSymbols(raw, signal){
 function prevClose(q){ return isNum(q?.close) && isNum(q?.change) ? q.close / (1 + q.change/100) : NaN; }
 function anchorPx(q, perf){ const p = q?.[perf]; return isNum(p) && isNum(q.close) ? q.close / (1 + p/100) : NaN; }
 function ipoPx(q){ return anchorPx(q, "Perf.All"); }
+function ipoTs(q){ return isNum(q?.ipo_offer_date) && q.ipo_offer_date > 0 ? q.ipo_offer_date * 1000 : NaN; }
+const PERIODS = [["Perf.W", t => shift(t,{d:-7})], ["Perf.1M", t => shift(t,{m:-1})], ["Perf.YTD", t => ytdStart(t)], ["Perf.Y", t => shift(t,{y:-1})], ["Perf.10Y", t => shift(t,{y:-10})]];
+// 1W | 1M | YTD | 1Y | 10Y cells; periods that start before the IPO merge into one cell showing the IPO date
+function perfCells(q){
+  const t = today(), ipo = ipoTs(q);
+  const ok = PERIODS.map(([k, start]) => isNum(q[k]) && !(isNum(ipo) && kts(start(t)) < ipo));
+  let html = "", i = 0;
+  while(i < PERIODS.length){
+    if(ok[i]){ html += `<td>${pct(q[PERIODS[i][0]])}</td>`; i++; continue; }
+    let j = i; while(j < PERIODS.length && !ok[j]) j++;
+    const label = isNum(ipo) ? `IPO <b>${new Date(ipo).toLocaleDateString("en-GB",{ day:"2-digit", month:"short", year:"numeric" })}</b>` : (q.close != null ? "n/a" : "–");
+    html += `<td class="ipo" colspan="${j - i}" title="The stock was not listed yet at the start of ${j - i > 1 ? "these periods" : "this period"}"><span>${label}</span></td>`;
+    i = j;
+  }
+  return html;
+}
 function pricePoints(sym){
   // known daily prices for a symbol: snapshots + TradingView performance anchors + live
   const q = Q[sym], t = today(), pts = new Map();
   const snapKeys = Object.keys(DB.snaps).sort();
-  for(const k of snapKeys){ const v = DB.snaps[k]?.q?.[sym]; if(isNum(v)) pts.set(k, v); }
+  for(const k of snapKeys){ if(k === t) continue; const v = DB.snaps[k]?.q?.[sym]; if(isNum(v)) pts.set(k, v); }
   if(q){
-    const add = (k, v) => { if(isNum(v) && !pts.has(k)) pts.set(k, v); };
+    const ipo = ipoTs(q);
+    const add = (k, v) => { if(isNum(v) && !pts.has(k) && !(isNum(ipo) && kts(k) < ipo)) pts.set(k, v); };
+    if(isNum(ipo)){ const ik = dkey(new Date(ipo)); if(!pts.has(ik) && isNum(ipoPx(q))) pts.set(ik, ipoPx(q)); }
     add(shift(t,{y:-1}), anchorPx(q,"Perf.Y"));
     add(shift(t,{m:-6}), anchorPx(q,"Perf.6M"));
     add(shift(t,{m:-3}), anchorPx(q,"Perf.3M"));
     add(ytdStart(t), anchorPx(q,"Perf.YTD"));
     add(shift(t,{m:-1}), anchorPx(q,"Perf.1M"));
     add(shift(t,{d:-7}), anchorPx(q,"Perf.W"));
-    add(prevBizDay(t), prevClose(q));
-    if(isNum(q.close)) pts.set(t, q.close);
+    add(t, prevClose(q));   // price at today's 00:00 = last close
   }
-  return [...pts.entries()].map(([k,v]) => [kts(k), v, k]).sort((a,b) => a[0]-b[0]);
+  const out = [...pts.entries()].map(([k,v]) => [kts(k), v, k]);
+  if(q && isNum(q.close)) out.push([Math.max(NOW, kts(t) + 1), q.close, "now"]);
+  return out.sort((a,b) => a[0]-b[0]);
 }
 function interp(pts, ts){
   if(!pts.length) return NaN;
@@ -455,29 +570,47 @@ function weighted(rows, key){
   rows.forEach(r => { const v = r.c.q[key]; if(isNum(v) && isNum(r.c.valueBase)){ s += r.c.valueBase * v; w += r.c.valueBase; } });
   return w ? s / w : NaN;
 }
+function rid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function allPos(){ return [...DB.positions, ...(DB.closed || [])]; }
+function saleTs(sl){ return isNum(sl.ts) ? sl.ts : kts(sl.date) + 17*3600e3; }
+function allSales(){ return allPos().flatMap(p => (p.sells || []).map(sl => ({ p, s: sl }))).sort((a,b) => saleTs(b.s) - saleTs(a.s)); }
+function saleBase(sl, p){ return isNum(sl.pnlBase) ? sl.pnlBase : toBase(sl.pnl, sl.ccy || p.ccy); }
+function fDate(ts, withYear){ return new Date(ts).toLocaleDateString("en-GB",{ day:"2-digit", month:"short", ...(withYear ? { year:"numeric" } : {}) }); }
+function perfCell(pf){ return pf ? pct(pf.p) : "–"; }
 function render(){
+  NOW = Date.now();
   const base = DB.base;
-  $("baseLbl").textContent = base; $("baseLbl2").textContent = base;
+  ["baseLbl","baseLbl2","baseLbl3","baseLbl4"].forEach(id => $(id).textContent = base);
   const rows = DB.positions.map(p => ({ p, c: calc(p) }));
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const day = rows.reduce((a,r) => a + (isNum(r.c.dayBase) ? r.c.dayBase : 0), 0);
+  const sales = allSales();
+  const realized = sales.reduce((a,{p,s:sl}) => a + (isNum(saleBase(sl,p)) ? saleBase(sl,p) : 0), 0);
+  const soldCost = sales.reduce((a,{p,s:sl}) => { const v = toBase(sl.cost * sl.qty, sl.ccy || p.ccy); return a + (isNum(v) ? v : 0); }, 0);
   const spx = Q[SPX] || {};
+  const hasHist = allPos().length > 0;
+  // portfolio's own time-weighted returns, never older than the first open date
+  const PF = {}; ["1W","1M","YTD","1Y","ALL"].forEach(r => { const sr = buildSeries(r); PF[r] = sr && sr.grid.length > 1 ? { p: sr.P.at(-1), b: sr.B.at(-1), start: sr.startTs, clipped: sr.clipped } : null; });
   $("kVal").textContent = rows.length ? fMoney(tot, base) : "–";
-  $("kCost").textContent = rows.length ? "cost " + fMoney(cost, base) : "no positions";
+  $("kCost").textContent = rows.length ? "cost " + fMoney(cost, base) : hasHist ? "no open positions" : "no positions";
   const dayPct = tot - day ? day / (tot - day) * 100 : NaN;
   $("kDayPct").innerHTML = rows.length ? pct(dayPct) : "–";
   $("kDayAbs").innerHTML = rows.length ? `<span class="${cls(day)}">${fSigned(day,2," "+base)}</span> <span class="muted">· SPX ${fSigned(spx.change,2,"%")}</span>` : `<span class="muted">SPX ${fSigned(spx.change,2,"%")}</span>`;
-  const per = [["kW","kWb","Perf.W"],["kM","kMb","Perf.1M"],["kY","kYb","Perf.Y"]];
-  per.forEach(([a,b,k]) => {
-    const v = weighted(rows, k), bv = spx[k];
-    $(a).innerHTML = rows.length ? pct(v) : "–";
-    $(b).innerHTML = rows.length ? `<span class="${cls(isNum(v)&&isNum(bv)?v-bv:NaN)}">${fSigned(isNum(v)&&isNum(bv)?v-bv:NaN,2," pp")}</span> <span class="muted">vs SPX ${fSigned(bv,2,"%")}</span>` : `<span class="muted">SPX ${fSigned(bv,2,"%")}</span>`;
+  [["kW","kWb","1W"],["kM","kMb","1M"],["kY","kYb","1Y"]].forEach(([a,b,r]) => {
+    const pf = PF[r];
+    if(!pf){ $(a).innerHTML = "–"; $(b).innerHTML = `<span class="muted">${hasHist ? "waiting for prices" : "no positions yet"}</span>`; return; }
+    const d = isNum(pf.p) && isNum(pf.b) ? pf.p - pf.b : NaN;
+    $(a).innerHTML = pct(pf.p);
+    $(b).innerHTML = `<span class="${cls(d)}">${fSigned(d,2," pp")}</span> <span class="muted">vs SPX ${fSigned(pf.b,2,"%")}${pf.clipped ? " · since " + fDate(pf.start) : ""}</span>`;
   });
-  $("kPnl").innerHTML = rows.length ? `<span class="${cls(tot-cost)}">${fSigned(tot-cost,2," "+base)}</span>` : "–";
-  $("kPnlPct").innerHTML = rows.length && cost ? pct((tot/cost-1)*100) : "–";
-  renderTable(rows, tot);
+  const unreal = tot - cost, totalPnl = unreal + realized, invested = cost + soldCost;
+  $("kPnl").innerHTML = hasHist ? `<span class="${cls(totalPnl)}">${fSigned(totalPnl,2," "+base)}</span>` : "–";
+  $("kPnlPct").innerHTML = hasHist ? `${invested ? pct(totalPnl/invested*100) + " · " : ""}<span class="muted">unrealized</span> <span class="${cls(unreal)}">${fSigned(unreal,2)}</span> <span class="muted">· realized</span> <span class="${cls(realized)}">${fSigned(realized,2)}</span>` : "–";
+  renderTable(rows, tot, PF);
   renderSector(rows, tot);
+  renderWatch();
+  renderTrades(sales, realized);
   drawChart();
 }
 
@@ -488,7 +621,7 @@ function rangeCell(q){
   const f = hi > lo ? Math.min(1, Math.max(0, (c - lo) / (hi - lo))) : 0.5;
   return `<span class="rng"><span>${fPx(lo)}</span><span class="bar" title="${(f*100).toFixed(0)}% of range"><span class="tri" style="left:${(f*100).toFixed(1)}%"></span></span><span>${fPx(hi)}</span></span>`;
 }
-function renderTable(rows, tot){
+function renderTable(rows, tot, PF){
   const tb = $("tbody");
   $("emptyPos").hidden = rows.length > 0;
   $("posCount").textContent = rows.length ? `(${rows.length})` : "";
@@ -500,8 +633,8 @@ function renderTable(rows, tot){
   html += `<tr class="total"><td class="l stick">GGD</td><td class="l">Portfolio total</td><td class="l">${esc(DB.base)}</td>
     <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td>
     <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
-    <td>${fSigned(weighted(rows,"Perf.W"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.1M"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.YTD"),2,"%")}</td>
-    <td>${fSigned(weighted(rows,"Perf.Y"),2,"%")}</td><td>${fSigned(weighted(rows,"Perf.10Y"),2,"%")}</td><td>–</td><td>–</td><td></td></tr>`;
+    <td>${fSigned(PF["1W"]?.p,2,"%")}</td><td>${fSigned(PF["1M"]?.p,2,"%")}</td><td>${fSigned(PF["YTD"]?.p,2,"%")}</td>
+    <td>${fSigned(PF["1Y"]?.p,2,"%")}</td><td>${fSigned(PF["ALL"]?.p,2,"%")}</td><td>–</td><td title="Since your first open date">${fSigned(PF["ALL"]?.p,2,"%")}</td><td></td></tr>`;
   for(const {p, c} of sorted){
     const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
     const ipo = ipoPx(q);
@@ -518,13 +651,53 @@ function renderTable(rows, tot){
       <td>${pct(c.gainPct)}</td>
       <td title="${esc(p.bench)} since ${esc(p.date)}">${pct(c.benchPct)}${c.benchEst?'<span class="est">est</span>':''}</td>
       <td>${rangeCell(q)}</td>
-      <td>${pct(q["Perf.W"])}</td><td>${pct(q["Perf.1M"])}</td><td>${pct(q["Perf.YTD"])}</td>
-      <td>${pct(q["Perf.Y"])}</td><td>${pct(q["Perf.10Y"])}</td>
+      ${perfCells(q)}
       <td>${fPx(ipo)}</td><td>${pct(q["Perf.All"],1)}</td>
-      <td><div class="rowbtns"><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
+      <td><div class="rowbtns"><button class="act" type="button" data-sell="${esc(p.id)}" aria-label="Sell ${esc(p.sym)}">Sell</button><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
     </tr>`;
   }
   tb.innerHTML = html;
+}
+
+/* ============================== rendering: watchlist & trades ============================== */
+function renderWatch(){
+  const list = DB.watch || [];
+  $("wCount").textContent = list.length ? `(${list.length})` : "";
+  $("wEmpty").hidden = list.length > 0;
+  $("wBody").innerHTML = list.map(w => {
+    const q = Q[w.sym] || {}, held = DB.positions.some(p => p.sym === w.sym);
+    return `<tr>
+      <td class="l stick"><span class="tk">${esc(w.sym.split(":")[1] || w.sym)}</span>${held ? '<span class="tag held">HELD</span>' : ''}</td>
+      <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
+      <td class="l">${esc(q.exchange || w.sym.split(":")[0])}</td>
+      <td>${fPx(q.close)} <span class="muted">${esc(normCcy(q.currency))}</span></td><td>${pct(q.change)}</td><td>${fPx(prevClose(q))}</td>
+      <td>${rangeCell(q)}</td>
+      ${perfCells(q)}
+      <td>${fPx(ipoPx(q))}</td><td>${pct(q["Perf.All"],1)}</td><td class="l">${esc(q.sector || "")}</td>
+      <td><div class="rowbtns"><button class="act" type="button" data-wbuy="${esc(w.sym)}">Buy</button><button class="icon" type="button" data-wdel="${esc(w.sym)}" aria-label="Remove ${esc(w.sym)}">Remove</button></div></td>
+    </tr>`;
+  }).join("");
+}
+function renderTrades(sales, realized){
+  $("trCount").textContent = sales.length ? `(${sales.length})` : "";
+  $("trEmpty").hidden = sales.length > 0;
+  if(!sales.length){ $("trBody").innerHTML = ""; return; }
+  let html = `<tr class="total"><td class="l stick">Total</td><td class="l">–</td><td class="l">${sales.length} sale${sales.length>1?"s":""}</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>${fSigned(realized,2)}</td><td></td></tr>`;
+  for(const { p, s: sl } of sales){
+    const ccy = sl.ccy || p.ccy, pc = sl.cost ? (sl.price / sl.cost - 1) * 100 : NaN, b = saleBase(sl, p);
+    html += `<tr>
+      <td class="l stick">${fDate(saleTs(sl), true)}</td>
+      <td class="l"><span class="tk">${esc(p.sym.split(":")[1] || p.sym)}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
+      <td class="l nm">${esc(p.name || "–")}</td>
+      <td>${fN(sl.qty, Number.isInteger(sl.qty) ? 0 : 4)}</td>
+      <td>${fPx(sl.cost)} <span class="muted">${esc(ccy)}</span></td>
+      <td>${fPx(sl.price)} <span class="muted">${esc(ccy)}</span></td>
+      <td class="${cls(sl.pnl)}">${fSigned(sl.pnl,2)} <span class="muted">${esc(ccy)}</span></td>
+      <td>${pct(pc)}</td><td class="${cls(b)}">${fSigned(b,2)}</td>
+      <td><div class="rowbtns"><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(sl.id)}" aria-label="Undo this sale">Undo</button></div></td>
+    </tr>`;
+  }
+  $("trBody").innerHTML = html;
 }
 
 /* ============================== rendering: sector active contribution ============================== */
@@ -569,40 +742,50 @@ function renderSector(rows, tot){
 
 /* ============================== chart ============================== */
 function rangeStart(r){ const t = today(); return r==="1W"?shift(t,{d:-7}):r==="1M"?shift(t,{m:-1}):r==="3M"?shift(t,{m:-3}):r==="YTD"?ytdStart(t):r==="1Y"?shift(t,{y:-1}):null; }
-function buildSeries(){
-  const pos = DB.positions.filter(p => Q[p.sym]);
+function buildSeries(range){
+  // time-weighted return of the portfolio itself, from max(window start, first open date) to now
+  const pos = allPos().filter(p => Q[p.sym] || (p.sells || []).length);
   if(!pos.length) return null;
-  const inception = pos.map(p => p.date).sort()[0];
-  const rs = rangeStart(UI.range);
-  const start = rs && rs > inception ? rs : inception;
-  const startTs = kts(start), endTs = kts(today());
-  // per-position price paths in instrument currency, starting at the entry
+  const now = NOW;
+  const inception = Math.min(...pos.map(p => kts(p.date)));
+  const rs = rangeStart(range), rsTs = rs ? kts(rs) : -Infinity;
+  const startTs = Math.max(rsTs, inception);
   const paths = pos.map(p => {
-    const c = calc(p);
-    const entryInstr = conv(p.price, p.ccy, c.iccy);
-    const pts = pricePoints(p.sym).filter(x => x[2] > p.date);
-    pts.unshift([kts(p.date), entryInstr, p.date]);
-    return { p, iccy: c.iccy, pts, open: kts(p.date) };
+    const iccy = normCcy(Q[p.sym]?.currency || p.iccy || p.ccy);
+    const open = kts(p.date);
+    const sells = (p.sells || []).map(sl => ({ ts: saleTs(sl), qty: sl.qty, px: conv(sl.price, sl.ccy || p.ccy, iccy) }));
+    const lastTs = p.shares > 0 || !sells.length ? Infinity : Math.max(...sells.map(x => x.ts));
+    const m = new Map();
+    pricePoints(p.sym).forEach(([t,v]) => { if(t > open && t < lastTs) m.set(t, v); });
+    m.set(open, conv(p.price, p.ccy, iccy));
+    // the exit price of a fully sold position ends its path; partial sales are valued at market
+    sells.forEach(x => { if(x.ts === lastTs && isNum(x.px)) m.set(x.ts, x.px); });
+    if(lastTs !== Infinity && !m.has(lastTs)){ const v = interp([...m.entries()].sort((a,b) => a[0]-b[0]), lastTs); if(isNum(v)) m.set(lastTs, v); }
+    return { p, iccy, open, sells, lastTs, pts: [...m.entries()].sort((a,b) => a[0]-b[0]) };
   });
+  const sharesAt = (x, t) => x.p.shares + x.sells.reduce((a, y) => a + (y.ts > t ? y.qty : 0), 0);
   const bpts = pricePoints(SPX);
-  const keys = new Set([start]);
-  paths.forEach(x => x.pts.forEach(pt => { if(pt[0] >= startTs && pt[0] <= endTs) keys.add(pt[2]); }));
-  bpts.forEach(pt => { if(pt[0] >= startTs && pt[0] <= endTs) keys.add(pt[2]); });
-  const grid = [...keys].map(k => [kts(k), k]).sort((a,b) => a[0]-b[0]);
-  if(grid.length < 2) return { grid, P:[], B:[], start };
-  const val = (x, ts) => toBase(x.p.shares * interp(x.pts, ts), x.iccy);
+  const T = new Set([startTs, now]);
+  paths.forEach(x => x.pts.forEach(([t]) => { if(t >= startTs && t <= now) T.add(t); }));
+  bpts.forEach(([t]) => { if(t >= startTs && t <= now) T.add(t); });
+  const grid = [...T].sort((a,b) => a-b);
   const P = [0], B = [0];
-  let idx = 1; const b0 = interp(bpts, grid[0][0]);
+  let idx = 1; const b0 = interp(bpts, grid[0]);
   for(let i=1;i<grid.length;i++){
-    const t0 = grid[i-1][0], t1 = grid[i][0];
+    const t0 = grid[i-1], t1 = grid[i];
     let s0 = 0, s1 = 0;
-    paths.forEach(x => { if(x.open <= t0){ const a = val(x,t0), b = val(x,t1); if(isNum(a)&&isNum(b)){ s0 += a; s1 += b; } } });
+    paths.forEach(x => {
+      if(x.open > t0 || t0 >= x.lastTs) return;
+      const sh = sharesAt(x, t0); if(!(sh > 0)) return;
+      const a = toBase(sh * interp(x.pts, t0), x.iccy), b = toBase(sh * interp(x.pts, t1), x.iccy);
+      if(isNum(a) && isNum(b)){ s0 += a; s1 += b; }
+    });
     if(s0 > 0) idx *= s1 / s0;
     P.push((idx - 1) * 100);
     const bv = interp(bpts, t1);
     B.push(isNum(b0) && b0 ? (bv / b0 - 1) * 100 : NaN);
   }
-  return { grid, P, B, start };
+  return { grid, P, B, startTs, clipped: rsTs < inception };
 }
 let chartGeom = null;
 function drawChart(){
@@ -611,10 +794,10 @@ function drawChart(){
   const W = cv.clientWidth, H = cv.clientHeight;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
-  const s = buildSeries();
+  const s = buildSeries(UI.range);
   $("lgP").textContent = ""; $("lgB").textContent = "";
   chartGeom = null;
-  if(!s){ msg.hidden = false; msg.textContent = DB.positions.length ? "Loading prices…" : "Add a position to start the performance chart."; return; }
+  if(!s){ msg.hidden = false; msg.textContent = allPos().length ? "Loading prices…" : "Add a position to start the performance chart."; return; }
   if(s.grid.length < 2){ msg.hidden = false; msg.textContent = "History starts at your earliest open date. Points build up daily; set a past open date to see history now."; return; }
   msg.hidden = true;
   const css = getComputedStyle(document.documentElement);
@@ -624,7 +807,7 @@ function drawChart(){
   let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
   if(hi - lo < 0.5){ hi += 0.25; lo -= 0.25; }
   const step = niceStep(hi - lo); lo = Math.floor(lo/step)*step; hi = Math.ceil(hi/step)*step;
-  const t0 = s.grid[0][0], t1 = s.grid[s.grid.length-1][0];
+  const t0 = s.grid[0], t1 = s.grid[s.grid.length-1];
   const x = t => padL + (t - t0) / ((t1 - t0) || 1) * (W - padL - padR);
   const y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
   g.font = `11px ${C("--num")}`; g.textBaseline = "middle";
@@ -640,13 +823,14 @@ function drawChart(){
   for(let i=0;i<nLab;i++){
     const t = t0 + (t1 - t0) * i / (nLab - 1);
     const d = new Date(t);
-    const txt = (t1 - t0) > 200*864e5 ? d.toLocaleDateString("en-GB",{month:"short",year:"2-digit"}) : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"});
+    const span = t1 - t0;
+    const txt = span > 200*864e5 ? d.toLocaleDateString("en-GB",{month:"short",year:"2-digit"}) : span < 2*864e5 ? d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"});
     g.textAlign = i===0 ? "left" : i===nLab-1 ? "right" : "center";
     g.fillText(txt, x(t), H - 6);
   }
   const line = (arr, color, fill) => {
     g.beginPath(); let started = false;
-    arr.forEach((v,i) => { if(!isNum(v)) return; const xx = x(s.grid[i][0]), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
+    arr.forEach((v,i) => { if(!isNum(v)) return; const xx = x(s.grid[i]), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
     g.strokeStyle = color; g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
     if(fill){
       g.lineTo(x(t1), y(0)); g.lineTo(x(t0), y(0)); g.closePath();
@@ -668,11 +852,11 @@ function chartHover(ev){
   const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
   const { s, x } = chartGeom;
   let best = 0, bd = Infinity;
-  s.grid.forEach((gp,i) => { const d = Math.abs(x(gp[0]) - px); if(d < bd){ bd = d; best = i; } });
-  const d = new Date(s.grid[best][0]);
+  s.grid.forEach((gp,i) => { const d = Math.abs(x(gp) - px); if(d < bd){ bd = d; best = i; } });
+  const d = new Date(s.grid[best]);
   tip.innerHTML = `${d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}<br><span style="color:var(--blue)">GGD</span> ${fSigned(s.P[best],2,"%")}<br><span style="color:var(--yellow)">SPX</span> ${fSigned(s.B[best],2,"%")}`;
   tip.hidden = false;
-  const tx = Math.min(Math.max(4, x(s.grid[best][0]) + 10), r.width - tip.offsetWidth - 4);
+  const tx = Math.min(Math.max(4, x(s.grid[best]) + 10), r.width - tip.offsetWidth - 4);
   tip.style.left = tx + "px"; tip.style.top = "10px";
 }
 
@@ -697,8 +881,11 @@ async function ghPut(data, sha, msg){
   const j = await r.json(); return j.content.sha;
 }
 function sanitize(d){
-  const o = { v:1, base:"EUR", refresh:60, positions:[], snaps:{}, ...(d || {}) };
+  const o = { v:1, base:"EUR", refresh:60, positions:[], closed:[], watch:[], snaps:{}, ...(d || {}) };
   if(!Array.isArray(o.positions)) o.positions = [];
+  if(!Array.isArray(o.closed)) o.closed = [];
+  if(!Array.isArray(o.watch)) o.watch = [];
+  [...o.positions, ...o.closed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
   if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
   return o;
 }
@@ -734,7 +921,9 @@ async function refresh(){
     const base = majorCcy(DB.base);
     const syms = new Set([SPX]);
     const ccys = new Set();
-    DB.positions.forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
+    DB.positions.forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); });
+    allPos().forEach(p => { syms.add(p.sym); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
+    (DB.watch || []).forEach(w => syms.add(w.sym));
     ccys.delete(base);
     const fxSyms = []; ccys.forEach(c => fxSyms.push(`FX_IDC:${c}${base}`, `FX_IDC:${base}${c}`));
     const res = await scan([...syms, ...fxSyms]);
@@ -744,7 +933,7 @@ async function refresh(){
     // keep instrument currency stored on each position up to date
     DB.positions.forEach(p => { if(Q[p.sym]?.currency) p.iccy = Q[p.sym].currency; });
     lastOk = new Date();
-    const missing = [...new Set(DB.positions.flatMap(p => [p.sym, p.bench]).filter(s => s && !Q[s]))];
+    const missing = [...new Set([...DB.positions.flatMap(p => [p.sym, p.bench]), ...(DB.watch || []).map(w => w.sym)].filter(s => s && !Q[s]))];
     const fxMissing = [...ccys].filter(c => !isNum(FX[c]));
     let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only");
     if(missing.length) t += ` · no data: ${missing.join(", ")}`;
@@ -762,7 +951,7 @@ function snapshotNow(){
   return { t: Date.now(), q };
 }
 async function maybeSnapshot(){
-  if(!DB.positions.length || !Object.keys(Q).length) return;
+  if((!allPos().length && !(DB.watch || []).length) || !Object.keys(Q).length) return;
   const k = today(), cur = DB.snaps[k];
   const stale = !cur || Date.now() - (cur.t || 0) > 2*3600e3;
   if(!stale || Date.now() - lastSnapWrite < 10*60e3) return;
@@ -872,7 +1061,7 @@ async function savePos(ev){
   const benchEst = date < today() && benchAuto;
   const rec = { id: editing ? editing.id : (Date.now().toString(36) + Math.random().toString(36).slice(2,6)),
     sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
-    shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now() };
+    shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now(), sells: editing?.sells || [] };
   $("posSave").disabled = true;
   await commit(d => { const i = d.positions.findIndex(x => x.id === rec.id); if(i >= 0) d.positions[i] = rec; else d.positions.push(rec); }, (editing ? "Edit " : "Open ") + s);
   $("posSave").disabled = false;
@@ -886,6 +1075,88 @@ function confirmBox(title, text){
     $("cfmYes").onclick = () => { d.close(); res(true); };
     $("cfmNo").onclick = () => { d.close(); res(false); };
   });
+}
+
+/* ============================== sell ============================== */
+let selling = null;
+function openSell(p){
+  selling = p; const c = calc(p);
+  $("sellTitle").textContent = `Sell ${p.sym.split(":")[1] || p.sym}`;
+  $("xInfo").innerHTML = `${esc(p.name || p.sym)}<br>Held <b>${fN(p.shares, Number.isInteger(p.shares) ? 0 : 4)}</b> shares · avg cost <b>${fPx(p.price)} ${esc(p.ccy)}</b> · now <b>${fPx(c.curInPos)} ${esc(p.ccy)}</b>`;
+  $("xQty").value = ""; $("xPx").value = isNum(c.curInPos) ? +c.curInPos.toFixed(4) : "";
+  $("xCcy").textContent = p.ccy; $("xDate").value = today(); $("xDate").min = p.date; $("xDate").max = today();
+  $("xMsg").textContent = ""; $("xGo").disabled = false; sellEst();
+  $("sellDlg").showModal(); $("xQty").focus();
+}
+function sellEst(){
+  const p = selling; if(!p) return;
+  const q = parseFloat($("xQty").value), px = parseFloat($("xPx").value);
+  if(!(q > 0) || !(px > 0)){ $("xEst").innerHTML = `<span class="muted">Enter shares and price to see the gain or loss.</span>`; return; }
+  const qq = Math.min(q, p.shares), pnl = (px - p.price) * qq, pc = (px / p.price - 1) * 100;
+  $("xEst").innerHTML = `Realized P&amp;L: <b class="${cls(pnl)}">${fSigned(pnl,2," " + esc(p.ccy))}</b> <span class="${cls(pc)}">(${fSigned(pc,2,"%")})</span>` +
+    (q >= p.shares - 1e-9 ? ` · <span class="muted">closes the position</span>` : ` · <span class="muted">${fN(p.shares - q, Number.isInteger(p.shares - q) ? 0 : 4)} shares left</span>`);
+}
+async function doSell(ev){
+  ev.preventDefault();
+  const p = selling, m = $("xMsg"); if(!p) return;
+  const q = parseFloat($("xQty").value), px = parseFloat($("xPx").value), date = $("xDate").value || today();
+  if(!(q > 0)){ m.textContent = "Enter how many shares to sell."; return; }
+  if(q > p.shares + 1e-9){ m.textContent = `You only hold ${fN(p.shares, Number.isInteger(p.shares) ? 0 : 4)} shares. Use Sell all to sell everything.`; return; }
+  if(!(px > 0)){ m.textContent = "Enter the sell price per share."; return; }
+  if(date < p.date){ m.textContent = "The sell date can't be before the open date (" + p.date + ")."; return; }
+  if(date > today()){ m.textContent = "The sell date can't be in the future."; return; }
+  const ts = date === today() ? Date.now() : kts(date) + 17*3600e3;
+  const saleId = rid(), sym = p.sym;
+  $("xGo").disabled = true;
+  await commit(d => {
+    const pos = d.positions.find(x => x.id === p.id); if(!pos) return;
+    if((pos.sells || []).some(x => x.id === saleId)) return;
+    const qq = Math.min(q, pos.shares), pnl = (px - pos.price) * qq;
+    pos.sells = [...(pos.sells || []), { id: saleId, date, ts, qty: qq, price: px, cost: pos.price, ccy: pos.ccy, pnl, pnlBase: toBase(pnl, pos.ccy) }];
+    pos.shares = +(pos.shares - qq).toFixed(8);
+    if(pos.shares <= 1e-8){ pos.shares = 0; pos.closedDate = date; d.positions = d.positions.filter(x => x !== pos); d.closed = [...(d.closed || []), pos]; }
+  }, `Sell ${q} ${sym}`);
+  $("sellDlg").close(); selling = null;
+  lastSnapWrite = 0; refresh();
+}
+async function undoSale(pid, sid){
+  const hit = allSales().find(x => x.p.id === pid && x.s.id === sid); if(!hit) return;
+  const ok = await confirmBox("Undo sale", `Put ${hit.s.qty} shares of ${hit.p.sym} back into the portfolio and remove this sale's gain or loss?`);
+  if(!ok) return;
+  await commit(d => {
+    let pos = d.positions.find(x => x.id === pid);
+    if(!pos){ const i = (d.closed || []).findIndex(x => x.id === pid); if(i < 0) return; pos = d.closed[i]; d.closed.splice(i, 1); delete pos.closedDate; d.positions.push(pos); }
+    const sl = (pos.sells || []).find(x => x.id === sid); if(!sl) return;
+    pos.shares = +(pos.shares + sl.qty).toFixed(8); pos.sells = pos.sells.filter(x => x.id !== sid);
+  }, "Undo sale " + hit.p.sym);
+  refresh();
+}
+
+/* ============================== watchlist ============================== */
+async function addWatch(h){
+  $("wInput").value = "";
+  if((DB.watch || []).some(w => w.sym === h.sym)){ $("wMsg").className = "msg muted"; $("wMsg").textContent = `${h.sym} is already on your watchlist.`; return; }
+  $("wMsg").textContent = "";
+  await commit(d => { if(!d.watch.some(w => w.sym === h.sym)) d.watch.push({ sym: h.sym, name: h.description || "", isin: h.isin || "", added: Date.now() }); }, "Watch " + h.sym);
+  refresh();
+}
+async function removeWatch(sym){
+  await commit(d => { d.watch = d.watch.filter(w => w.sym !== sym); }, "Unwatch " + sym);
+  render();
+}
+function buyFromWatch(sym){
+  const w = (DB.watch || []).find(x => x.sym === sym); if(!w) return;
+  const q = Q[sym] || {};
+  openPos(null);
+  pickTicker({ sym, currency: q.currency || "", description: q.description || w.name, isin: w.isin, close: q.close });
+}
+
+/* ============================== tabs ============================== */
+function showTab(t){
+  UI.tab = t; ls.set(LS_UI, UI);
+  document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  ["pf","wl","tr"].forEach(k => $("view-" + k).hidden = k !== t);
+  if(t === "pf") drawChart();
 }
 
 /* ============================== settings ============================== */
@@ -940,13 +1211,26 @@ function init(){
   $("posForm").addEventListener("submit", savePos);
   $("delBtn").onclick = async () => {
     if(!editing) return;
-    const ok = await confirmBox("Close position", `Remove ${editing.sym} (${editing.shares} shares) from the portfolio? Past chart history keeps its effect.`);
+    const ok = await confirmBox("Delete position", `Delete ${editing.sym} completely, as if you never bought it? Use this only for mistakes or tests. To sell shares and book the gain or loss, use Sell instead.`);
     if(!ok) return;
     const id = editing.id;
-    await commit(d => { d.positions = d.positions.filter(x => x.id !== id); }, "Close " + editing.sym);
+    await commit(d => { d.positions = d.positions.filter(x => x.id !== id); }, "Delete " + editing.sym);
     $("posDlg").close(); refresh();
   };
-  $("tbody").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if(b){ const p = DB.positions.find(x => x.id === b.dataset.edit); if(p) openPos(p); } });
+  $("tbody").addEventListener("click", e => {
+    const b = e.target.closest("[data-edit]"); if(b){ const p = DB.positions.find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
+    const sb = e.target.closest("[data-sell]"); if(sb){ const p = DB.positions.find(x => x.id === sb.dataset.sell); if(p) openSell(p); }
+  });
+  $("sellForm").addEventListener("submit", doSell);
+  $("xQty").addEventListener("input", sellEst); $("xPx").addEventListener("input", sellEst);
+  $("xAll").onclick = () => { if(selling){ $("xQty").value = selling.shares; sellEst(); } };
+  $("trBody").addEventListener("click", e => { const b = e.target.closest("[data-undo]"); if(b){ const [pid, sid] = b.dataset.undo.split("|"); undoSale(pid, sid); } });
+  $("wBody").addEventListener("click", e => {
+    const b = e.target.closest("[data-wbuy]"); if(b){ buyFromWatch(b.dataset.wbuy); return; }
+    const r = e.target.closest("[data-wdel]"); if(r) removeWatch(r.dataset.wdel);
+  });
+  autocomplete($("wInput"), $("wSug"), addWatch);
+  document.querySelectorAll(".tabs [data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
   $("setForm").addEventListener("submit", saveSettings);
   $("copyCode").onclick = async () => {
     const cfg = { owner:$("sOwner").value.trim(), repo:$("sRepo").value.trim(), path:$("sPath").value.trim()||"portfolio.json", branch:$("sBranch").value.trim()||"main", token:$("sToken").value.trim() };
@@ -981,6 +1265,7 @@ function init(){
   cb.addEventListener("mouseleave", () => $("tip").hidden = true);
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
+  showTab(["pf","wl","tr"].includes(UI.tab) ? UI.tab : "pf");
   render(); refresh(); schedule();
 }
 init();
