@@ -157,6 +157,8 @@ table.ttbl{min-width:1050px}
 .qtyrow input{flex:1;min-width:0}
 .xest{font-size:13px;padding:8px 10px;border:1px solid var(--line);background:#05070a}
 .est{color:var(--gray);font-size:10px;margin-left:3px}
+img.flag{width:16px;height:12px;vertical-align:-1px;margin-right:5px;box-shadow:0 0 0 1px rgba(255,255,255,.14);object-fit:cover}
+.sug img.flag{margin-right:4px}
 td.ipo{text-align:center;font-family:var(--ui)}
 thead th[data-k]{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 thead th[data-k]:hover{background:#4a4e55}
@@ -415,12 +417,12 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.20.7";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.20.8";   // shown in the status line; devices compare it to spot an outdated copy
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
   "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
-  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change"];
+  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","country","country_code_fund","market"];
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
 const INDICES = [
   ["SP:SPX","S&P 500","sp500 s&p500 spx standard poors usa"],["NASDAQ:NDX","Nasdaq 100","ndx nasdaq100"],["NASDAQ:IXIC","Nasdaq Composite","ixic composite"],
@@ -482,7 +484,7 @@ function minorFactor(c){ c = normCcy(c); return (c === "GBX" || c === "ZAC" || c
 function toBase(amount, ccy){ const r = FX[majorCcy(ccy)]; return isNum(r) ? amount * r * minorFactor(ccy) : NaN; }
 function conv(amount, from, to){ const a = toBase(amount, from), r = FX[majorCcy(to)]; return isNum(a) && isNum(r) ? a / (r * minorFactor(to)) : NaN; }
 
-const SUG_COLS = ["name","description","exchange","currency","close","type","is_primary","Value.Traded","isin","market_cap_basic"];
+const SUG_COLS = ["name","description","exchange","currency","close","type","is_primary","Value.Traded","isin","market_cap_basic","country","country_code_fund","market"];
 async function searchSymbols(raw, signal){
   const q = raw.trim(), U = q.toUpperCase();
   if(q.length < 1) return [];
@@ -533,6 +535,23 @@ function prevClose(q){
   if(!tradedToday(q)) return q.close;                  // not opened yet today: the last close is the reference
   return isNum(q.change) ? q.close / (1 + q.change/100) : NaN;
 }
+/* ---------- flags: company country (next to ticker) and exchange country (next to market) ---------- */
+const MARKET_CC = { america:"us", uk:"gb", germany:"de", france:"fr", italy:"it", spain:"es", switzerland:"ch", netherlands:"nl", belgium:"be", portugal:"pt",
+  austria:"at", sweden:"se", norway:"no", denmark:"dk", finland:"fi", poland:"pl", ireland:"ie", greece:"gr", turkey:"tr", israel:"il", iceland:"is",
+  estonia:"ee", latvia:"lv", lithuania:"lt", luxembourg:"lu", czech:"cz", hungary:"hu", romania:"ro", slovakia:"sk", serbia:"rs", cyprus:"cy", russia:"ru",
+  japan:"jp", china:"cn", hongkong:"hk", taiwan:"tw", korea:"kr", india:"in", singapore:"sg", australia:"au", newzealand:"nz", indonesia:"id",
+  malaysia:"my", thailand:"th", philippines:"ph", vietnam:"vn", pakistan:"pk", bangladesh:"bd", srilanka:"lk", canada:"ca", brazil:"br", mexico:"mx",
+  argentina:"ar", chile:"cl", colombia:"co", peru:"pe", venezuela:"ve", southafrica:"za", egypt:"eg", nigeria:"ng", kenya:"ke", morocco:"ma",
+  saudiarabia:"sa", uae:"ae", qatar:"qa", kuwait:"kw", bahrain:"bh" };
+const CC_NAME = (() => { try{ return new Intl.DisplayNames(["en"], { type:"region" }); }catch(e){ return null; } })();
+function flagImg(cc, what){
+  cc = String(cc || "").toLowerCase();
+  if(!/^[a-z]{2}$/.test(cc)) return "";
+  const name = (CC_NAME && CC_NAME.of(cc.toUpperCase())) || cc.toUpperCase();
+  return `<img class="flag" src="https://flagcdn.com/20x15/${cc}.png" srcset="https://flagcdn.com/40x30/${cc}.png 2x" alt="${esc(cc.toUpperCase())}" title="${esc(what + ": " + name)}" loading="lazy">`;
+}
+function coFlag(q){ return flagImg(q?.country_code_fund, "Company"); }
+function exFlag(q){ return flagImg(MARKET_CC[q?.market], "Exchange"); }
 function dayCell(q){
   if(!isNum(q?.close)) return "–";
   if(tradedToday(q)) return pct(q.change);
@@ -726,9 +745,9 @@ function renderTable(rows, tot, PF){
   for(const {p, c} of sorted){
     const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
     html += `<tr>
-      <td class="l stick"><span class="tk">${esc(tick(p.sym))}</span></td>
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(p.sym))}</span></td>
       <td class="l nm" title="${esc((q.description || p.name || "") + (p.isin ? " · " + p.isin : ""))}">${esc(q.description || p.name || "–")}</td>
-      <td class="l">${esc(q.exchange || p.sym.split(":")[0])}</td>
+      <td class="l">${exFlag(q)}${esc(q.exchange || p.sym.split(":")[0])}</td>
       <td>${fPx(p.price)} <span class="muted">${esc(p.ccy)}</span></td>
       <td>${fPx(q.close)} <span class="muted">${esc(c.iccy)}</span></td>
       <td>${fPx(prevClose(q))}</td>
@@ -752,9 +771,9 @@ function avgOf(rows, f){ const v = rows.map(f).filter(isNum); return v.length ? 
 function watchRow({ w, q }){
   const held = DB.positions.some(p => p.sym === w.sym);
   return `<tr>
-      <td class="l stick"><span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}</td>
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}</td>
       <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
-      <td class="l">${esc(q.exchange || w.sym.split(":")[0])}</td>
+      <td class="l">${exFlag(q)}${esc(q.exchange || w.sym.split(":")[0])}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(normCcy(q.currency))}</span></td><td>${dayCell(q)}</td><td>${fPx(prevClose(q))}</td>
       <td>${rangeCell(q)}</td>
       ${perfCells(q)}
@@ -809,7 +828,7 @@ function renderTrades(sales, realized){
     const ccy = sl.ccy || p.ccy, pc = sl.cost ? (sl.price / sl.cost - 1) * 100 : NaN, b = saleBase(sl, p);
     html += `<tr>
       <td class="l stick">${fDate(saleTs(sl), true)}</td>
-      <td class="l"><span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
+      <td class="l">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
       <td class="l nm">${esc(p.name || "–")}</td>
       <td>${fN(sl.qty, Number.isInteger(sl.qty) ? 0 : 4)}</td>
       <td>${fPx(sl.cost)} <span class="muted">${esc(ccy)}</span></td>
@@ -1129,7 +1148,7 @@ function autocomplete(input, list, onPick, onType){
   const paint = () => {
     if(!items.length){ list.innerHTML = `<div class="note">No match on TradingView. Try the company name, the ISIN, or EXCHANGE:TICKER.</div>`; list.hidden = false; return; }
     list.innerHTML = items.map((h,i) => `<div class="it" role="option" id="${list.id}-${i}" data-i="${i}" aria-selected="${i===active}">
-      <div class="s1">${esc(h.name || h.sym.split(":")[1])}<em>${esc(h.exchange || h.sym.split(":")[0])}</em>${h.is_primary ? '<span class="tag">PRIMARY</span>' : ''}${h.type === "index" ? '<span class="tag">INDEX</span>' : h.type === "fund" ? '<span class="tag">ETF/FUND</span>' : ''}</div>
+      <div class="s1">${coFlag(h)}${esc(h.name || h.sym.split(":")[1])}<em>${exFlag(h)}${esc(h.exchange || h.sym.split(":")[0])}</em>${h.is_primary ? '<span class="tag">PRIMARY</span>' : ''}${h.type === "index" ? '<span class="tag">INDEX</span>' : h.type === "fund" ? '<span class="tag">ETF/FUND</span>' : ''}</div>
       <div class="s2">${esc(h.description || "")}${h.isin ? " · " + esc(h.isin) : ""}</div>
       <div class="px">${isNum(h.close) ? fPx(h.close) : ""}<small>${esc(normCcy(h.currency))}</small></div></div>`).join("");
     list.hidden = false; input.setAttribute("aria-expanded","true");
