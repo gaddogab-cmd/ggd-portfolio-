@@ -206,6 +206,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></div>
     <div class="actions">
       <button class="btn primary" id="addBtn" type="button">+ Position</button>
+      <button class="btn primary" id="updBtn" type="button" hidden>Update app</button>
       <button class="btn" id="refreshBtn" type="button">Refresh</button>
       <button class="btn" id="setBtn" type="button">Settings</button>
     </div>
@@ -375,7 +376,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <label class="f">Branch<input id="sBranch" autocomplete="off" spellcheck="false" placeholder="main"></label>
       <label class="f full">Fine-grained token<input id="sToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
       <label class="f full">Sync code<textarea id="sCode" spellcheck="false" placeholder="Paste a code generated on your other device"></textarea></label>
-      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
+      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm" type="button" id="reloadBtn">Reload app</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
       <input type="file" id="importFile" accept="application/json,.json" hidden>
       <div class="full msg" id="setMsg"></div>
     </div>
@@ -393,6 +394,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
+const APP_VERSION = "2026.10.20.6";   // shown in the status line; devices compare it to spot an outdated copy
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
@@ -897,6 +899,7 @@ async function commit(mutator, msg){
         const { data, sha } = await ghGet();
         const next = sanitize(data || DB);
         mutator(next);
+        if(!next.app || next.app < APP_VERSION) next.app = APP_VERSION;
         SHA = await ghPut(next, sha, msg);
         DB = next; ls.set(LS_DATA, DB); return true;
       }catch(e){ if(!e.conflict){ setStatus("err", e.message); mutator(DB); ls.set(LS_DATA, DB); return false; } }
@@ -935,7 +938,8 @@ async function refresh(){
     lastOk = new Date();
     const missing = [...new Set([...DB.positions.flatMap(p => [p.sym, p.bench]), ...(DB.watch || []).map(w => w.sym)].filter(s => s && !Q[s]))];
     const fxMissing = [...ccys].filter(c => !isNum(FX[c]));
-    let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only");
+    let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only") + ` · v${APP_VERSION.slice(-1)}`;
+    $("updBtn").hidden = !(DB.app && DB.app > APP_VERSION);
     if(missing.length) t += ` · no data: ${missing.join(", ")}`;
     if(fxMissing.length) t += ` · no FX: ${fxMissing.join(", ")}`;
     setStatus(missing.length || fxMissing.length ? "err" : "live", t);
@@ -1186,7 +1190,23 @@ async function saveSettings(ev){
   ls.set(LS_DATA, DB); schedule();
   $("setDlg").close(); refresh();
 }
-function syncCode(cfg){ return "GGD1." + b64e(JSON.stringify(cfg)); }
+// URL-safe base64 so chat apps and notes don't mangle + / =
+function syncCode(cfg){ return "GGD1." + b64e(JSON.stringify(cfg)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+function parseSyncCode(raw){
+  const t = String(raw || "").replace(/[\u200B-\u200D\uFEFF\u00A0]/g, " ");
+  const m = t.match(/GGD1\s*[.\u2024\u3002]?\s*([A-Za-z0-9+/=_\-\s]+)/i);
+  if(!m){ const e = new Error(/github_pat_/i.test(t) ? "token" : "nostart"); throw e; }
+  // the code may be split over lines or followed by other words: try the longest run of pieces that decodes
+  const parts = m[1].trim().split(/\s+/);
+  let c = null;
+  for(let n = parts.length; n >= 1 && !c; n--){
+    let b = parts.slice(0, n).join("").replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+    while(b.length % 4) b += "=";
+    try{ const o = JSON.parse(b64d(b)); if(o && o.owner && o.repo && o.token) c = o; }catch(e){}
+  }
+  if(!c) throw new Error("cut");
+  return { owner: c.owner, repo: c.repo, path: c.path || "portfolio.json", branch: c.branch || "main", token: c.token };
+}
 function exportJson(){
   const blob = new Blob([JSON.stringify(DB, null, 1)], { type:"application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ggd-portfolio-${today()}.json`; a.click();
@@ -1202,6 +1222,9 @@ function init(){
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
   $("refreshBtn").onclick = () => refresh();
+  // load the newest index.html, skipping the browser's cached copy
+  const hardReload = () => location.replace(location.pathname + "?v=" + Date.now());
+  $("updBtn").onclick = hardReload; $("reloadBtn").onclick = hardReload;
   $("setBtn").onclick = openSettings;
   document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
   tickAC = autocomplete($("fTicker"), $("tickSug"), pickTicker, () => { chosen = null; showPicked(null); });
@@ -1239,14 +1262,23 @@ function init(){
     try{ await navigator.clipboard.writeText(code); $("setMsg").textContent = "Sync code copied. It contains your token: send it only to yourself."; }
     catch(e){ $("sCode").select(); $("setMsg").textContent = "Select and copy the code above. It contains your token."; }
   };
-  $("applyCode").onclick = () => {
+  const applyCode = auto => {
+    const m = $("setMsg");
     try{
-      const raw = $("sCode").value.trim(); if(!raw.startsWith("GGD1.")) throw 0;
-      const c = JSON.parse(b64d(raw.slice(5)));
+      const c = parseSyncCode($("sCode").value);
       $("sOwner").value = c.owner; $("sRepo").value = c.repo; $("sPath").value = c.path; $("sBranch").value = c.branch; $("sToken").value = c.token;
-      $("setMsg").textContent = "Code applied. Press Save & connect.";
-    }catch(e){ $("setMsg").textContent = "That code is not valid."; }
+      m.className = "full msg pos"; m.textContent = `Code recognized (${c.owner} / ${c.repo}). Connecting…`;
+      $("setForm").requestSubmit();
+    }catch(e){
+      if(auto) return;
+      m.className = "full msg neg";
+      m.textContent = e.message === "token" ? "That is your token, not the sync code. Paste it in the Fine-grained token box instead, then type GitHub owner and Private data repo by hand and press Save & connect."
+        : e.message === "nostart" ? "A sync code starts with GGD1. On the computer open Settings, press Copy sync code, and send the whole code again."
+        : "The code got cut or changed while copying. Copy it again on the computer, or skip the code: type GitHub owner, Private data repo and paste your token in the boxes above, then Save & connect.";
+    }
   };
+  $("applyCode").onclick = () => applyCode(false);
+  $("sCode").addEventListener("paste", () => setTimeout(() => applyCode(true), 50));
   $("unlinkBtn").onclick = async () => {
     if(!SYNC) { $("setMsg").textContent = "Sync is already off."; return; }
     if(!(await confirmBox("Turn off sync", "This device keeps a local copy and stops syncing. The GitHub file is not deleted."))) return;
