@@ -166,7 +166,11 @@ canvas{display:block;width:100%;height:100%}
 .calyear .mo h4{margin:0 0 3px;font-size:11px;color:var(--gray-hi);letter-spacing:.06em;text-transform:uppercase}
 .calyear .mo.cur{border-color:var(--orange)}
 .calyear .yl{font:10.5px/1.5 var(--num);color:var(--gray-hi);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.legend2{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--gray);padding:0 10px 8px}
+.legend2{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--gray);padding:4px 10px 8px}
+.lgf{background:transparent;border:1px solid #333842;color:var(--gray-hi);font:11px var(--ui);padding:2px 6px 2px 3px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.lgf:hover{border-color:var(--gray)}
+.lgf[aria-pressed="false"]{opacity:.35;text-decoration:line-through}
+.evsep{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);padding:7px 0 3px;border-top:1px solid var(--gray);margin-top:4px}
 /* click a stock to open its panel */
 tr[data-sym] td.stick .tk, tr[data-sym] td.stick2 .tk, tr[data-sym] td.nm{cursor:pointer}
 tr[data-sym] td.stick .tk:hover, tr[data-sym] td.nm:hover{text-decoration:underline}
@@ -399,7 +403,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <div class="seg" id="calSeg"><button type="button" data-v="w" aria-pressed="false">Week</button><button type="button" data-v="m" aria-pressed="true">Month</button><button type="button" data-v="y" aria-pressed="false">Year</button></div>
     </div>
     <div class="cal" id="calBody"></div>
-    <div class="legend2"><span><span class="k k-earn">E</span> Earnings</span><span><span class="k k-ex">X</span> Ex-dividend</span><span><span class="k k-pay">P</span> Dividend paid</span><span><span class="k k-rel">R</span> Press release</span><span id="newsNote"></span></div>
+    <div class="legend2" id="evFilters"><span>Show:</span><button type="button" class="lgf" data-f="earn" aria-pressed="true"><span class="k k-earn">E</span>Earnings</button><button type="button" class="lgf" data-f="ex" aria-pressed="true"><span class="k k-ex">X</span>Ex-dividend</button><button type="button" class="lgf" data-f="pay" aria-pressed="true"><span class="k k-pay">P</span>Dividend paid</button><button type="button" class="lgf" data-f="rel" aria-pressed="true"><span class="k k-rel">R</span>Press release</button><span id="newsNote"></span></div>
    </div>
   </div></section>
   </div>
@@ -548,7 +552,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.17";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.18";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1582,24 +1586,36 @@ function renderEvents(){
   EV = buildEvents();
   const tk = tzKey(Date.now()), now = Date.now();
   $("evClock").innerHTML = `${new Date().toLocaleDateString("en-GB",{ timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" })} · <b class="num">${tzTime(now)}</b> ${tzName()}`;
-  // today first (press releases grouped per company), then what is coming next; 7 lines at most
-  const MAX = 7, groups = new Map();
-  EV.filter(e => e.key === tk).forEach(e => { const k = e.sym + e.kind; if(e.kind === "rel" && groups.has(k)){ groups.get(k).n++; return; } groups.set(k, { ...e, n: 1 }); });
-  const today = [...groups.values()].sort((a,b) => (a.kind === "rel") - (b.kind === "rel") || a.ts - b.ts);
-  const next = EV.filter(e => e.kind !== "rel" && e.key > tk && e.ts > now);
+  document.querySelectorAll("#evFilters .lgf").forEach(b => b.setAttribute("aria-pressed", String(evOn(b.dataset.f))));
+  // today first (same company + same kind grouped), then "Upcoming"; 7 event lines at most
+  const MAX = 7, shown = EV.filter(e => evOn(e.kind));
+  const today = groupEv(shown.filter(e => e.key === tk)).sort((a,b) => (a.kind === "rel") - (b.kind === "rel") || a.ts - b.ts);
+  const next = shown.filter(e => e.kind !== "rel" && e.key > tk && e.ts > now);
   let rows = today.slice(0, MAX).map(e => evRow(e));
   if(today.length > MAX) rows[MAX-1] = `<div class="ev" style="cursor:default"><span class="t"></span><span class="nm2 muted">+${today.length - MAX + 1} more today</span><span></span></div>`;
   if(!today.length) rows.push(`<div class="ev" style="cursor:default"><span class="t">—</span><span class="nm2 muted">Nothing today</span><span></span></div>`);
-  next.slice(0, Math.max(0, MAX - rows.length)).forEach(e => rows.push(evRow(e, true)));
+  const up = next.slice(0, Math.max(0, MAX - rows.length));
+  if(up.length) rows.push(`<div class="evsep">Upcoming</div>`, ...up.map(e => evRow(e, true)));
   $("evToday").innerHTML = (DB.watch || []).length || openPositions("real").length || openPositions("sim").length ? rows.join("") : `<div class="empty" style="padding:8px 0;text-align:left">Add stocks to your watchlist to see their events.</div>`;
   $("newsNote").textContent = !SYNC ? "Releases need sync turned on." : NEWS && NEWS.missing ? "Releases: set up the news robot (guide Step 6)." : NEWS && NEWS.updated ? `News updated ${tzTime(NEWS.updated)}` : "";
   renderCalendar();
 }
+// filters: click E / X / P / R under the calendar to hide or show that kind
+function evOn(kind){ return (UI.evf || {})[kind] !== false; }
+// same company + same kind on the same day -> one entry with a count
+function groupEv(list){
+  const m = new Map();
+  list.forEach(e => { const k = e.key + "|" + e.sym + "|" + e.kind; if(m.has(k)) m.get(k).n++; else m.set(k, { ...e, n: 1 }); });
+  return [...m.values()];
+}
 function renderCalendar(){
   const v = ["w","m","y"].includes(UI.calv) ? UI.calv : "m", off = UI.calo || 0, tk = tzKey(Date.now());
   document.querySelectorAll("#calSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
-  const byKey = {}; EV.forEach(e => (byKey[e.key] ||= []).push(e));
-  const chip = e => `<span class="evc k-${e.kind}" data-sym="${esc(e.sym)}" title="${esc(tick(e.sym) + " · " + e.txt)}">${esc(tick(e.sym))} ${e.L}</span>`;
+  const grouped = groupEv(EV.filter(e => evOn(e.kind))).sort((a,b) => a.ts - b.ts);
+  const byKey = {}; grouped.forEach(e => (byKey[e.key] ||= []).push(e));
+  const cnt = e => e.n > 1 ? e.n + " " : "";
+  const tip = e => tick(e.sym) + " · " + (e.n > 1 ? `${e.n} × ${evLabel(e)}` : e.txt);
+  const chip = e => `<span class="evc k-${e.kind}" data-sym="${esc(e.sym)}" title="${esc(tip(e))}">${cnt(e)}${esc(tick(e.sym))} ${e.L}</span>`;
   const el = $("calBody");
   if(v === "w"){
     const d0 = new Date(kts(tk)); const dow = (d0.getDay() + 6) % 7;
@@ -1622,8 +1638,8 @@ function renderCalendar(){
   }
   const Y = +tk.slice(0,4) + off; $("calLabel").textContent = String(Y);
   let h = '<div class="calyear">';
-  for(let m=1;m<=12;m++){ const mk = `${Y}-${String(m).padStart(2,"0")}`, es = EV.filter(e => e.key.slice(0,7) === mk);
-    h += `<div class="mo${tk.slice(0,7) === mk ? " cur" : ""}"><h4>${new Date(Y, m-1, 1).toLocaleDateString("en-GB",{month:"short"})}</h4>${es.slice(0,6).map(e => `<div class="yl" data-sym="${esc(e.sym)}" title="${esc(e.txt)}"><span class="k k-${e.kind}" style="width:13px;height:13px;line-height:13px;font-size:8.5px">${e.L}</span> ${+e.key.slice(8)} ${esc(tick(e.sym))}</div>`).join("")}${es.length > 6 ? `<span class="more">+${es.length-6} more</span>` : ""}</div>`; }
+  for(let m=1;m<=12;m++){ const mk = `${Y}-${String(m).padStart(2,"0")}`, es = grouped.filter(e => e.key.slice(0,7) === mk);
+    h += `<div class="mo${tk.slice(0,7) === mk ? " cur" : ""}"><h4>${new Date(Y, m-1, 1).toLocaleDateString("en-GB",{month:"short"})}</h4>${es.slice(0,6).map(e => `<div class="yl" data-sym="${esc(e.sym)}" title="${esc(tip(e))}"><span class="k k-${e.kind}" style="width:13px;height:13px;line-height:13px;font-size:8.5px">${e.L}</span> ${+e.key.slice(8)} ${cnt(e)}${esc(tick(e.sym))}</div>`).join("")}${es.length > 6 ? `<span class="more">+${es.length-6} more</span>` : ""}</div>`; }
   el.innerHTML = h + "</div>";
 }
 
@@ -1828,6 +1844,7 @@ function init(){
     return false;
   };
   ["evToday","calBody"].forEach(id => $(id).addEventListener("click", stockClick));
+  $("evFilters").addEventListener("click", e => { const b = e.target.closest(".lgf"); if(!b) return; UI.evf = { ...(UI.evf || {}), [b.dataset.f]: !evOn(b.dataset.f) }; ls.set(LS_UI, UI); renderEvents(); });
   $("trBody").addEventListener("click", e => { stockClick(e); });
   document.querySelectorAll("#stkDlg .stabs button").forEach(b => b.onclick = () => { stkTab = b.dataset.st; stkMore = false; renderStock(); });
   $("stkBody").addEventListener("click", e => { if(e.target.id === "stkMore"){ stkMore = true; renderStock(); } });
