@@ -52,6 +52,9 @@ button,input,select{font:inherit;color:inherit}
 /* top bar */
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;border-bottom:1px solid var(--line);padding-bottom:10px}
 .brand{font-weight:700;font-size:22px;letter-spacing:.02em;color:var(--yellow);white-space:nowrap}
+.bookseg button{padding:5px 12px;font-size:13px;font-weight:600}
+.booktag{display:inline-block;margin-left:10px;padding:1px 7px;border:1px dashed var(--orange);color:var(--orange);font:600 11px var(--ui);letter-spacing:.1em;vertical-align:4px}
+body.sim .kpis{outline:1px dashed var(--orange);outline-offset:3px}
 .brand small{color:var(--gray);font-weight:500;font-size:12px;letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
 .status{display:flex;align-items:center;gap:8px;color:var(--gray);font-size:12px;flex:1 1 220px;min-width:0}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--gray);flex:none}
@@ -213,7 +216,11 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <div class="wrap">
 
   <header class="top">
-    <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small></div>
+    <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small><span class="booktag" id="bookTag" hidden>SIMULATED</span></div>
+    <div class="seg bookseg" id="bookSeg" role="group" aria-label="Which portfolio">
+      <button type="button" data-b="real" aria-pressed="true">Real Portfolio</button>
+      <button type="button" data-b="sim" aria-pressed="false">Simulated Portfolio</button>
+    </div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></div>
     <div class="actions">
       <button class="btn primary" id="addBtn" type="button">+ Position</button>
@@ -269,7 +276,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <section class="panel" aria-label="Positions">
-    <div class="ph"><h2>Positions <span class="muted" id="posCount"></span></h2><div class="sub">Double-click a column title to rank · P&amp;L in position currency · totals in <span id="baseLbl2">EUR</span></div></div>
+    <div class="ph"><h2><span id="posTitle">Positions</span> <span class="muted" id="posCount"></span></h2><div class="sub">Double-click a column title to rank · P&amp;L in position currency · totals in <span id="baseLbl2">EUR</span></div></div>
     <div class="tblwrap">
       <table>
         <thead data-tbl="pf"><tr>
@@ -319,7 +326,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 
   <div class="view" id="view-tr" role="tabpanel" aria-labelledby="tab-tr" hidden>
   <section class="panel" aria-label="Trades">
-    <div class="ph"><h2>Realized trades</h2><div class="sub">Every sale and its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
+    <div class="ph"><h2 id="trTitle">Realized trades</h2><div class="sub">Every sale and its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
     <div class="tblwrap">
       <table class="ttbl">
         <thead data-tbl="tr"><tr>
@@ -348,6 +355,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         <div class="sug" id="tickSug" role="listbox" hidden></div>
         <div class="picked" id="tickPicked" hidden></div>
       </div>
+      <label class="f full">Portfolio<select id="fBook"><option value="real">Real Portfolio</option><option value="sim">Simulated Portfolio</option></select></label>
       <label class="f">Shares<input id="fShares" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Price per share<input id="fPrice" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Currency<input id="fCcy" maxlength="3" autocapitalize="characters" placeholder="USD"></label>
@@ -417,7 +425,8 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.20.8";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.12";   // shown in the status line; devices compare it to spot an outdated copy
+function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
@@ -639,7 +648,12 @@ function weighted(rows, key){
   return w ? s / w : NaN;
 }
 function rid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function allPos(){ return [...DB.positions, ...(DB.closed || [])]; }
+/* ---------- two books: Real and Simulated, each with its own positions, sales and history ---------- */
+const BOOKS = { real: { pos:"positions", closed:"closed", label:"Real Portfolio", short:"Real" }, sim: { pos:"simPositions", closed:"simClosed", label:"Simulated Portfolio", short:"Sim" } };
+function bk(b){ return BOOKS[b || UI.book] || BOOKS.real; }
+function openPositions(b){ return DB[bk(b).pos] || []; }
+function allPos(b){ return [...(DB[bk(b).pos] || []), ...(DB[bk(b).closed] || [])]; }
+function allPosBoth(){ return [...allPos("real"), ...allPos("sim")]; }
 function saleTs(sl){ return isNum(sl.ts) ? sl.ts : kts(sl.date) + 17*3600e3; }
 function allSales(){ return allPos().flatMap(p => (p.sells || []).map(sl => ({ p, s: sl }))).sort((a,b) => saleTs(b.s) - saleTs(a.s)); }
 function saleBase(sl, p){ return isNum(sl.pnlBase) ? sl.pnlBase : toBase(sl.pnl, sl.ccy || p.ccy); }
@@ -649,7 +663,12 @@ function render(){
   NOW = Date.now();
   const base = DB.base;
   ["baseLbl","baseLbl2","baseLbl3","baseLbl4"].forEach(id => $(id).textContent = base);
-  const rows = DB.positions.map(p => ({ p, c: calc(p) }));
+  const rows = openPositions().map(p => ({ p, c: calc(p) }));
+  const isSim = UI.book === "sim";
+  document.body.classList.toggle("sim", isSim); $("bookTag").hidden = !isSim;
+  $("posTitle").textContent = isSim ? "Simulated positions" : "Real positions";
+  $("trTitle").textContent = isSim ? "Simulated trades" : "Real trades";
+  document.querySelectorAll("#bookSeg button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.b === (UI.book || "real"))));
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const day = rows.reduce((a,r) => a + (isNum(r.c.dayBase) ? r.c.dayBase : 0), 0);
@@ -737,7 +756,7 @@ function renderTable(rows, tot, PF){
   let html = "";
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const benchW = (() => { let s=0,w=0; rows.forEach(r=>{ if(isNum(r.c.benchPct)&&isNum(r.c.costBase)){ s+=r.c.benchPct*r.c.costBase; w+=r.c.costBase; } }); return w? s/w : NaN; })();
-  html += `<tr class="total"><td class="l stick">GGD</td><td class="l">Portfolio total</td><td class="l">${esc(DB.base)}</td>
+  html += `<tr class="total"><td class="l stick">GGD</td><td class="l">${UI.book === "sim" ? "Simulated total" : "Real total"}</td><td class="l">${esc(DB.base)}</td>
     <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td>
     <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
     <td>${fSigned(PF["1W"]?.p,2,"%")}</td><td>${fSigned(PF["1M"]?.p,2,"%")}</td><td>${fSigned(PF["YTD"]?.p,2,"%")}</td>
@@ -769,9 +788,9 @@ function renderTable(rows, tot, PF){
 function secOf(q){ return q.sector || (q.type === "fund" ? "Funds / ETFs" : q.type === "index" ? "Indices" : q.type === "dr" ? "Depositary receipts" : "Other"); }
 function avgOf(rows, f){ const v = rows.map(f).filter(isNum); return v.length ? v.reduce((a,b) => a+b, 0) / v.length : NaN; }
 function watchRow({ w, q }){
-  const held = DB.positions.some(p => p.sym === w.sym);
+  const held = openPositions("real").some(p => p.sym === w.sym), simHeld = openPositions("sim").some(p => p.sym === w.sym);
   return `<tr>
-      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}</td>
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}</td>
       <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || w.sym.split(":")[0])}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(normCcy(q.currency))}</span></td><td>${dayCell(q)}</td><td>${fPx(prevClose(q))}</td>
@@ -1030,8 +1049,10 @@ function sanitize(d){
   const o = { v:1, base:"EUR", refresh:60, positions:[], closed:[], watch:[], snaps:{}, ...(d || {}) };
   if(!Array.isArray(o.positions)) o.positions = [];
   if(!Array.isArray(o.closed)) o.closed = [];
+  if(!Array.isArray(o.simPositions)) o.simPositions = [];
+  if(!Array.isArray(o.simClosed)) o.simClosed = [];
   if(!Array.isArray(o.watch)) o.watch = [];
-  [...o.positions, ...o.closed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
+  [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
   if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
   return o;
 }
@@ -1043,7 +1064,7 @@ async function commit(mutator, msg){
         const { data, sha } = await ghGet();
         const next = sanitize(data || DB);
         mutator(next);
-        if(!next.app || next.app < APP_VERSION) next.app = APP_VERSION;
+        if(verNum(next.app) < verNum(APP_VERSION)) next.app = APP_VERSION;
         SHA = await ghPut(next, sha, msg);
         DB = next; ls.set(LS_DATA, DB); return true;
       }catch(e){ if(!e.conflict){ setStatus("err", e.message); mutator(DB); ls.set(LS_DATA, DB); return false; } }
@@ -1068,8 +1089,8 @@ async function refresh(){
     const base = majorCcy(DB.base);
     const syms = new Set([SPX]);
     const ccys = new Set();
-    DB.positions.forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); });
-    allPos().forEach(p => { syms.add(p.sym); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
+    [...openPositions("real"), ...openPositions("sim")].forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); });
+    allPosBoth().forEach(p => { syms.add(p.sym); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
     (DB.watch || []).forEach(w => syms.add(w.sym));
     ccys.delete(base);
     const fxSyms = []; ccys.forEach(c => fxSyms.push(`FX_IDC:${c}${base}`, `FX_IDC:${base}${c}`));
@@ -1078,12 +1099,12 @@ async function refresh(){
     FX = { [base]: 1 };
     ccys.forEach(c => { const d = res[`FX_IDC:${c}${base}`]?.close, inv = res[`FX_IDC:${base}${c}`]?.close; FX[c] = isNum(d) ? d : isNum(inv) && inv ? 1/inv : NaN; });
     // keep instrument currency stored on each position up to date
-    DB.positions.forEach(p => { if(Q[p.sym]?.currency) p.iccy = Q[p.sym].currency; });
+    allPosBoth().forEach(p => { if(Q[p.sym]?.currency) p.iccy = Q[p.sym].currency; });
     lastOk = new Date();
-    const missing = [...new Set([...DB.positions.flatMap(p => [p.sym, p.bench]), ...(DB.watch || []).map(w => w.sym)].filter(s => s && !Q[s]))];
+    const missing = [...new Set([...openPositions().flatMap(p => [p.sym, p.bench]), ...(DB.watch || []).map(w => w.sym)].filter(s => s && !Q[s]))];
     const fxMissing = [...ccys].filter(c => !isNum(FX[c]));
-    let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only") + ` · v${APP_VERSION.slice(-1)}`;
-    $("updBtn").hidden = !(DB.app && DB.app > APP_VERSION);
+    let t = `Live · ${lastOk.toLocaleTimeString("en-GB")} · TradingView` + (SYNC ? " · synced" : " · this device only") + ` · v${APP_VERSION.split(".").pop()}`;
+    $("updBtn").hidden = !(verNum(DB.app) > verNum(APP_VERSION));
     if(missing.length) t += ` · no data: ${missing.join(", ")}`;
     if(fxMissing.length) t += ` · no FX: ${fxMissing.join(", ")}`;
     setStatus(missing.length || fxMissing.length ? "err" : "live", t);
@@ -1099,7 +1120,7 @@ function snapshotNow(){
   return { t: Date.now(), q };
 }
 async function maybeSnapshot(){
-  if((!allPos().length && !(DB.watch || []).length) || !Object.keys(Q).length) return;
+  if((!allPosBoth().length && !(DB.watch || []).length) || !Object.keys(Q).length) return;
   const k = today(), cur = DB.snaps[k];
   const stale = !cur || Date.now() - (cur.t || 0) > 2*3600e3;
   if(!stale || Date.now() - lastSnapWrite < 10*60e3) return;
@@ -1119,6 +1140,7 @@ function showPicked(h){
 }
 function openPos(p){
   editing = p || null; chosen = p ? { sym:p.sym, currency:p.iccy, description:p.name, isin:p.isin } : null;
+  $("fBook").value = UI.book || "real";
   $("posDlgTitle").textContent = p ? "Edit position" : "Open position";
   $("delBtn").hidden = !p;
   $("fTicker").value = p ? p.sym : ""; $("fShares").value = p ? p.shares : ""; $("fPrice").value = p ? p.price : "";
@@ -1211,9 +1233,16 @@ async function savePos(ev){
     sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
     shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now(), sells: editing?.sells || [] };
   $("posSave").disabled = true;
-  await commit(d => { const i = d.positions.findIndex(x => x.id === rec.id); if(i >= 0) d.positions[i] = rec; else d.positions.push(rec); }, (editing ? "Edit " : "Open ") + s);
+  const toBook = $("fBook").value === "sim" ? "sim" : "real", fromBook = editing ? (UI.book || "real") : null;
+  const T = bk(toBook), F = fromBook ? bk(fromBook) : null;
+  await commit(d => {
+    if(F && F !== T) d[F.pos] = (d[F.pos] || []).filter(x => x.id !== rec.id);   // moved to the other portfolio
+    d[T.pos] = d[T.pos] || [];
+    const i = d[T.pos].findIndex(x => x.id === rec.id); if(i >= 0) d[T.pos][i] = rec; else d[T.pos].push(rec);
+  }, `${editing ? "Edit" : "Open"} ${s} (${T.short})`);
   $("posSave").disabled = false;
   $("posDlg").close();
+  if(toBook !== (UI.book || "real")) setBook(toBook);
   lastSnapWrite = 0; refresh();
 }
 function confirmBox(title, text){
@@ -1254,26 +1283,29 @@ async function doSell(ev){
   if(date < p.date){ m.textContent = "The sell date can't be before the open date (" + p.date + ")."; return; }
   if(date > today()){ m.textContent = "The sell date can't be in the future."; return; }
   const ts = date === today() ? Date.now() : kts(date) + 17*3600e3;
-  const saleId = rid(), sym = p.sym;
+  const saleId = rid(), sym = p.sym, book = UI.book || "real";
   $("xGo").disabled = true;
   await commit(d => {
-    const pos = d.positions.find(x => x.id === p.id); if(!pos) return;
+    const K = bk(book), list = d[K.pos] || [];
+    const pos = list.find(x => x.id === p.id); if(!pos) return;
     if((pos.sells || []).some(x => x.id === saleId)) return;
     const qq = Math.min(q, pos.shares), pnl = (px - pos.price) * qq;
     pos.sells = [...(pos.sells || []), { id: saleId, date, ts, qty: qq, price: px, cost: pos.price, ccy: pos.ccy, pnl, pnlBase: toBase(pnl, pos.ccy) }];
     pos.shares = +(pos.shares - qq).toFixed(8);
-    if(pos.shares <= 1e-8){ pos.shares = 0; pos.closedDate = date; d.positions = d.positions.filter(x => x !== pos); d.closed = [...(d.closed || []), pos]; }
+    if(pos.shares <= 1e-8){ pos.shares = 0; pos.closedDate = date; d[K.pos] = list.filter(x => x !== pos); d[K.closed] = [...(d[K.closed] || []), pos]; }
   }, `Sell ${q} ${sym}`);
   $("sellDlg").close(); selling = null;
   lastSnapWrite = 0; refresh();
 }
 async function undoSale(pid, sid){
   const hit = allSales().find(x => x.p.id === pid && x.s.id === sid); if(!hit) return;
+  const book = UI.book || "real";
   const ok = await confirmBox("Undo sale", `Put ${hit.s.qty} shares of ${hit.p.sym} back into the portfolio and remove this sale's gain or loss?`);
   if(!ok) return;
   await commit(d => {
-    let pos = d.positions.find(x => x.id === pid);
-    if(!pos){ const i = (d.closed || []).findIndex(x => x.id === pid); if(i < 0) return; pos = d.closed[i]; d.closed.splice(i, 1); delete pos.closedDate; d.positions.push(pos); }
+    const K = bk(book); d[K.pos] = d[K.pos] || []; d[K.closed] = d[K.closed] || [];
+    let pos = d[K.pos].find(x => x.id === pid);
+    if(!pos){ const i = d[K.closed].findIndex(x => x.id === pid); if(i < 0) return; pos = d[K.closed][i]; d[K.closed].splice(i, 1); delete pos.closedDate; d[K.pos].push(pos); }
     const sl = (pos.sells || []).find(x => x.id === sid); if(!sl) return;
     pos.shares = +(pos.shares + sl.qty).toFixed(8); pos.sells = pos.sells.filter(x => x.id !== sid);
   }, "Undo sale " + hit.p.sym);
@@ -1298,6 +1330,9 @@ function buyFromWatch(sym){
   openPos(null);
   pickTicker({ sym, currency: q.currency || "", description: q.description || w.name, isin: w.isin, close: q.close });
 }
+
+/* ============================== Real / Simulated switch ============================== */
+function setBook(b){ UI.book = b === "sim" ? "sim" : "real"; ls.set(LS_UI, UI); render(); }
 
 /* ============================== tabs ============================== */
 function showTab(t){
@@ -1365,6 +1400,7 @@ function init(){
   document.querySelectorAll("#rangeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.r === UI.range)); b.onclick = () => { UI.range = b.dataset.r; ls.set(LS_UI, UI); document.querySelectorAll("#rangeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawChart(); }; });
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
+  document.querySelectorAll("#bookSeg button").forEach(b => b.onclick = () => setBook(b.dataset.b));
   $("refreshBtn").onclick = () => refresh();
   // load the newest index.html, skipping the browser's cached copy
   const hardReload = () => location.replace(location.pathname + "?v=" + Date.now());
@@ -1381,12 +1417,13 @@ function init(){
     const ok = await confirmBox("Delete position", `Delete ${editing.sym} completely, as if you never bought it? Use this only for mistakes or tests. To sell shares and book the gain or loss, use Sell instead.`);
     if(!ok) return;
     const id = editing.id;
-    await commit(d => { d.positions = d.positions.filter(x => x.id !== id); }, "Delete " + editing.sym);
+    const K = bk();
+    await commit(d => { d[K.pos] = (d[K.pos] || []).filter(x => x.id !== id); }, "Delete " + editing.sym);
     $("posDlg").close(); refresh();
   };
   $("tbody").addEventListener("click", e => {
-    const b = e.target.closest("[data-edit]"); if(b){ const p = DB.positions.find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
-    const sb = e.target.closest("[data-sell]"); if(sb){ const p = DB.positions.find(x => x.id === sb.dataset.sell); if(p) openSell(p); }
+    const b = e.target.closest("[data-edit]"); if(b){ const p = openPositions().find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
+    const sb = e.target.closest("[data-sell]"); if(sb){ const p = openPositions().find(x => x.id === sb.dataset.sell); if(p) openSell(p); }
   });
   $("sellForm").addEventListener("submit", doSell);
   $("xQty").addEventListener("input", sellEst); $("xPx").addEventListener("input", sellEst);
@@ -1454,6 +1491,13 @@ function init(){
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
   showTab(["pf","wl","tr"].includes(UI.tab) ? UI.tab : "pf");
   render(); refresh(); schedule();
+  setupPwa();
+}
+/* ============================== no app install ==============================
+   Plain web page only. If an earlier version installed a service worker on this device, remove it and its saved files. */
+function setupPwa(){
+  try{ navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {}); }catch(e){}
+  try{ window.caches?.keys().then(ks => ks.filter(k => k.startsWith("ggd-")).forEach(k => caches.delete(k))).catch(() => {}); }catch(e){}
 }
 init();
 </script>
