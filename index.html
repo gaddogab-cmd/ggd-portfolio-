@@ -52,9 +52,9 @@ button,input,select{font:inherit;color:inherit}
 /* top bar */
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;border-bottom:1px solid var(--line);padding-bottom:10px}
 .brand{font-weight:700;font-size:22px;letter-spacing:.02em;color:var(--yellow);white-space:nowrap}
-.bookseg button{padding:5px 12px;font-size:13px;font-weight:600}
-.booktag{display:inline-block;margin-left:10px;padding:1px 7px;border:1px dashed var(--orange);color:var(--orange);font:600 11px var(--ui);letter-spacing:.1em;vertical-align:4px}
-body.sim .kpis{outline:1px dashed var(--orange);outline-offset:3px}
+body.sim .kpis{outline:1px dashed var(--blue);outline-offset:3px}
+.kpi .lab .bk{font-weight:700;margin-right:4px}
+.bk-real{color:var(--orange)} .bk-sim{color:var(--blue-soft)}
 .brand small{color:var(--gray);font-weight:500;font-size:12px;letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
 .status{display:flex;align-items:center;gap:8px;color:var(--gray);font-size:12px;flex:1 1 220px;min-width:0}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--gray);flex:none}
@@ -146,7 +146,13 @@ tr.total td.stick{background:var(--olive)}
 .tabs{display:flex;gap:4px;border-bottom:2px solid var(--orange);overflow-x:auto}
 .tabs button{background:#14171c;border:1px solid #333842;border-bottom:0;padding:7px 16px;cursor:pointer;color:var(--gray-hi);font:600 13px var(--ui);white-space:nowrap}
 .tabs button:hover{color:var(--fg)}
-.tabs button[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
+/* Real tabs orange, Simulated tabs blue, Watchlist grey */
+.tabs button.t-real{border-top:2px solid var(--orange);color:var(--orange)}
+.tabs button.t-sim{border-top:2px solid var(--blue);color:var(--blue-soft)}
+.tabs button.t-wl{border-top:2px solid var(--gray)}
+.tabs button.t-real[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
+.tabs button.t-sim[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.tabs button.t-wl[aria-selected="true"]{background:var(--gray-hi);border-color:var(--gray-hi);color:#000}
 .tabs button span{font-weight:400;opacity:.8}
 .view{display:flex;flex-direction:column;gap:12px}
 .wadd{position:relative;flex:1 1 260px;max-width:440px;min-width:0}
@@ -216,11 +222,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <div class="wrap">
 
   <header class="top">
-    <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small><span class="booktag" id="bookTag" hidden>SIMULATED</span></div>
-    <div class="seg bookseg" id="bookSeg" role="group" aria-label="Which portfolio">
-      <button type="button" data-b="real" aria-pressed="true">Real Portfolio</button>
-      <button type="button" data-b="sim" aria-pressed="false">Simulated Portfolio</button>
-    </div>
+    <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small></div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></div>
     <div class="actions">
       <button class="btn primary" id="addBtn" type="button">+ Position</button>
@@ -231,21 +233,23 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </header>
 
   <section class="kpis" aria-label="Portfolio summary">
-    <div class="kpi"><div class="lab">Market value</div><div class="val" id="kVal">–</div><div class="sub muted" id="kCost">cost –</div></div>
+    <div class="kpi"><div class="lab"><span class="bk bk-real" id="kBook">REAL</span>Market value</div><div class="val" id="kVal">–</div><div class="sub muted" id="kCost">cost –</div></div>
     <div class="kpi"><div class="lab">Day</div><div class="val" id="kDayPct">–</div><div class="sub" id="kDayAbs">–</div></div>
     <div class="kpi"><div class="lab">1 Week</div><div class="val" id="kW">–</div><div class="sub" id="kWb">–</div></div>
     <div class="kpi"><div class="lab">1 Month</div><div class="val" id="kM">–</div><div class="sub" id="kMb">–</div></div>
-    <div class="kpi"><div class="lab">1 Year</div><div class="val" id="kY">–</div><div class="sub" id="kYb">–</div></div>
-    <div class="kpi"><div class="lab">Total P&amp;L</div><div class="val" id="kPnl">–</div><div class="sub" id="kPnlPct">–</div></div>
+    <div class="kpi"><div class="lab">Realized P&amp;L</div><div class="val" id="kR">–</div><div class="sub" id="kRb">–</div></div>
+    <div class="kpi"><div class="lab">Unrealized P&amp;L</div><div class="val" id="kU">–</div><div class="sub" id="kUb">–</div></div>
   </section>
 
-  <nav class="tabs" role="tablist" aria-label="Views">
-    <button type="button" role="tab" id="tab-pf" data-tab="pf" aria-selected="true">Portfolio</button>
-    <button type="button" role="tab" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
-    <button type="button" role="tab" id="tab-tr" data-tab="tr" aria-selected="false">Trades <span id="trCount"></span></button>
+  <nav class="tabs" id="tabsNav" role="tablist" aria-label="Views">
+    <button type="button" role="tab" class="t-real" id="tab-real" data-tab="real" aria-selected="true">Real Portfolio</button>
+    <button type="button" role="tab" class="t-sim" id="tab-sim" data-tab="sim" aria-selected="false">Simulated Portfolio</button>
+    <button type="button" role="tab" class="t-wl" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
+    <button type="button" role="tab" class="t-real" id="tab-trreal" data-tab="trreal" aria-selected="false">Real Trades <span id="trCountR"></span></button>
+    <button type="button" role="tab" class="t-sim" id="tab-trsim" data-tab="trsim" aria-selected="false">Simulated Trades <span id="trCountS"></span></button>
   </nav>
 
-  <div class="view" id="view-pf" role="tabpanel" aria-labelledby="tab-pf">
+  <div class="view" id="view-pf" role="tabpanel">
   <div class="row2">
     <section class="panel" aria-label="Performance chart">
       <div class="ph">
@@ -281,7 +285,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <table>
         <thead data-tbl="pf"><tr>
           <th class="l stick" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th class="l" data-k="mk" data-t="1">Market</th>
-          <th data-k="op">Open Px</th><th data-k="last">Current Px</th><th data-k="pc">Close Px</th><th data-k="ex">% Exposure</th><th data-k="sh">Shares</th>
+          <th data-k="op">Open Px</th><th data-k="last">Current Px</th><th data-k="pc">Close Px</th><th data-k="ex">% Exposure</th><th data-k="sh">Shares</th><th data-k="pp">Purchase Px</th>
           <th data-k="pg">Pos. Gain</th><th data-k="gp">Pos. Gain %</th><th data-k="bp">Bench %</th><th data-k="rg">52 Wk Range</th>
           <th data-k="w">1W</th><th data-k="m">1M</th><th data-k="ytd">YTD</th><th data-k="y">1Y</th><th data-k="y10">10Y</th><th data-k="ipo">IPO Px</th><th data-k="si">Since IPO</th><th></th>
         </tr></thead>
@@ -292,7 +296,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
-  <div class="view" id="view-wl" role="tabpanel" aria-labelledby="tab-wl" hidden>
+  <div class="view" id="view-wl" role="tabpanel" hidden>
   <section class="panel" aria-label="Watchlist sector performance">
     <div class="ph">
       <h2>Sector performance</h2>
@@ -324,9 +328,9 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
-  <div class="view" id="view-tr" role="tabpanel" aria-labelledby="tab-tr" hidden>
+  <div class="view" id="view-tr" role="tabpanel" hidden>
   <section class="panel" aria-label="Trades">
-    <div class="ph"><h2 id="trTitle">Realized trades</h2><div class="sub">Every sale and its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
+    <div class="ph"><h2 id="trTitle">Realized trades</h2><div class="sub">Every sale and dividend, with its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
     <div class="tblwrap">
       <table class="ttbl">
         <thead data-tbl="tr"><tr>
@@ -336,12 +340,12 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         <tbody id="trBody"></tbody>
       </table>
     </div>
-    <div class="empty" id="trEmpty">No sales yet. Use <b>Sell</b> on a position: the gain or loss lands here and in Total P&amp;L.</div>
+    <div class="empty" id="trEmpty">No sales or dividends yet. Use <b>Sell</b> or <b>Dividend</b> on a position: the amount lands here and in Realized P&amp;L.</div>
   </section>
   </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = your entry price. <b>Close Px</b> = previous session close. <b>Day %</b> counts only a session that traded today: before a market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and the pre-market move, and counts 0 in your Day figure. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1W/1M/1Y</b> = your portfolio's own time-weighted return over that window, counted only from your first open date (so a new portfolio shows its return since opening). The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves. <b>Total P&amp;L</b> = unrealized gains on what you hold + realized gains from sales. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> counts only a session that traded today: before a market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and the pre-market move, and counts 0 in your Day figure. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -393,6 +397,22 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </form>
 </dialog>
 
+<!-- Dividend -->
+<dialog id="divDlg">
+  <form method="dialog" id="divForm" novalidate>
+    <div class="dlg-h"><h3 id="divTitle">Dividend</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <div class="full xinfo" id="dInfo"></div>
+      <label class="f">Per share (<span class="dCcy"></span>)<input id="dPer" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Total received (<span class="dCcy"></span>)<input id="dTot" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Payment date<input id="dDate" type="date"></label>
+      <div class="full hint">Enter either box: the other fills itself from the shares you hold. Use the amount after withholding tax if you want net figures.</div>
+      <div class="full msg neg" id="dMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit" id="dGo">Save dividend</button></div></div>
+  </form>
+</dialog>
+
 <!-- Settings / sync -->
 <dialog id="setDlg">
   <form method="dialog" id="setForm" novalidate>
@@ -425,7 +445,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.12";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.13";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -576,7 +596,7 @@ function perfOk(q, k){ const P = PERIODS.find(x => x[0] === k), ipo = ipoTs(q); 
 function perfVal(q, k){ return perfOk(q, k) ? q[k] : NaN; }
 function rangeFrac(q){ const lo = q?.price_52_week_low, hi = q?.price_52_week_high, c = q?.close; return isNum(lo) && isNum(hi) && isNum(c) && hi > lo ? (c - lo) / (hi - lo) : NaN; }
 // sort keys shared by every table that shows a quote
-const QKEYS = { last: q => q.close, day: q => tradedToday(q) ? q.change : NaN,   // markets not open yet: ranked last, left out of averages pc: q => prevClose(q), rg: q => rangeFrac(q),
+const QKEYS = { op: q => tradedToday(q) ? q.open : NaN, last: q => q.close, day: q => tradedToday(q) ? q.change : NaN,   // markets not open yet: ranked last, left out of averages pc: q => prevClose(q), rg: q => rangeFrac(q),
   w: q => perfVal(q,"Perf.W"), m: q => perfVal(q,"Perf.1M"), ytd: q => perfVal(q,"Perf.YTD"), y: q => perfVal(q,"Perf.Y"), y10: q => perfVal(q,"Perf.10Y"),
   ipo: q => ipoPx(q), si: q => q["Perf.All"] };
 function perfCells(q){
@@ -655,7 +675,14 @@ function openPositions(b){ return DB[bk(b).pos] || []; }
 function allPos(b){ return [...(DB[bk(b).pos] || []), ...(DB[bk(b).closed] || [])]; }
 function allPosBoth(){ return [...allPos("real"), ...allPos("sim")]; }
 function saleTs(sl){ return isNum(sl.ts) ? sl.ts : kts(sl.date) + 17*3600e3; }
-function allSales(){ return allPos().flatMap(p => (p.sells || []).map(sl => ({ p, s: sl }))).sort((a,b) => saleTs(b.s) - saleTs(a.s)); }
+function allSales(b){ return allPos(b).flatMap(p => (p.sells || []).map(sl => ({ p, s: sl }))).sort((a,b) => saleTs(b.s) - saleTs(a.s)); }
+function allDivs(b){ return allPos(b).flatMap(p => (p.divs || []).map(dv => ({ p, d: dv }))); }
+function divBase(dv, p){ return isNum(dv.amountBase) ? dv.amountBase : toBase(dv.amount, dv.ccy || p.ccy); }
+// Trades tab: sales and dividends of one book, newest first
+function allEvents(b){
+  return [...allSales(b).map(x => ({ kind:"sale", p:x.p, s:x.s, ts:saleTs(x.s) })), ...allDivs(b).map(x => ({ kind:"div", p:x.p, s:x.d, ts:saleTs(x.d) }))].sort((a,b) => b.ts - a.ts);
+}
+function eventBase(e){ return e.kind === "div" ? divBase(e.s, e.p) : saleBase(e.s, e.p); }
 function saleBase(sl, p){ return isNum(sl.pnlBase) ? sl.pnlBase : toBase(sl.pnl, sl.ccy || p.ccy); }
 function fDate(ts, withYear){ return new Date(ts).toLocaleDateString("en-GB",{ day:"2-digit", month:"short", ...(withYear ? { year:"numeric" } : {}) }); }
 function perfCell(pf){ return pf ? pct(pf.p) : "–"; }
@@ -665,15 +692,19 @@ function render(){
   ["baseLbl","baseLbl2","baseLbl3","baseLbl4"].forEach(id => $(id).textContent = base);
   const rows = openPositions().map(p => ({ p, c: calc(p) }));
   const isSim = UI.book === "sim";
-  document.body.classList.toggle("sim", isSim); $("bookTag").hidden = !isSim;
+  document.body.classList.toggle("sim", isSim);
+  $("kBook").textContent = isSim ? "SIMULATED" : "REAL"; $("kBook").className = "bk " + (isSim ? "bk-sim" : "bk-real");
   $("posTitle").textContent = isSim ? "Simulated positions" : "Real positions";
   $("trTitle").textContent = isSim ? "Simulated trades" : "Real trades";
-  document.querySelectorAll("#bookSeg button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.b === (UI.book || "real"))));
+  ["real","sim"].forEach(b => { const n = allEvents(b).length; $(b === "real" ? "trCountR" : "trCountS").textContent = n ? `(${n})` : ""; });
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const day = rows.reduce((a,r) => a + (isNum(r.c.dayBase) ? r.c.dayBase : 0), 0);
   const sales = allSales();
-  const realized = sales.reduce((a,{p,s:sl}) => a + (isNum(saleBase(sl,p)) ? saleBase(sl,p) : 0), 0);
+  const saleVals = sales.map(({p,s:sl}) => saleBase(sl,p)).filter(isNum);
+  const gains = saleVals.filter(v => v > 0).reduce((a,v) => a+v, 0), losses = saleVals.filter(v => v < 0).reduce((a,v) => a+v, 0);
+  const divTot = allDivs().reduce((a,{p,d:dv}) => { const v = divBase(dv,p); return a + (isNum(v) ? v : 0); }, 0);
+  const realized = gains + losses + divTot;
   const soldCost = sales.reduce((a,{p,s:sl}) => { const v = toBase(sl.cost * sl.qty, sl.ccy || p.ccy); return a + (isNum(v) ? v : 0); }, 0);
   const spx = Q[SPX] || {};
   const hasHist = allPos().length > 0;
@@ -685,20 +716,24 @@ function render(){
   const spxDay = tradedToday(spx) ? fSigned(spx.change,2,"%") : "closed";
   $("kDayPct").innerHTML = rows.length ? pct(dayPct) : "–";
   $("kDayAbs").innerHTML = rows.length ? `<span class="${cls(day)}">${fSigned(day,2," "+base)}</span> <span class="muted">· SPX ${spxDay}</span>` : `<span class="muted">SPX ${spxDay}</span>`;
-  [["kW","kWb","1W"],["kM","kMb","1M"],["kY","kYb","1Y"]].forEach(([a,b,r]) => {
+  // 1 Week / 1 Month: only a full window counts; a younger portfolio shows its return since opening underneath
+  [["kW","kWb","1W","a week"],["kM","kMb","1M","a month"]].forEach(([a,b,r,span]) => {
     const pf = PF[r];
     if(!pf){ $(a).innerHTML = "–"; $(b).innerHTML = `<span class="muted">${hasHist ? "waiting for prices" : "no positions yet"}</span>`; return; }
+    if(pf.clipped){ $(a).innerHTML = `<span class="muted">–</span>`; $(b).innerHTML = `<span class="muted">held less than ${span} · since ${fDate(pf.start)}</span> ${pct(pf.p)}`; return; }
     const d = isNum(pf.p) && isNum(pf.b) ? pf.p - pf.b : NaN;
     $(a).innerHTML = pct(pf.p);
-    $(b).innerHTML = `<span class="${cls(d)}">${fSigned(d,2," pp")}</span> <span class="muted">vs SPX ${fSigned(pf.b,2,"%")}${pf.clipped ? " · since " + fDate(pf.start) : ""}</span>`;
+    $(b).innerHTML = `<span class="${cls(d)}">${fSigned(d,2," pp")}</span> <span class="muted">vs SPX ${fSigned(pf.b,2,"%")}</span>`;
   });
-  const unreal = tot - cost, totalPnl = unreal + realized, invested = cost + soldCost;
-  $("kPnl").innerHTML = hasHist ? `<span class="${cls(totalPnl)}">${fSigned(totalPnl,2," "+base)}</span>` : "–";
-  $("kPnlPct").innerHTML = hasHist ? `${invested ? pct(totalPnl/invested*100) + " · " : ""}<span class="muted">unrealized</span> <span class="${cls(unreal)}">${fSigned(unreal,2)}</span> <span class="muted">· realized</span> <span class="${cls(realized)}">${fSigned(realized,2)}</span>` : "–";
+  const unreal = tot - cost, totalPnl = unreal + realized;
+  $("kR").innerHTML = hasHist ? `<span class="${cls(realized)}">${fSigned(realized,2," "+base)}</span>` : "–";
+  $("kRb").innerHTML = hasHist ? `<span class="muted">gains</span> <span class="${cls(gains)}">${fSigned(gains,2)}</span> <span class="muted">· losses</span> <span class="${cls(losses)}">${fSigned(losses,2)}</span> <span class="muted">· dividends</span> <span class="${cls(divTot)}">${fSigned(divTot,2)}</span>` : `<span class="muted">sales and dividends</span>`;
+  $("kU").innerHTML = rows.length ? `<span class="${cls(unreal)}">${fSigned(unreal,2," "+base)}</span>` : "–";
+  $("kUb").innerHTML = rows.length ? `${pct(cost ? unreal/cost*100 : NaN)} <span class="muted">if you sold everything now · total P&amp;L</span> <span class="${cls(totalPnl)}">${fSigned(totalPnl,2)}</span>` : `<span class="muted">no open positions</span>`;
   renderTable(rows, tot, PF);
   renderSector(rows, tot);
   renderWatch();
-  renderTrades(sales, realized);
+  renderTrades(allEvents(), realized);
   paintSortHeads();
   drawChart();
 }
@@ -750,35 +785,38 @@ function renderTable(rows, tot, PF){
   $("posCount").textContent = rows.length ? `(${rows.length})` : "";
   if(!rows.length){ tb.innerHTML = ""; return; }
   const keys = { tk: r => tick(r.p.sym), nm: r => (r.c.q.description || r.p.name || "").toLowerCase(), mk: r => r.c.q.exchange || r.p.sym.split(":")[0],
-    op: r => r.p.price, ex: r => r.c.valueBase, sh: r => r.p.shares, pg: r => toBase(r.c.gain, r.p.ccy), gp: r => r.c.gainPct, bp: r => r.c.benchPct };
+    pp: r => r.p.price, ex: r => r.c.valueBase, sh: r => r.p.shares, pg: r => toBase(r.c.gain, r.p.ccy), gp: r => r.c.gainPct, bp: r => r.c.benchPct };
   Object.entries(QKEYS).forEach(([k,f]) => { if(!keys[k]) keys[k] = r => f(r.c.q); });
   const sorted = applySort(rows, "pf", keys, (a,b) => (b.c.valueBase||0) - (a.c.valueBase||0));
+  // portfolio totals only for periods it has fully lived through
+  const pfv = r => { const pf = r === "10Y" ? (PF.ALL && kts(shift(today(),{y:-10})) >= PF.ALL.start ? PF.ALL : null) : PF[r]; return pf && !pf.clipped ? fSigned(pf.p,2,"%") : `<span title="Portfolio is younger than this period">–</span>`; };
   let html = "";
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const benchW = (() => { let s=0,w=0; rows.forEach(r=>{ if(isNum(r.c.benchPct)&&isNum(r.c.costBase)){ s+=r.c.benchPct*r.c.costBase; w+=r.c.costBase; } }); return w? s/w : NaN; })();
   html += `<tr class="total"><td class="l stick">GGD</td><td class="l">${UI.book === "sim" ? "Simulated total" : "Real total"}</td><td class="l">${esc(DB.base)}</td>
-    <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td>
+    <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td><td>–</td>
     <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
-    <td>${fSigned(PF["1W"]?.p,2,"%")}</td><td>${fSigned(PF["1M"]?.p,2,"%")}</td><td>${fSigned(PF["YTD"]?.p,2,"%")}</td>
-    <td>${fSigned(PF["1Y"]?.p,2,"%")}</td><td>${fSigned(PF["ALL"]?.p,2,"%")}</td><td>–</td><td title="Since your first open date">${fSigned(PF["ALL"]?.p,2,"%")}</td><td></td></tr>`;
+    <td>${pfv("1W")}</td><td>${pfv("1M")}</td><td>${pfv("YTD")}</td>
+    <td>${pfv("1Y")}</td><td>${pfv("10Y")}</td><td>–</td><td title="Since your first open date">${fSigned(PF["ALL"]?.p,2,"%")}</td><td></td></tr>`;
   for(const {p, c} of sorted){
     const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
     html += `<tr>
       <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(p.sym))}</span></td>
       <td class="l nm" title="${esc((q.description || p.name || "") + (p.isin ? " · " + p.isin : ""))}">${esc(q.description || p.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || p.sym.split(":")[0])}</td>
-      <td>${fPx(p.price)} <span class="muted">${esc(p.ccy)}</span></td>
+      <td>${tradedToday(q) && isNum(q.open) ? fPx(q.open) : '<span class="dayx">closed</span>'}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(c.iccy)}</span></td>
       <td>${fPx(prevClose(q))}</td>
       <td>${fN(w,2)}</td>
       <td>${fN(p.shares, Number.isInteger(p.shares)?0:4)}</td>
+      <td>${fPx(p.price)} <span class="muted">${esc(p.ccy)}</span></td>
       <td class="${cls(c.gain)}">${fSigned(c.gain,2)} <span class="muted">${esc(p.ccy)}</span></td>
       <td>${pct(c.gainPct)}</td>
       <td title="${esc(p.bench)} since ${esc(p.date)}">${pct(c.benchPct)}${c.benchEst?'<span class="est">est</span>':''}</td>
       <td>${rangeCell(q)}</td>
       ${perfCells(q)}
       <td>${fPx(ipoPx(q))}</td><td>${pct(q["Perf.All"],1)}</td>
-      <td><div class="rowbtns"><button class="act" type="button" data-sell="${esc(p.id)}" aria-label="Sell ${esc(p.sym)}">Sell</button><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
+      <td><div class="rowbtns"><button class="act" type="button" data-sell="${esc(p.id)}" aria-label="Sell ${esc(p.sym)}">Sell</button><button class="icon" type="button" data-div="${esc(p.id)}" aria-label="Record a dividend for ${esc(p.sym)}">Dividend</button><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
     </tr>`;
   }
   tb.innerHTML = html;
@@ -836,25 +874,27 @@ function renderWatchSectors(rows){
     empty: rows.length ? (p === "day" ? "No market in your watchlist has traded yet today." : "Waiting for prices.") : "Add stocks to your watchlist to see how each sector performs."
   });
 }
-function renderTrades(sales, realized){
-  $("trCount").textContent = sales.length ? `(${sales.length})` : "";
-  $("trEmpty").hidden = sales.length > 0;
-  if(!sales.length){ $("trBody").innerHTML = ""; return; }
-  const keys = { dt: x => saleTs(x.s), tk: x => tick(x.p.sym), nm: x => (x.p.name || "").toLowerCase(), qty: x => x.s.qty, cost: x => x.s.cost, px: x => x.s.price,
-    pnl: x => saleBase(x.s, x.p), pct: x => x.s.cost ? (x.s.price / x.s.cost - 1) * 100 : NaN, base: x => saleBase(x.s, x.p) };
-  let html = `<tr class="total"><td class="l stick">Total</td><td class="l">–</td><td class="l">${sales.length} sale${sales.length>1?"s":""}</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>${fSigned(realized,2)}</td><td></td></tr>`;
-  for(const { p, s: sl } of applySort(sales, "tr", keys)){
-    const ccy = sl.ccy || p.ccy, pc = sl.cost ? (sl.price / sl.cost - 1) * 100 : NaN, b = saleBase(sl, p);
+function renderTrades(events, realized){
+  $("trEmpty").hidden = events.length > 0;
+  if(!events.length){ $("trBody").innerHTML = ""; return; }
+  const yoc = e => e.kind === "div" ? (isNum(e.s.perShare) && e.s.cost ? e.s.perShare / e.s.cost * 100 : NaN) : (e.s.cost ? (e.s.price / e.s.cost - 1) * 100 : NaN);
+  const keys = { dt: e => e.ts, tk: e => tick(e.p.sym), nm: e => (e.p.name || "").toLowerCase(), qty: e => e.kind === "sale" ? e.s.qty : NaN, cost: e => e.s.cost,
+    px: e => e.kind === "sale" ? e.s.price : e.s.perShare, pnl: e => eventBase(e), pct: yoc, base: e => eventBase(e) };
+  const nS = events.filter(e => e.kind === "sale").length, nD = events.length - nS;
+  let html = `<tr class="total"><td class="l stick">Total</td><td class="l">–</td><td class="l">${nS} sale${nS===1?"":"s"} · ${nD} dividend${nD===1?"":"s"}</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>${fSigned(realized,2)}</td><td></td></tr>`;
+  for(const e of applySort(events, "tr", keys)){
+    const { p, s: x } = e, ccy = x.ccy || p.ccy, b = eventBase(e), isDiv = e.kind === "div";
+    const amt = isDiv ? x.amount : x.pnl;
     html += `<tr>
-      <td class="l stick">${fDate(saleTs(sl), true)}</td>
+      <td class="l stick">${fDate(e.ts, true)}</td>
       <td class="l">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
       <td class="l nm">${esc(p.name || "–")}</td>
-      <td>${fN(sl.qty, Number.isInteger(sl.qty) ? 0 : 4)}</td>
-      <td>${fPx(sl.cost)} <span class="muted">${esc(ccy)}</span></td>
-      <td>${fPx(sl.price)} <span class="muted">${esc(ccy)}</span></td>
-      <td class="${cls(sl.pnl)}">${fSigned(sl.pnl,2)} <span class="muted">${esc(ccy)}</span></td>
-      <td>${pct(pc)}</td><td class="${cls(b)}">${fSigned(b,2)}</td>
-      <td><div class="rowbtns"><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(sl.id)}" aria-label="Undo this sale">Undo</button></div></td>
+      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
+      <td>${isNum(x.cost) ? fPx(x.cost) + ` <span class="muted">${esc(ccy)}</span>` : "–"}</td>
+      <td>${isDiv ? (isNum(x.perShare) ? fPx(x.perShare) + ` <span class="muted">/sh</span>` : "–") : fPx(x.price) + ` <span class="muted">${esc(ccy)}</span>`}</td>
+      <td class="${cls(amt)}">${fSigned(amt,2)} <span class="muted">${esc(ccy)}</span></td>
+      <td title="${isDiv ? "Yield on your purchase price" : "Sell price vs purchase price"}">${pct(yoc(e))}</td><td class="${cls(b)}">${fSigned(b,2)}</td>
+      <td><div class="rowbtns"><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|${e.kind}" aria-label="Undo">Undo</button></div></td>
     </tr>`;
   }
   $("trBody").innerHTML = html;
@@ -1297,9 +1337,15 @@ async function doSell(ev){
   $("sellDlg").close(); selling = null;
   lastSnapWrite = 0; refresh();
 }
-async function undoSale(pid, sid){
-  const hit = allSales().find(x => x.p.id === pid && x.s.id === sid); if(!hit) return;
+async function undoSale(pid, sid, kind){
   const book = UI.book || "real";
+  if(kind === "div"){
+    const hd = allDivs().find(x => x.p.id === pid && x.d.id === sid); if(!hd) return;
+    if(!(await confirmBox("Remove dividend", `Remove the ${fSigned(hd.d.amount,2)} ${hd.d.ccy || hd.p.ccy} dividend of ${hd.p.sym} from Realized P&L?`))) return;
+    await commit(d => { const K = bk(book); const pos = [...(d[K.pos] || []), ...(d[K.closed] || [])].find(x => x.id === pid); if(pos) pos.divs = (pos.divs || []).filter(x => x.id !== sid); }, "Remove dividend " + hd.p.sym);
+    refresh(); return;
+  }
+  const hit = allSales().find(x => x.p.id === pid && x.s.id === sid); if(!hit) return;
   const ok = await confirmBox("Undo sale", `Put ${hit.s.qty} shares of ${hit.p.sym} back into the portfolio and remove this sale's gain or loss?`);
   if(!ok) return;
   await commit(d => {
@@ -1310,6 +1356,32 @@ async function undoSale(pid, sid){
     pos.shares = +(pos.shares + sl.qty).toFixed(8); pos.sells = pos.sells.filter(x => x.id !== sid);
   }, "Undo sale " + hit.p.sym);
   refresh();
+}
+
+/* ============================== dividends ============================== */
+let divPos = null;
+function openDiv(p){
+  divPos = p;
+  $("divTitle").textContent = `Dividend · ${tick(p.sym)}`;
+  $("dInfo").innerHTML = `${esc(p.name || p.sym)}<br>Held <b>${fN(p.shares, Number.isInteger(p.shares) ? 0 : 4)}</b> shares · purchase price <b>${fPx(p.price)} ${esc(p.ccy)}</b>`;
+  document.querySelectorAll(".dCcy").forEach(x => x.textContent = p.ccy);
+  $("dPer").value = ""; $("dTot").value = ""; $("dDate").value = today(); $("dDate").min = p.date; $("dDate").max = today();
+  $("dMsg").textContent = ""; $("dGo").disabled = false;
+  $("divDlg").showModal(); $("dPer").focus();
+}
+async function saveDiv(ev){
+  ev.preventDefault();
+  const p = divPos, m = $("dMsg"); if(!p) return;
+  const per = parseFloat($("dPer").value), tot = parseFloat($("dTot").value), date = $("dDate").value || today();
+  const amount = tot > 0 ? tot : per > 0 ? per * p.shares : NaN;
+  if(!(amount > 0)){ m.textContent = "Enter the dividend per share or the total you received."; return; }
+  if(date > today()){ m.textContent = "The payment date can't be in the future."; return; }
+  const rec = { id: rid(), date, ts: date === today() ? Date.now() : kts(date) + 12*3600e3, amount, perShare: per > 0 ? per : amount / p.shares,
+    shares: p.shares, cost: p.price, ccy: p.ccy, amountBase: toBase(amount, p.ccy) };
+  const book = UI.book || "real";
+  $("dGo").disabled = true;
+  await commit(d => { const pos = (d[bk(book).pos] || []).find(x => x.id === p.id); if(pos && !(pos.divs || []).some(x => x.id === rec.id)) pos.divs = [...(pos.divs || []), rec]; }, `Dividend ${p.sym}`);
+  $("divDlg").close(); divPos = null; refresh();
 }
 
 /* ============================== watchlist ============================== */
@@ -1332,14 +1404,24 @@ function buyFromWatch(sym){
 }
 
 /* ============================== Real / Simulated switch ============================== */
-function setBook(b){ UI.book = b === "sim" ? "sim" : "real"; ls.set(LS_UI, UI); render(); }
+function setBook(b){
+  b = b === "sim" ? "sim" : "real";
+  const v = (TABS[UI.tab] || {}).view;
+  if(v === "pf") showTab(b); else if(v === "tr") showTab("tr" + b); else { UI.book = b; ls.set(LS_UI, UI); render(); }
+}
 
 /* ============================== tabs ============================== */
+const TABS = { real:{ view:"pf", book:"real" }, sim:{ view:"pf", book:"sim" }, wl:{ view:"wl" }, trreal:{ view:"tr", book:"real" }, trsim:{ view:"tr", book:"sim" } };
 function showTab(t){
-  UI.tab = t; ls.set(LS_UI, UI);
+  if(t === "pf") t = UI.book === "sim" ? "sim" : "real";          // names used by older versions
+  if(t === "tr") t = UI.book === "sim" ? "trsim" : "trreal";
+  if(!TABS[t]) t = "real";
+  const T = TABS[t];
+  UI.tab = t; if(T.book) UI.book = T.book; ls.set(LS_UI, UI);
   document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
-  ["pf","wl","tr"].forEach(k => $("view-" + k).hidden = k !== t);
-  if(t === "pf") drawChart();
+  ["pf","wl","tr"].forEach(k => $("view-" + k).hidden = k !== T.view);
+  $("tabsNav").style.borderBottomColor = T.book === "sim" ? "var(--blue)" : T.book === "real" ? "var(--orange)" : "var(--gray-hi)";
+  render();
 }
 
 /* ============================== settings ============================== */
@@ -1400,7 +1482,6 @@ function init(){
   document.querySelectorAll("#rangeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.r === UI.range)); b.onclick = () => { UI.range = b.dataset.r; ls.set(LS_UI, UI); document.querySelectorAll("#rangeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawChart(); }; });
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
-  document.querySelectorAll("#bookSeg button").forEach(b => b.onclick = () => setBook(b.dataset.b));
   $("refreshBtn").onclick = () => refresh();
   // load the newest index.html, skipping the browser's cached copy
   const hardReload = () => location.replace(location.pathname + "?v=" + Date.now());
@@ -1423,12 +1504,16 @@ function init(){
   };
   $("tbody").addEventListener("click", e => {
     const b = e.target.closest("[data-edit]"); if(b){ const p = openPositions().find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
-    const sb = e.target.closest("[data-sell]"); if(sb){ const p = openPositions().find(x => x.id === sb.dataset.sell); if(p) openSell(p); }
+    const sb = e.target.closest("[data-sell]"); if(sb){ const p = openPositions().find(x => x.id === sb.dataset.sell); if(p) openSell(p); return; }
+    const db = e.target.closest("[data-div]"); if(db){ const p = openPositions().find(x => x.id === db.dataset.div); if(p) openDiv(p); }
   });
   $("sellForm").addEventListener("submit", doSell);
+  $("divForm").addEventListener("submit", saveDiv);
+  $("dPer").addEventListener("input", () => { const v = parseFloat($("dPer").value); if(divPos && v > 0) $("dTot").value = +(v * divPos.shares).toFixed(4); });
+  $("dTot").addEventListener("input", () => { const v = parseFloat($("dTot").value); if(divPos && v > 0) $("dPer").value = +(v / divPos.shares).toFixed(6); });
   $("xQty").addEventListener("input", sellEst); $("xPx").addEventListener("input", sellEst);
   $("xAll").onclick = () => { if(selling){ $("xQty").value = selling.shares; sellEst(); } };
-  $("trBody").addEventListener("click", e => { const b = e.target.closest("[data-undo]"); if(b){ const [pid, sid] = b.dataset.undo.split("|"); undoSale(pid, sid); } });
+  $("trBody").addEventListener("click", e => { const b = e.target.closest("[data-undo]"); if(b){ const [pid, sid, kind] = b.dataset.undo.split("|"); undoSale(pid, sid, kind); } });
   $("wBody").addEventListener("click", e => {
     const g = e.target.closest("[data-grp]"); if(g){ UI.wcol = UI.wcol || {}; UI.wcol[g.dataset.grp] = !UI.wcol[g.dataset.grp]; ls.set(LS_UI, UI); render(); return; }
     const b = e.target.closest("[data-wbuy]"); if(b){ buyFromWatch(b.dataset.wbuy); return; }
@@ -1489,8 +1574,8 @@ function init(){
   cb.addEventListener("mouseleave", () => $("tip").hidden = true);
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
-  showTab(["pf","wl","tr"].includes(UI.tab) ? UI.tab : "pf");
-  render(); refresh(); schedule();
+  showTab(UI.tab || "real");
+  refresh(); schedule();
   setupPwa();
 }
 /* ============================== no app install ==============================
