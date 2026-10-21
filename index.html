@@ -143,7 +143,9 @@ canvas{display:block;width:100%;height:100%}
 .ev .x{color:var(--gray-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .evsub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-top:6px}
 .k{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font:700 10px var(--num);color:#000;border-radius:2px}
-.k-earn{background:var(--orange)} .k-ex{background:var(--green)} .k-pay{background:var(--green-dim);color:#fff} .k-rel{background:var(--blue);color:#fff}
+.k-earn{background:var(--orange)} .k-ex{background:var(--green)} .k-pay{background:var(--green-dim);color:#fff} .k-rel{background:var(--blue);color:#fff} .k-other{background:var(--yellow)}
+.lb-other{color:var(--yellow)} .unsure{color:var(--gray);font-weight:400}
+.myev{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #12161b;font-size:13px}
 .calnav{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg)}
 .calnav span{min-width:120px;text-align:center;font-weight:600}
 .cal{padding:6px 10px 10px}
@@ -393,7 +395,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   <section class="panel evpanel" aria-label="Events and calendar"><div class="evin">
    <div class="evcol">
-    <div class="ph"><h2>Today</h2><div class="sub" id="evClock"></div></div>
+    <div class="ph"><h2>Today</h2><div class="sub" id="evClock"></div><button class="btn sm" type="button" id="evAdd" title="Add a date TradingView is missing, e.g. a report date">+ Event</button></div>
     <div class="evlist" id="evToday"></div>
    </div>
    <div class="evcol">
@@ -403,7 +405,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <div class="seg" id="calSeg"><button type="button" data-v="w" aria-pressed="false">Week</button><button type="button" data-v="m" aria-pressed="true">Month</button><button type="button" data-v="y" aria-pressed="false">Year</button></div>
     </div>
     <div class="cal" id="calBody"></div>
-    <div class="legend2" id="evFilters"><span>Show:</span><button type="button" class="lgf" data-f="earn" aria-pressed="true"><span class="k k-earn">E</span>Earnings</button><button type="button" class="lgf" data-f="ex" aria-pressed="true"><span class="k k-ex">X</span>Ex-dividend</button><button type="button" class="lgf" data-f="pay" aria-pressed="true"><span class="k k-pay">P</span>Dividend paid</button><button type="button" class="lgf" data-f="rel" aria-pressed="true"><span class="k k-rel">R</span>Press release</button><span id="newsNote"></span></div>
+    <div class="legend2" id="evFilters"><span>Show:</span><button type="button" class="lgf" data-f="earn" aria-pressed="true"><span class="k k-earn">E</span>Earnings</button><button type="button" class="lgf" data-f="ex" aria-pressed="true"><span class="k k-ex">X</span>Ex-dividend</button><button type="button" class="lgf" data-f="pay" aria-pressed="true"><span class="k k-pay">P</span>Dividend paid</button><button type="button" class="lgf" data-f="rel" aria-pressed="true"><span class="k k-rel">R</span>Press release</button><button type="button" class="lgf" data-f="other" aria-pressed="true"><span class="k k-other">O</span>Other</button><span id="newsNote"></span></div>
    </div>
   </div></section>
   </div>
@@ -504,6 +506,23 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   <div class="stk-body" id="stkBody"></div>
 </dialog>
 
+<!-- Your own event (dates TradingView is missing) -->
+<dialog id="evDlg">
+  <form method="dialog" id="evForm" novalidate>
+    <div class="dlg-h"><h3>Add event</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <label class="f full">Company<select id="eSym"></select></label>
+      <label class="f">Type<select id="eKind"><option value="earn">Earnings report</option><option value="ex">Ex-dividend</option><option value="pay">Dividend payment</option><option value="other">Other</option></select></label>
+      <label class="f">Label<input id="eLabel" placeholder="Q3 Report" maxlength="40"></label>
+      <label class="f">Date<input id="eDate" type="date"></label>
+      <label class="f">Time (CET, optional)<input id="eTime" type="time"></label>
+      <div class="full hint">Only needed when no source has the date. Your earnings date replaces the automatic one. Events sync to all your devices.</div>
+      <div class="full msg neg" id="eMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Save event</button></div></div>
+  </form>
+</dialog>
+
 <!-- Dividend -->
 <dialog id="divDlg">
   <form method="dialog" id="divForm" novalidate>
@@ -552,7 +571,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.18";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.20";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1211,6 +1230,7 @@ function sanitize(d){
   if(!Array.isArray(o.simPositions)) o.simPositions = [];
   if(!Array.isArray(o.simClosed)) o.simClosed = [];
   if(!Array.isArray(o.watch)) o.watch = [];
+  if(!Array.isArray(o.events)) o.events = [];
   [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
   if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
   return o;
@@ -1541,16 +1561,60 @@ function evSymbols(){
   openPositions("sim").forEach(p => mark(p.sym, "sim"));
   return m;
 }
+// wall-clock time in CET/CEST -> timestamp
+function tzWallTs(key, hhmm){
+  const [y,m,d] = key.split("-").map(Number), [h,mi] = (hhmm || "12:00").split(":").map(Number);
+  const guess = Date.UTC(y, m-1, d, h, mi);
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: TZ, hourCycle:"h23", year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" }).formatToParts(new Date(guess)).map(x => [x.type, x.value]));
+  const asTz = Date.UTC(+p.year, +p.month-1, +p.day, +p.hour, +p.minute);
+  return guess - (asTz - guess);
+}
+const KIND_L = { earn:"E", ex:"X", pay:"P", other:"O" };
+// Borsa Italiana event names -> our kinds and labels
+function biMap(t, ts){
+  const x = t.toLowerCase();
+  if(/periodiche aggiuntive|trimestral/.test(x)) return { kind:"earn", label: qLabel(ts) };
+  if(/semestral/.test(x)) return { kind:"earn", label:"H1 Report" };
+  if(/preconsuntivo/.test(x)) return { kind:"earn", label:"FY Preliminary" };
+  if(/assemblea/.test(x)) return { kind:"other", label:"AGM" };
+  if(/bilancio/.test(x)) return { kind:"earn", label:"FY Results" };
+  if(/analisti/.test(x)) return { kind:"other", label:"Analyst call" };
+  if(/dividend|stacco/.test(x)) return { kind:"ex", label:"Ex-dividend" };
+  return { kind:"other", label: t };
+}
+// next earnings date, best source first: your own > Borsa Italiana > Yahoo Finance > TradingView
+function nextEarn(sym){
+  const q = Q[sym] || {}, now = Date.now(), today = tzKey(now);
+  const own = (DB.events || []).filter(ev => ev.sym === sym && ev.kind === "earn" && ev.date >= today).sort((a,b) => a.date < b.date ? -1 : 1)[0];
+  if(own) return { ts: tzWallTs(own.date, own.time), key: own.date, timed: !!own.time, label: own.label, src: "your date" };
+  const bi = ((NEWS && NEWS.ev && NEWS.ev[sym]) || []).map(e => ({ ...e, m: biMap(e.t, tzWallTs(e.d)) })).filter(e => e.m.kind === "earn" && e.d >= today).sort((a,b) => a.d < b.d ? -1 : 1)[0];
+  if(bi) return { ts: tzWallTs(bi.d), key: bi.d, timed: false, label: bi.m.label, src: "Borsa Italiana" };
+  const tvTs = isNum(q.earnings_release_next_date) ? q.earnings_release_next_date * 1000 : NaN, tc = q.earnings_release_next_time;
+  const yh = ((NEWS && NEWS.cal && NEWS.cal[sym] && NEWS.cal[sym].dates) || []).map(x => x * 1000).filter(ts => tzKey(ts) >= today)[0];
+  if(yh){ const sameDay = isNum(tvTs) && tzKey(tvTs) === tzKey(yh) && (tc === 1 || tc === -1);
+    return { ts: sameDay ? tvTs : yh, key: tzKey(yh), timed: sameDay, tc: sameDay ? tc : 0, unsure: !!NEWS.cal[sym].est, src: "Yahoo Finance" }; }
+  if(isNum(tvTs)){ const unsure = (isNum(q.earnings_release_date) && now - q.earnings_release_date*1000 > 200*864e5) || tvTs - now > 150*864e5;
+    return { ts: tvTs, key: tzKey(tvTs), timed: tc === 1 || tc === -1, tc, unsure, src: "TradingView" }; }
+  return null;
+}
 function buildEvents(){
-  const out = [];
+  const out = [], mine = DB.events || [], now = Date.now();
+  // your own events
+  mine.forEach(ev => { const q = Q[ev.sym] || { description: ev.name || tick(ev.sym) };
+    out.push({ sym: ev.sym, q, f: {}, kind: ev.kind, L: KIND_L[ev.kind] || "O", ts: tzWallTs(ev.date, ev.time), key: ev.date, timed: !!ev.time, custom: true, label: ev.label, id: ev.id,
+      txt: `${ev.label || ({earn:"Earnings report",ex:"Ex-dividend",pay:"Dividend payment",other:"Event"})[ev.kind]} (added by you)` }); });
   for(const [sym, f] of evSymbols()){
     const q = Q[sym]; if(!q) continue;
     const add = e => out.push({ sym, q, f, ...e });
-    if(isNum(q.earnings_release_next_date)){
-      const ts = q.earnings_release_next_date * 1000, tc = q.earnings_release_next_time;
-      add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: tc === 1 || tc === -1,
-        txt: `Earnings ${tc === 1 ? "after close" : tc === -1 ? "before open" : "(time not confirmed)"} · EPS est ${fN(q.earnings_per_share_forecast_next_fq,2)} · revenue est ${fBig(q.revenue_forecast_next_fq)}` });
+    const ne = nextEarn(sym);
+    if(ne && ne.src !== "your date" && ne.src !== "Borsa Italiana"){
+      add({ kind:"earn", L:"E", ts: ne.ts, key: ne.key, timed: ne.timed, unsure: ne.unsure,
+        txt: `Earnings ${ne.tc === 1 ? "after close" : ne.tc === -1 ? "before open" : "(time not confirmed)"} · source ${ne.src} · EPS est ${fN(q.earnings_per_share_forecast_next_fq,2)} · revenue est ${fBig(q.revenue_forecast_next_fq)}` });
     }
+    // Italian companies: every event from Borsa Italiana's official calendar
+    ((NEWS && NEWS.ev && NEWS.ev[sym]) || []).forEach(e => { const ts = tzWallTs(e.d), m = biMap(e.t, ts);
+      if(m.kind === "earn" && (DB.events || []).some(ev => ev.sym === sym && ev.kind === "earn" && ev.date === e.d)) return;
+      add({ kind: m.kind, L: KIND_L[m.kind], ts, key: e.d, timed: false, label: m.label, txt: `${e.t} · source Borsa Italiana` }); });
     if(isNum(q.earnings_release_date)){
       const ts = q.earnings_release_date * 1000;
       add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: false, past: true,
@@ -1575,10 +1639,10 @@ function shortName(q, sym){
 }
 // reported quarter from the report date: Oct-Dec reports Q3, Jan-Mar Q4, Apr-Jun Q1, Jul-Sep Q2
 function qLabel(ts){ const m = new Date(ts).getUTCMonth(); return `Q${m <= 2 ? 4 : m <= 5 ? 1 : m <= 8 ? 2 : 3} Report`; }
-function evLabel(e){ return e.kind === "earn" ? qLabel(e.ts) : e.kind === "ex" ? "Ex-dividend" : e.kind === "pay" ? "Dividend paid" : (e.n > 1 ? `${e.n} press releases` : "Press release"); }
+function evLabel(e){ if(e.label && !(e.n > 1)) return e.label; return e.kind === "other" ? "Event" : e.kind === "earn" ? qLabel(e.ts) + (e.unsure ? "?" : "") : e.kind === "ex" ? "Ex-dividend" : e.kind === "pay" ? "Dividend paid" : (e.n > 1 ? `${e.n} press releases` : "Press release"); }
 function evRow(e, later){
   const t = later ? keyLabel(e.key, { day:"2-digit", month:"short" }) : (e.timed ? tzTime(e.ts) : "—");
-  return `<div class="ev${later ? " later" : ""}" data-sym="${esc(e.sym)}" title="${esc(e.txt)}"><span class="t">${t}</span><span class="nm2">${coFlag(e.q)}${esc(shortName(e.q, e.sym))}</span><span class="lb lb-${e.kind}">${evLabel(e)}</span></div>`;
+  return `<div class="ev${later ? " later" : ""}" data-sym="${esc(e.sym)}" title="${esc(e.txt + (e.unsure ? " · TradingView's date may be wrong: add the right one with + Event" : ""))}"><span class="t">${t}</span><span class="nm2">${coFlag(e.q)}${esc(shortName(e.q, e.sym))}</span><span class="lb lb-${e.kind}${e.unsure ? " unsure" : ""}">${esc(evLabel(e))}</span></div>`;
 }
 let EV = [];
 function renderEvents(){
@@ -1664,9 +1728,12 @@ function renderStock(){
   }
   const eNext = isNum(q.earnings_release_next_date) ? q.earnings_release_next_date*1000 : NaN, ePrev = isNum(q.earnings_release_date) ? q.earnings_release_date*1000 : NaN;
   const tc = q.earnings_release_next_time, when = tc === 1 ? "after close" : tc === -1 ? "before open" : "time not confirmed";
+  const ne = nextEarn(sym);
   const dt = (ts, timed) => isNum(ts) ? `${keyLabel(tzKey(ts),{day:"2-digit",month:"short",year:"numeric"})}${timed ? " " + tzTime(ts) + " " + tzName(ts) : ""}` : "–";
+  const nextOwn = !ne ? "–" : `${keyLabel(ne.key,{day:"2-digit",month:"short",year:"numeric"})}${ne.timed ? " " + tzTime(ne.ts) + " " + tzName(ne.ts) : ""}${ne.label ? " · " + esc(ne.label) : ""}`
+    + ` <span class="muted">· ${ne.tc === 1 ? "after close · " : ne.tc === -1 ? "before open · " : ""}source ${esc(ne.src)}${ne.unsure ? " · date not confirmed" : ""}</span>`;
   const earn = `<table class="ctbl"><thead><tr><th>Earnings</th><th>Last report</th><th>Next report</th></tr></thead><tbody>
-    <tr><td>Date</td><td>${dt(ePrev,false)}</td><td>${dt(eNext, tc === 1 || tc === -1)}${isNum(eNext) ? ` <span class="muted">· ${when}</span>` : ""}</td></tr>
+    <tr><td>Date</td><td>${dt(ePrev,false)}</td><td>${nextOwn}</td></tr>
     <tr><td>EPS actual / estimate</td><td>${fN(q.earnings_per_share_fq,2)} / ${fN(q.earnings_per_share_forecast_fq,2)}</td><td>– / ${fN(q.earnings_per_share_forecast_next_fq,2)}</td></tr>
     <tr><td>EPS surprise</td><td>${pct(q.eps_surprise_percent_fq,1)}</td><td>–</td></tr>
     <tr><td>Revenue actual / estimate</td><td>${fBig(q.revenue_fq)} / ${fBig(q.revenue_forecast_fq)}</td><td>– / ${fBig(q.revenue_forecast_next_fq)}</td></tr>
@@ -1675,8 +1742,34 @@ function renderStock(){
   const divs = `<table class="ctbl"><thead><tr><th>Dividends</th><th>Per share · dates</th></tr></thead><tbody>
     <tr><td>Last</td><td>${dv("recent")}</td></tr><tr><td>Next</td><td>${dv("upcoming")}</td></tr><tr><td>Yield</td><td>${isNum(q.dividends_yield) ? fN(q.dividends_yield,2) + "%" : "–"}</td></tr></tbody></table>`;
   const rel = items.filter(n => WIRES.has(n.pid));
-  $("stkBody").innerHTML = `<div class="tblwrap">${earn}</div><div class="tblwrap">${divs}</div><div class="evsub">Press releases</div>` +
+  const myEv = (DB.events || []).filter(ev => ev.sym === sym).sort((a,b) => a.date < b.date ? -1 : 1);
+  const mine = `<div class="evsub">Your events <button class="btn sm" type="button" id="stkAddEv" style="margin-left:8px">+ Event</button></div>` + (myEv.length ? myEv.map(ev => `<div class="myev"><span class="num">${keyLabel(ev.date,{day:"2-digit",month:"short",year:"numeric"})}${ev.time ? " " + esc(ev.time) : ""}</span><span><span class="k k-${ev.kind}">${KIND_L[ev.kind] || "O"}</span> ${esc(ev.label || "")}</span><button class="icon" type="button" data-delev="${esc(ev.id)}">Delete</button></div>`).join("") : `<div class="hint">None. Dates come in by themselves; add one only if no source has it.</div>`);
+  $("stkBody").innerHTML = `<div class="tblwrap">${earn}</div>${mine}<div class="tblwrap">${divs}</div><div class="evsub">Press releases</div>` +
     (robotNote ? `<div class="empty">${robotNote}</div>` : rel.length ? rel.slice(0, stkMore ? 15 : 5).map(nrow).join("") + (!stkMore && rel.length > 5 ? `<button class="btn sm" type="button" id="stkMore">Show ${rel.length - 5} more</button>` : "") : `<div class="empty">No recent press releases.</div>`);
+}
+
+/* ============================== your own events ============================== */
+function openEvDlg(sym){
+  const syms = [...new Set([...(DB.watch || []).map(w => w.sym), ...openPositions("real").map(p => p.sym), ...openPositions("sim").map(p => p.sym)])];
+  const opts = syms.map(x => ({ x, n: shortName(Q[x], x) })).sort((a,b) => a.n.localeCompare(b.n));
+  $("eSym").innerHTML = opts.map(o => `<option value="${esc(o.x)}">${esc(o.n)} (${esc(tick(o.x))})</option>`).join("");
+  if(sym) $("eSym").value = sym;
+  $("eKind").value = "earn"; $("eLabel").value = ""; $("eDate").value = ""; $("eTime").value = ""; $("eMsg").textContent = "";
+  $("evDlg").showModal();
+}
+async function saveEv(ev){
+  ev.preventDefault();
+  const sym = $("eSym").value, kind = $("eKind").value, date = $("eDate").value, time = $("eTime").value;
+  if(!sym){ $("eMsg").textContent = "Add the company to your watchlist first."; return; }
+  if(!date){ $("eMsg").textContent = "Pick the date."; return; }
+  const label = $("eLabel").value.trim() || (kind === "earn" ? qLabel(tzWallTs(date, time)) : "");
+  const rec = { id: rid(), sym, name: Q[sym]?.description || "", kind, label, date, time };
+  await commit(d => { d.events = [...(d.events || []), rec]; }, `Event ${tick(sym)} ${date}`);
+  $("evDlg").close(); render(); if($("stkDlg").open) renderStock();
+}
+async function deleteEv(id){
+  await commit(d => { d.events = (d.events || []).filter(x => x.id !== id); }, "Delete event");
+  render(); if($("stkDlg").open) renderStock();
 }
 
 /* ============================== automatic dividends ============================== */
@@ -1860,6 +1953,12 @@ function init(){
   });
   $("sellForm").addEventListener("submit", doSell);
   $("divForm").addEventListener("submit", saveDiv);
+  $("evForm").addEventListener("submit", saveEv);
+  $("evAdd").onclick = () => openEvDlg(null);
+  $("stkBody").addEventListener("click", e => {
+    if(e.target.id === "stkAddEv"){ openEvDlg(stkSym); return; }
+    const d = e.target.closest("[data-delev]"); if(d) deleteEv(d.dataset.delev);
+  });
   $("dPer").addEventListener("input", () => { const v = parseFloat($("dPer").value); if(divPos && v > 0) $("dTot").value = +(v * divPos.shares).toFixed(4); });
   $("dTot").addEventListener("input", () => { const v = parseFloat($("dTot").value); if(divPos && v > 0) $("dPer").value = +(v / divPos.shares).toFixed(6); });
   $("xQty").addEventListener("input", sellEst); $("xPx").addEventListener("input", sellEst);
