@@ -116,6 +116,66 @@ canvas{display:block;width:100%;height:100%}
 .sac-val{position:absolute;top:50%;transform:translateY(-50%);font:11px var(--num);color:var(--fg);white-space:nowrap}
 .sac-axis{position:relative;height:16px;margin-left:calc(38% + 8px);font:10px var(--num);color:var(--gray-hi)}
 .sac-axis span{position:absolute;transform:translateX(-50%);top:2px}
+/* watchlist top row: compact sector chart + events / calendar */
+.wtop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr);gap:12px;align-items:start}
+@media (max-width:1000px){.wtop{grid-template-columns:minmax(0,1fr)}}
+#wsec .sac-title{font-size:13px} #wsec .sac-bars{gap:3px 8px;margin-top:2px} #wsec .sac-track{height:15px} #wsec .sac-lab{font-size:11px} #wsec .sac-val{font-size:10px}
+#wsec.sac{padding:8px 10px 10px;gap:3px}
+.evbox{padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.evhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--gray-hi)}
+.evhead b{color:var(--fg);font-family:var(--num);font-weight:500}
+.evlist{display:flex;flex-direction:column}
+.ev{display:grid;grid-template-columns:52px 18px minmax(0,auto) minmax(0,1fr);gap:6px;align-items:baseline;padding:4px 0;border-bottom:1px solid #12161b;cursor:pointer;font-size:12.5px}
+.ev:hover{background:#0d1117}
+.ev .t{font-family:var(--num);color:var(--gray-hi);font-size:11.5px}
+.ev .tk{font-size:12px}
+.ev .x{color:var(--gray-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evsub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-top:6px}
+.k{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font:700 10px var(--num);color:#000;border-radius:2px}
+.k-earn{background:var(--orange)} .k-ex{background:var(--green)} .k-pay{background:var(--green-dim);color:#fff} .k-rel{background:var(--blue);color:#fff}
+.calnav{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg)}
+.calnav span{min-width:120px;text-align:center;font-weight:600}
+.cal{padding:6px 10px 10px}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.calgrid .dow{font-size:10px;color:var(--gray);text-align:center;padding-bottom:2px;letter-spacing:.06em}
+.cday{min-height:50px;background:#0a0d11;border:1px solid #141820;padding:2px 3px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.cday.off{opacity:.35} .cday.today{border-color:var(--orange)}
+.cday .n{font:10px var(--num);color:var(--gray-hi)}
+.evc{display:block;font:600 9.5px/13px var(--num);padding:0 3px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#000}
+.evc.k-pay,.evc.k-rel{color:#fff}
+.more{font:9.5px var(--num);color:var(--gray)}
+.calweek .wd{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;padding:4px 0;border-bottom:1px solid #12161b;font-size:12px}
+.calweek .wd.today .dl{color:var(--orange)}
+.calweek .dl{font-family:var(--num);color:var(--gray-hi);font-size:11.5px}
+.calweek .es{display:flex;flex-wrap:wrap;gap:4px}
+.calweek .evc{display:inline-block;font-size:10.5px;line-height:15px;padding:0 5px}
+.calyear{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media (max-width:600px){.calyear{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calyear .mo{background:#0a0d11;border:1px solid #141820;padding:4px 6px;min-height:60px;min-width:0}
+.calyear .mo h4{margin:0 0 3px;font-size:11px;color:var(--gray-hi);letter-spacing:.06em;text-transform:uppercase}
+.calyear .mo.cur{border-color:var(--orange)}
+.calyear .yl{font:10.5px/1.5 var(--num);color:var(--gray-hi);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend2{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--gray);padding:0 10px 8px}
+/* click a stock to open its panel */
+tr[data-sym] td.stick .tk, tr[data-sym] td.stick2 .tk, tr[data-sym] td.nm{cursor:pointer}
+tr[data-sym] td.stick .tk:hover, tr[data-sym] td.nm:hover{text-decoration:underline}
+dialog.wide{max-width:min(860px,calc(100vw - 24px))}
+.stk-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.stk-px{font:500 20px var(--num)} .stk-px small{font-size:12px;color:var(--gray)}
+.stk-top a.btn{text-decoration:none;display:inline-block}
+.stabs{display:flex;gap:4px;padding:8px 14px 0;border-bottom:2px solid var(--orange)}
+.stabs button{background:#14171c;border:1px solid #333842;border-bottom:0;padding:6px 14px;cursor:pointer;color:var(--gray-hi);font:600 13px var(--ui)}
+.stabs button[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
+.stk-body{padding:10px 14px 14px;display:flex;flex-direction:column;gap:12px;min-height:240px}
+.nitem{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;padding:6px 0;border-bottom:1px solid #12161b;font-size:13px}
+.nitem .nt{font:11.5px var(--num);color:var(--gray-hi)}
+.nitem a{color:var(--fg);text-decoration:none} .nitem a:hover{color:var(--orange);text-decoration:underline}
+.nitem .ns{font-size:11px;color:var(--gray);margin-top:1px}
+.ctbl{border-collapse:collapse;width:100%;min-width:0;font-size:12.5px}
+.ctbl th{background:var(--head);color:var(--head-fg);font-weight:500;padding:5px 8px;text-align:right;position:static}
+.ctbl th:first-child,.ctbl td:first-child{text-align:left}
+.ctbl td{padding:5px 8px;text-align:right;border-bottom:1px solid #12161b;font-family:var(--num)}
+.ctbl td:first-child{font-family:var(--ui);color:var(--gray-hi)}
 .empty{color:var(--gray);font-size:13px;padding:24px 12px;text-align:center}
 
 /* positions table */
@@ -304,6 +364,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <div class="view" id="view-wl" role="tabpanel" hidden>
+  <div class="wtop">
   <section class="panel" aria-label="Watchlist sector performance">
     <div class="ph">
       <h2>Sector performance</h2>
@@ -315,6 +376,22 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     </div>
     <div class="sac" id="wsec"></div>
   </section>
+  <section class="panel" aria-label="Events and calendar">
+    <div class="ph"><h2>Today</h2><div class="sub" id="evClock"></div></div>
+    <div class="evbox">
+      <div class="evlist" id="evToday"></div>
+      <div class="evsub">Coming up</div>
+      <div class="evlist" id="evNext"></div>
+    </div>
+    <div class="ph" style="border-top:1px solid var(--line)">
+      <h2>Calendar</h2>
+      <div class="calnav"><button class="icon" type="button" id="calPrev" aria-label="Previous">‹</button><span id="calLabel"></span><button class="icon" type="button" id="calNext" aria-label="Next">›</button></div>
+      <div class="seg" id="calSeg"><button type="button" data-v="w" aria-pressed="false">Week</button><button type="button" data-v="m" aria-pressed="true">Month</button><button type="button" data-v="y" aria-pressed="false">Year</button></div>
+    </div>
+    <div class="cal" id="calBody"></div>
+    <div class="legend2"><span><span class="k k-earn">E</span> Earnings</span><span><span class="k k-ex">X</span> Ex-dividend</span><span><span class="k k-pay">P</span> Dividend paid</span><span><span class="k k-rel">R</span> Press release</span><span id="newsNote"></span></div>
+  </section>
+  </div>
   <section class="panel" aria-label="Watchlist">
     <div class="ph"><h2>Watchlist</h2>
       <div class="seg" id="wgSeg"><button type="button" data-g="1" aria-pressed="true">By sector</button><button type="button" data-g="0" aria-pressed="false">Flat</button></div>
@@ -352,7 +429,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in Trades). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -404,6 +481,14 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </form>
 </dialog>
 
+<!-- Stock panel -->
+<dialog id="stkDlg" class="wide">
+  <div class="dlg-h"><h3 id="stkTitle">Stock</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+  <div class="stk-top" id="stkTop"></div>
+  <div class="stabs" role="tablist"><button type="button" data-st="news" aria-selected="true">News</button><button type="button" data-st="rel" aria-selected="false">Releases &amp; earnings</button></div>
+  <div class="stk-body" id="stkBody"></div>
+</dialog>
+
 <!-- Dividend -->
 <dialog id="divDlg">
   <form method="dialog" id="divForm" novalidate>
@@ -413,7 +498,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <label class="f">Per share (<span class="dCcy"></span>)<input id="dPer" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Total received (<span class="dCcy"></span>)<input id="dTot" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Payment date<input id="dDate" type="date"></label>
-      <div class="full hint">Enter either box: the other fills itself from the shares you hold. Use the amount after withholding tax if you want net figures.</div>
+      <div class="full hint">Enter either box: the other fills itself from the shares you hold. Dividends from TradingView are also booked automatically (gross, before withholding tax); use this only for ones it misses.</div>
       <div class="full msg neg" id="dMsg"></div>
     </div>
     <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit" id="dGo">Save dividend</button></div></div>
@@ -452,13 +537,18 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.15";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.16";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
   "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
-  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","postmarket_change","country","country_code_fund","market"];
+  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","postmarket_change","country","country_code_fund","market","isin",
+  "earnings_release_date","earnings_release_next_date","earnings_release_next_time",
+  "earnings_per_share_fq","earnings_per_share_forecast_fq","eps_surprise_percent_fq","earnings_per_share_forecast_next_fq",
+  "revenue_fq","revenue_forecast_fq","revenue_surprise_percent_fq","revenue_forecast_next_fq",
+  "dividend_ex_date_recent","dividend_ex_date_upcoming","dividend_payment_date_recent","dividend_payment_date_upcoming",
+  "dividend_amount_recent","dividend_amount_upcoming","dividends_yield"];
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
 const INDICES = [
   ["SP:SPX","S&P 500","sp500 s&p500 spx standard poors usa"],["NASDAQ:NDX","Nasdaq 100","ndx nasdaq100"],["NASDAQ:IXIC","Nasdaq Composite","ixic composite"],
@@ -746,6 +836,7 @@ function render(){
   renderSector(rows, tot);
   renderWatch();
   renderTrades(allEvents(), realized);
+  renderEvents();
   paintSortHeads();
   drawChart();
 }
@@ -812,7 +903,7 @@ function renderTable(rows, tot, PF, dayTot){
     <td>${pfv("1Y")}</td><td>${pfv("10Y")}</td><td>–</td><td title="Since your first open date">${fSigned(PF["ALL"]?.p,2,"%")}</td><td></td></tr>`;
   for(const {p, c} of sorted){
     const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
-    html += `<tr>
+    html += `<tr data-sym="${esc(p.sym)}">
       <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(p.sym))}</span></td>
       <td class="l nm" title="${esc((q.description || p.name || "") + (p.isin ? " · " + p.isin : ""))}">${esc(q.description || p.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || p.sym.split(":")[0])}</td>
@@ -840,7 +931,7 @@ function secOf(q){ return q.sector || (q.type === "fund" ? "Funds / ETFs" : q.ty
 function avgOf(rows, f){ const v = rows.map(f).filter(isNum); return v.length ? v.reduce((a,b) => a+b, 0) / v.length : NaN; }
 function watchRow({ w, q }){
   const held = openPositions("real").some(p => p.sym === w.sym), simHeld = openPositions("sim").some(p => p.sym === w.sym);
-  return `<tr>
+  return `<tr data-sym="${esc(w.sym)}">
       <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}</td>
       <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || w.sym.split(":")[0])}</td>
@@ -898,11 +989,11 @@ function renderTrades(events, realized){
   for(const e of applySort(events, "tr", keys)){
     const { p, s: x } = e, ccy = x.ccy || p.ccy, b = eventBase(e), isDiv = e.kind === "div";
     const amt = isDiv ? x.amount : x.pnl;
-    html += `<tr>
+    html += `<tr data-sym="${esc(p.sym)}">
       <td class="l stick">${fDate(e.ts, true)}</td>
-      <td class="l">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
+      <td class="l stick2">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
       <td class="l nm">${esc(p.name || "–")}</td>
-      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
+      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' + (x.auto ? '<span class="tag">AUTO</span>' : '') : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
       <td>${isNum(x.cost) ? fPx(x.cost) + ` <span class="muted">${esc(ccy)}</span>` : "–"}</td>
       <td>${isDiv ? (isNum(x.perShare) ? fPx(x.perShare) + ` <span class="muted">/sh</span>` : "–") : fPx(x.price) + ` <span class="muted">${esc(ccy)}</span>`}</td>
       <td class="${cls(amt)}">${fSigned(amt,2)} <span class="muted">${esc(ccy)}</span></td>
@@ -1163,6 +1254,8 @@ async function refresh(){
     setStatus(missing.length || fxMissing.length ? "err" : "live", t);
     render();
     maybeSnapshot();
+    autoDividends();
+    loadNews();
   }catch(e){
     setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
     render();
@@ -1355,7 +1448,7 @@ async function undoSale(pid, sid, kind){
   if(kind === "div"){
     const hd = allDivs().find(x => x.p.id === pid && x.d.id === sid); if(!hd) return;
     if(!(await confirmBox("Remove dividend", `Remove the ${fSigned(hd.d.amount,2)} ${hd.d.ccy || hd.p.ccy} dividend of ${hd.p.sym} from Realized P&L?`))) return;
-    await commit(d => { const K = bk(book); const pos = [...(d[K.pos] || []), ...(d[K.closed] || [])].find(x => x.id === pid); if(pos) pos.divs = (pos.divs || []).filter(x => x.id !== sid); }, "Remove dividend " + hd.p.sym);
+    await commit(d => { const K = bk(book); const pos = [...(d[K.pos] || []), ...(d[K.closed] || [])].find(x => x.id === pid); if(pos){ pos.divs = (pos.divs || []).filter(x => x.id !== sid); if(String(sid).startsWith("auto-")) pos.divSkip = [...new Set([...(pos.divSkip || []), sid])]; } }, "Remove dividend " + hd.p.sym);
     refresh(); return;
   }
   const hit = allSales().find(x => x.p.id === pid && x.s.id === sid); if(!hit) return;
@@ -1395,6 +1488,189 @@ async function saveDiv(ev){
   $("dGo").disabled = true;
   await commit(d => { const pos = (d[bk(book).pos] || []).find(x => x.id === p.id); if(pos && !(pos.divs || []).some(x => x.id === rec.id)) pos.divs = [...(pos.divs || []), rec]; }, `Dividend ${p.sym}`);
   $("divDlg").close(); divPos = null; refresh();
+}
+
+/* ============================== time in CET/CEST ============================== */
+const TZ = "Europe/Berlin";
+const _tzT = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
+const _tzK = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+function tzTime(ts){ return _tzT.format(new Date(ts)); }
+function tzKey(ts){ return _tzK.format(new Date(ts)); }
+function utcKey(ts){ return new Date(ts).toISOString().slice(0,10); }
+function tzName(ts){ try{ return new Intl.DateTimeFormat("en-GB", { timeZone: TZ, timeZoneName: "short" }).formatToParts(new Date(ts || Date.now())).find(x => x.type === "timeZoneName").value; }catch(e){ return "CET"; } }
+function keyLabel(k, opts){ return new Date(kts(k)).toLocaleDateString("en-GB", opts || { weekday:"short", day:"2-digit", month:"short" }); }
+function fBig(x){ if(!isNum(x)) return "–"; const a = Math.abs(x); return a >= 1e12 ? fN(x/1e12,2)+"T" : a >= 1e9 ? fN(x/1e9,2)+"B" : a >= 1e6 ? fN(x/1e6,1)+"M" : fN(x,0); }
+
+/* ============================== news (filled by the news robot in your private GitHub folder) ============================== */
+const WIRES = new Set(["business_wire","globenewswire","prnewswire","acceswire","accesswire","newsfile","eqs","eqs_news","lse","cision","mfn","newswire_ca","tradingview_press_release"]);
+let NEWS = null, newsAt = 0;
+function ghUrlFor(path){ const c = SYNC; return `https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path.split("/").map(encodeURIComponent).join("/")}`; }
+async function loadNews(force){
+  if(!SYNC || (!force && Date.now() - newsAt < 10*60e3)) return;
+  newsAt = Date.now();
+  try{
+    const r = await fetch(`${ghUrlFor("news.json")}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: { ...ghHeaders(), Accept: "application/vnd.github.raw+json" }, cache: "no-store" });
+    if(r.status === 404){ NEWS = { missing: true }; renderEvents(); return; }
+    if(!r.ok) return;
+    NEWS = JSON.parse(await r.text()); renderEvents(); if($("stkDlg").open) renderStock();
+  }catch(e){}
+}
+function newsFor(sym){ return (NEWS && NEWS.bySym && NEWS.bySym[sym]) || []; }
+
+/* ============================== events: earnings, dividends, releases ============================== */
+function evSymbols(){
+  const m = new Map();
+  const mark = (sym, f) => { const o = m.get(sym) || {}; o[f] = true; m.set(sym, o); };
+  (DB.watch || []).forEach(w => mark(w.sym, "watch"));
+  openPositions("real").forEach(p => mark(p.sym, "real"));
+  openPositions("sim").forEach(p => mark(p.sym, "sim"));
+  return m;
+}
+function buildEvents(){
+  const out = [];
+  for(const [sym, f] of evSymbols()){
+    const q = Q[sym]; if(!q) continue;
+    const add = e => out.push({ sym, q, f, ...e });
+    if(isNum(q.earnings_release_next_date)){
+      const ts = q.earnings_release_next_date * 1000, tc = q.earnings_release_next_time;
+      add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: tc === 1 || tc === -1,
+        txt: `Earnings ${tc === 1 ? "after close" : tc === -1 ? "before open" : "(time not confirmed)"} · EPS est ${fN(q.earnings_per_share_forecast_next_fq,2)} · revenue est ${fBig(q.revenue_forecast_next_fq)}` });
+    }
+    if(isNum(q.earnings_release_date)){
+      const ts = q.earnings_release_date * 1000;
+      add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: false, past: true,
+        txt: `Earnings reported · EPS ${fN(q.earnings_per_share_fq,2)} vs est ${fN(q.earnings_per_share_forecast_fq,2)}${isNum(q.eps_surprise_percent_fq) ? " (" + fSigned(q.eps_surprise_percent_fq,1,"%") + ")" : ""}` });
+    }
+    const ccy = normCcy(q.currency);
+    [["recent"],["upcoming"]].forEach(([w]) => {
+      const ex = q["dividend_ex_date_" + w], pay = q["dividend_payment_date_" + w], amt = q["dividend_amount_" + w];
+      if(isNum(ex)) add({ kind:"ex", L:"X", ts: ex*1000, key: utcKey(ex*1000), timed:false, txt:`Ex-dividend ${fN(amt,3)} ${ccy} per share` });
+      if(isNum(pay)) add({ kind:"pay", L:"P", ts: pay*1000, key: utcKey(pay*1000), timed:false, txt:`Dividend paid ${fN(amt,3)} ${ccy} per share` });
+    });
+    newsFor(sym).filter(n => WIRES.has(n.pid)).forEach(n => add({ kind:"rel", L:"R", ts: n.at*1000, key: tzKey(n.at*1000), timed:true, txt: n.t, url: n.url }));
+  }
+  const seen = new Set();
+  return out.filter(e => { const id = e.sym + e.kind + e.key + (e.kind === "rel" ? e.txt : ""); if(seen.has(id)) return false; seen.add(id); return true; }).sort((a,b) => a.ts - b.ts);
+}
+function evRow(e, showDate){
+  const t = showDate ? keyLabel(e.key, { day:"2-digit", month:"short" }) : (e.timed ? tzTime(e.ts) : "—");
+  return `<div class="ev" data-sym="${esc(e.sym)}" title="${esc(e.txt)}"><span class="t">${t}</span><span class="k k-${e.kind}">${e.L}</span><span>${coFlag(e.q)}<span class="tk">${esc(tick(e.sym))}</span></span><span class="x">${esc(e.txt)}</span></div>`;
+}
+let EV = [];
+function renderEvents(){
+  if(!$("evToday")) return;
+  EV = buildEvents();
+  const tk = tzKey(Date.now()), now = Date.now();
+  $("evClock").innerHTML = `${new Date().toLocaleDateString("en-GB",{ timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" })} · <b class="num">${tzTime(now)}</b> ${tzName()}`;
+  const today = EV.filter(e => e.key === tk);
+  $("evToday").innerHTML = today.length ? today.map(e => evRow(e)).join("") : `<div class="empty" style="padding:8px 0;text-align:left">No earnings, dividends or releases today for your stocks.</div>`;
+  const next = EV.filter(e => e.key > tk && e.ts > now).slice(0, 6);
+  $("evNext").innerHTML = next.length ? next.map(e => evRow(e, true)).join("") : `<div class="empty" style="padding:8px 0;text-align:left">${(DB.watch || []).length ? "Nothing scheduled yet." : "Add stocks to your watchlist to see their events."}</div>`;
+  $("newsNote").textContent = !SYNC ? "Releases need sync turned on." : NEWS && NEWS.missing ? "Releases: set up the news robot (guide Step 6)." : NEWS && NEWS.updated ? `News updated ${tzTime(NEWS.updated)}` : "";
+  renderCalendar();
+}
+function renderCalendar(){
+  const v = ["w","m","y"].includes(UI.calv) ? UI.calv : "m", off = UI.calo || 0, tk = tzKey(Date.now());
+  document.querySelectorAll("#calSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  const byKey = {}; EV.forEach(e => (byKey[e.key] ||= []).push(e));
+  const chip = e => `<span class="evc k-${e.kind}" data-sym="${esc(e.sym)}" title="${esc(tick(e.sym) + " · " + e.txt)}">${esc(tick(e.sym))} ${e.L}</span>`;
+  const el = $("calBody");
+  if(v === "w"){
+    const d0 = new Date(kts(tk)); const dow = (d0.getDay() + 6) % 7;
+    const start = shift(tk, { d: -dow + 7*off });
+    $("calLabel").textContent = `${keyLabel(start,{day:"2-digit",month:"short"})} – ${keyLabel(shift(start,{d:6}),{day:"2-digit",month:"short"})}`;
+    let h = '<div class="calweek">';
+    for(let i=0;i<7;i++){ const k = shift(start,{d:i}), es = byKey[k] || [];
+      h += `<div class="wd${k === tk ? " today" : ""}"><span class="dl">${keyLabel(k)}</span><span class="es">${es.length ? es.map(chip).join("") : '<span class="more">–</span>'}</span></div>`; }
+    el.innerHTML = h + "</div>"; return;
+  }
+  if(v === "m"){
+    const [Y,M] = tk.split("-").map(Number); const first = new Date(Y, M-1+off, 1);
+    $("calLabel").textContent = first.toLocaleDateString("en-GB",{ month:"long", year:"numeric" });
+    const fk = dkey(first), lead = (first.getDay() + 6) % 7, start = shift(fk, { d: -lead });
+    let h = '<div class="calgrid">' + ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
+    for(let i=0;i<42;i++){ const k = shift(start,{d:i}); if(i >= 35 && k.slice(5,7) !== fk.slice(5,7)) break;
+      const es = byKey[k] || [], inM = k.slice(0,7) === fk.slice(0,7);
+      h += `<div class="cday${inM ? "" : " off"}${k === tk ? " today" : ""}"><span class="n">${+k.slice(8)}</span>${es.slice(0,3).map(chip).join("")}${es.length > 3 ? `<span class="more">+${es.length-3}</span>` : ""}</div>`; }
+    el.innerHTML = h + "</div>"; return;
+  }
+  const Y = +tk.slice(0,4) + off; $("calLabel").textContent = String(Y);
+  let h = '<div class="calyear">';
+  for(let m=1;m<=12;m++){ const mk = `${Y}-${String(m).padStart(2,"0")}`, es = EV.filter(e => e.key.slice(0,7) === mk);
+    h += `<div class="mo${tk.slice(0,7) === mk ? " cur" : ""}"><h4>${new Date(Y, m-1, 1).toLocaleDateString("en-GB",{month:"short"})}</h4>${es.slice(0,6).map(e => `<div class="yl" data-sym="${esc(e.sym)}" title="${esc(e.txt)}"><span class="k k-${e.kind}" style="width:13px;height:13px;line-height:13px;font-size:8.5px">${e.L}</span> ${+e.key.slice(8)} ${esc(tick(e.sym))}</div>`).join("")}${es.length > 6 ? `<span class="more">+${es.length-6} more</span>` : ""}</div>`; }
+  el.innerHTML = h + "</div>";
+}
+
+/* ============================== stock panel: TradingView chart, news, releases & earnings ============================== */
+let stkSym = null, stkTab = "news";
+function openStock(sym){ if(!sym) return; stkSym = sym; stkTab = "news"; renderStock(); if(!$("stkDlg").open) $("stkDlg").showModal(); loadNews(); }
+function renderStock(){
+  const sym = stkSym; if(!sym) return;
+  const q = Q[sym] || {}, ccy = normCcy(q.currency);
+  $("stkTitle").innerHTML = `${coFlag(q)}<span class="tk">${esc(tick(sym))}</span> · ${esc(q.description || sym)}`;
+  const msQ = q.isin || q.description || tick(sym);
+  $("stkTop").innerHTML = `<div><div class="stk-px">${fPx(q.close)} <small>${esc(ccy)}</small> &nbsp;${dayCell(q)}</div><div class="hint">${exFlag(q)}${esc(q.exchange || sym.split(":")[0])}${q.isin ? " · " + esc(q.isin) : ""}${q.sector ? " · " + esc(q.sector) : ""}</div></div>
+    <div class="actions"><a class="btn primary" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(sym)}" target="_blank" rel="noopener">TradingView chart ↗</a><a class="btn" href="https://www.marketscreener.com/search/?q=${encodeURIComponent(msQ)}" target="_blank" rel="noopener">MarketScreener ↗</a></div>`;
+  document.querySelectorAll("#stkDlg .stabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.st === stkTab)));
+  const items = newsFor(sym).slice().sort((a,b) => b.at - a.at);
+  const robotNote = !SYNC ? "Turn on sync to see news here." : !NEWS ? "Loading news…" : NEWS.missing ? "News needs the one-time news robot setup (guide Step 6). Earnings and dividends work already." : "";
+  const nrow = n => `<div class="nitem"><div class="nt">${keyLabel(tzKey(n.at*1000),{day:"2-digit",month:"short"})} ${tzTime(n.at*1000)}</div><div><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.t)}</a><div class="ns">${esc(n.src || "")}</div></div></div>`;
+  if(stkTab === "news"){
+    const list = items.filter(n => !WIRES.has(n.pid));
+    $("stkBody").innerHTML = robotNote ? `<div class="empty">${robotNote}</div>` : list.length ? list.slice(0,30).map(nrow).join("") : `<div class="empty">No recent news for this stock.</div>`;
+    return;
+  }
+  const eNext = isNum(q.earnings_release_next_date) ? q.earnings_release_next_date*1000 : NaN, ePrev = isNum(q.earnings_release_date) ? q.earnings_release_date*1000 : NaN;
+  const tc = q.earnings_release_next_time, when = tc === 1 ? "after close" : tc === -1 ? "before open" : "time not confirmed";
+  const dt = (ts, timed) => isNum(ts) ? `${keyLabel(tzKey(ts),{day:"2-digit",month:"short",year:"numeric"})}${timed ? " " + tzTime(ts) + " " + tzName(ts) : ""}` : "–";
+  const earn = `<table class="ctbl"><thead><tr><th>Earnings</th><th>Last report</th><th>Next report</th></tr></thead><tbody>
+    <tr><td>Date</td><td>${dt(ePrev,false)}</td><td>${dt(eNext, tc === 1 || tc === -1)}${isNum(eNext) ? ` <span class="muted">· ${when}</span>` : ""}</td></tr>
+    <tr><td>EPS actual / estimate</td><td>${fN(q.earnings_per_share_fq,2)} / ${fN(q.earnings_per_share_forecast_fq,2)}</td><td>– / ${fN(q.earnings_per_share_forecast_next_fq,2)}</td></tr>
+    <tr><td>EPS surprise</td><td>${pct(q.eps_surprise_percent_fq,1)}</td><td>–</td></tr>
+    <tr><td>Revenue actual / estimate</td><td>${fBig(q.revenue_fq)} / ${fBig(q.revenue_forecast_fq)}</td><td>– / ${fBig(q.revenue_forecast_next_fq)}</td></tr>
+    <tr><td>Revenue surprise</td><td>${pct(q.revenue_surprise_percent_fq,1)}</td><td>–</td></tr></tbody></table>`;
+  const dv = (w) => { const ex = q["dividend_ex_date_" + w], pay = q["dividend_payment_date_" + w], amt = q["dividend_amount_" + w]; return isNum(ex) || isNum(amt) ? `${fN(amt,3)} ${esc(ccy)} · ex ${isNum(ex) ? keyLabel(utcKey(ex*1000),{day:"2-digit",month:"short",year:"numeric"}) : "–"} · paid ${isNum(pay) ? keyLabel(utcKey(pay*1000),{day:"2-digit",month:"short",year:"numeric"}) : "–"}` : "–"; };
+  const divs = `<table class="ctbl"><thead><tr><th>Dividends</th><th>Per share · dates</th></tr></thead><tbody>
+    <tr><td>Last</td><td>${dv("recent")}</td></tr><tr><td>Next</td><td>${dv("upcoming")}</td></tr><tr><td>Yield</td><td>${isNum(q.dividends_yield) ? fN(q.dividends_yield,2) + "%" : "–"}</td></tr></tbody></table>`;
+  const rel = items.filter(n => WIRES.has(n.pid));
+  $("stkBody").innerHTML = `<div class="tblwrap">${earn}</div><div class="tblwrap">${divs}</div><div class="evsub">Press releases</div>` +
+    (robotNote ? `<div class="empty">${robotNote}</div>` : rel.length ? rel.slice(0,20).map(nrow).join("") : `<div class="empty">No recent press releases.</div>`);
+}
+
+/* ============================== automatic dividends ============================== */
+// Booked on the payment date when the shares were held before the ex-date. Amounts are gross (before withholding tax).
+let autoDivBusy = false;
+async function autoDividends(){
+  if(autoDivBusy || !Object.keys(Q).length) return;
+  const adds = [], now = Date.now();
+  for(const book of ["real","sim"]){
+    for(const p of allPos(book)){
+      const q = Q[p.sym]; if(!q) continue;
+      for(const w of ["recent","upcoming"]){
+        const ex = q["dividend_ex_date_" + w], pay = q["dividend_payment_date_" + w], amt = q["dividend_amount_" + w];
+        if(!isNum(ex) || !isNum(pay) || !isNum(amt) || amt <= 0) continue;
+        const exKey = utcKey(ex*1000), payTs = pay*1000;
+        if(payTs > now || !(p.date < exKey)) continue;              // not paid yet, or bought on/after the ex-date
+        const id = "auto-" + exKey;
+        if((p.divs || []).some(x => x.id === id) || (p.divSkip || []).includes(id)) continue;
+        if((p.divs || []).some(x => !x.auto && Math.abs(saleTs(x) - payTs) < 12*864e5)) continue;   // you already entered it by hand
+        const sh = p.shares + (p.sells || []).reduce((a,sl) => a + (sl.date >= exKey ? sl.qty : 0), 0);
+        if(!(sh > 0)) continue;
+        const per = conv(amt, normCcy(q.currency || p.iccy || p.ccy), p.ccy); if(!isNum(per)) continue;
+        const amount = per * sh;
+        adds.push({ book, pid: p.id, rec: { id, auto: true, exDate: exKey, date: utcKey(payTs), ts: payTs, amount, perShare: per, shares: sh, cost: p.price, ccy: p.ccy, amountBase: toBase(amount, p.ccy) } });
+      }
+    }
+  }
+  if(!adds.length) return;
+  autoDivBusy = true;
+  try{
+    await commit(d => adds.forEach(({ book, pid, rec }) => {
+      const K = bk(book), pos = [...(d[K.pos] || []), ...(d[K.closed] || [])].find(x => x.id === pid);
+      if(pos && !(pos.divs || []).some(x => x.id === rec.id) && !(pos.divSkip || []).includes(rec.id)) pos.divs = [...(pos.divs || []), rec];
+    }), `Dividends (${adds.length})`);
+    render();
+  }finally{ autoDivBusy = false; }
 }
 
 /* ============================== watchlist ============================== */
@@ -1517,7 +1793,23 @@ function init(){
     await commit(d => { d[K.pos] = (d[K.pos] || []).filter(x => x.id !== id); }, "Delete " + editing.sym);
     $("posDlg").close(); refresh();
   };
+  // click a ticker or company name (or an event) to open the stock panel
+  const stockClick = e => {
+    if(e.target.closest("button, a")) return false;
+    const ev = e.target.closest("[data-sym].ev, .evc[data-sym], .yl[data-sym]"); if(ev){ openStock(ev.dataset.sym); return true; }
+    const cell = e.target.closest("td.stick, td.stick2, td.nm"); const tr = e.target.closest("tr[data-sym]");
+    if(cell && tr && !cell.closest("tr.grp, tr.total")){ openStock(tr.dataset.sym); return true; }
+    return false;
+  };
+  ["evToday","evNext","calBody"].forEach(id => $(id).addEventListener("click", stockClick));
+  $("trBody").addEventListener("click", e => { stockClick(e); });
+  document.querySelectorAll("#stkDlg .stabs button").forEach(b => b.onclick = () => { stkTab = b.dataset.st; renderStock(); });
+  $("calSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.calv = b.dataset.v; UI.calo = 0; ls.set(LS_UI, UI); renderCalendar(); });
+  $("calPrev").onclick = () => { UI.calo = (UI.calo || 0) - 1; renderCalendar(); };
+  $("calNext").onclick = () => { UI.calo = (UI.calo || 0) + 1; renderCalendar(); };
+  setInterval(() => { if(!document.hidden && UI.tab === "wl") renderEvents(); }, 30000);
   $("tbody").addEventListener("click", e => {
+    if(stockClick(e)) return;
     const b = e.target.closest("[data-edit]"); if(b){ const p = openPositions().find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
     const sb = e.target.closest("[data-sell]"); if(sb){ const p = openPositions().find(x => x.id === sb.dataset.sell); if(p) openSell(p); return; }
     const db = e.target.closest("[data-div]"); if(db){ const p = openPositions().find(x => x.id === db.dataset.div); if(p) openDiv(p); }
@@ -1531,6 +1823,7 @@ function init(){
   $("trBody").addEventListener("click", e => { const b = e.target.closest("[data-undo]"); if(b){ const [pid, sid, kind] = b.dataset.undo.split("|"); undoSale(pid, sid, kind); } });
   $("wBody").addEventListener("click", e => {
     const g = e.target.closest("[data-grp]"); if(g){ UI.wcol = UI.wcol || {}; UI.wcol[g.dataset.grp] = !UI.wcol[g.dataset.grp]; ls.set(LS_UI, UI); render(); return; }
+    if(stockClick(e)) return;
     const b = e.target.closest("[data-wbuy]"); if(b){ buyFromWatch(b.dataset.wbuy); return; }
     const r = e.target.closest("[data-wdel]"); if(r) removeWatch(r.dataset.wdel);
   });
