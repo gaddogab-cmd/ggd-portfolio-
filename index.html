@@ -178,6 +178,12 @@ tr.grp:hover td{background:#112036}
 tr.grp .box{display:inline-block;width:12px;height:12px;border:1px solid #6a7380;color:var(--gray-hi);font:11px/10px var(--num);text-align:center;margin-right:7px;vertical-align:-1px}
 tr.grp .gn{color:var(--gray);font-weight:400;margin-left:6px;font-family:var(--num);font-size:11px}
 .dayx{color:var(--gray);font-family:var(--ui);font-size:11.5px}
+/* extended hours (pre-market / after-hours): fluorescent E, shown only when the switch is on */
+.ext{display:inline-block;font:700 9px/11px var(--num);color:#39ff14;border:1px solid #39ff14;padding:0 3px;margin:0 4px 0 6px;text-shadow:0 0 5px #39ff14;box-shadow:0 0 5px rgba(57,255,20,.45);vertical-align:1px}
+.btn.ebtn{display:inline-flex;align-items:center;gap:2px;color:var(--gray)}
+.btn.ebtn .ext{margin-left:0;opacity:.35;box-shadow:none;text-shadow:none}
+.btn.ebtn[aria-pressed="true"]{border-color:#39ff14;color:#c8ffc0}
+.btn.ebtn[aria-pressed="true"] .ext{opacity:1;box-shadow:0 0 5px rgba(57,255,20,.45);text-shadow:0 0 5px #39ff14}
 td.ipo span{display:inline-block;border:1px dashed #4a4f58;color:var(--gray-hi);padding:1px 10px;font-size:11.5px;letter-spacing:.04em;white-space:nowrap}
 td.ipo b{color:var(--yellow);font-weight:600;font-family:var(--num)}
 
@@ -227,6 +233,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <div class="actions">
       <button class="btn primary" id="addBtn" type="button">+ Position</button>
       <button class="btn primary" id="updBtn" type="button" hidden>Update app</button>
+      <button class="btn ebtn" id="extBtn" type="button" aria-pressed="false" title="Show or hide pre-market and after-hours moves"><span class="ext">E</span>Ext. hours</button>
       <button class="btn" id="refreshBtn" type="button">Refresh</button>
       <button class="btn" id="setBtn" type="button">Settings</button>
     </div>
@@ -285,7 +292,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <table>
         <thead data-tbl="pf"><tr>
           <th class="l stick" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th class="l" data-k="mk" data-t="1">Market</th>
-          <th data-k="op">Open Px</th><th data-k="last">Current Px</th><th data-k="pc">Close Px</th><th data-k="ex">% Exposure</th><th data-k="sh">Shares</th><th data-k="pp">Purchase Px</th>
+          <th data-k="op">Open Px</th><th data-k="last">Current Px</th><th data-k="day">Day %</th><th data-k="pc">Close Px</th><th data-k="ex">% Exposure</th><th data-k="sh">Shares</th><th data-k="pp">Purchase Px</th>
           <th data-k="pg">Pos. Gain</th><th data-k="gp">Pos. Gain %</th><th data-k="bp">Bench %</th><th data-k="rg">52 Wk Range</th>
           <th data-k="w">1W</th><th data-k="m">1M</th><th data-k="ytd">YTD</th><th data-k="y">1Y</th><th data-k="y10">10Y</th><th data-k="ipo">IPO Px</th><th data-k="si">Since IPO</th><th></th>
         </tr></thead>
@@ -345,7 +352,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> counts only a session that traded today: before a market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and the pre-market move, and counts 0 in your Day figure. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -445,13 +452,13 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.13";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.21.15";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 const COLS = ["name","description","exchange","currency","open","close","change",
   "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
-  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","country","country_code_fund","market"];
+  "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","postmarket_change","country","country_code_fund","market"];
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
 const INDICES = [
   ["SP:SPX","S&P 500","sp500 s&p500 spx standard poors usa"],["NASDAQ:NDX","Nasdaq 100","ndx nasdaq100"],["NASDAQ:IXIC","Nasdaq Composite","ixic composite"],
@@ -581,11 +588,16 @@ function flagImg(cc, what){
 }
 function coFlag(q){ return flagImg(q?.country_code_fund, "Company"); }
 function exFlag(q){ return flagImg(MARKET_CC[q?.market], "Exchange"); }
+function extCell(q){
+  if(!UI.ext || !q) return "";
+  if(q.current_session === "pre_market" && isNum(q.premarket_change)) return `<span class="ext" title="Pre-market move (not in your totals)">E</span>${pct(q.premarket_change)}`;
+  if(q.current_session === "post_market" && isNum(q.postmarket_change)) return `<span class="ext" title="After-hours move (not in your totals)">E</span>${pct(q.postmarket_change)}`;
+  return "";
+}
 function dayCell(q){
   if(!isNum(q?.close)) return "–";
-  if(tradedToday(q)) return pct(q.change);
-  const pre = q.current_session === "pre_market" && isNum(q.premarket_change) ? ` <span class="dayx">pre</span> ${pct(q.premarket_change)}` : "";
-  return `<span class="dayx">closed</span>${pre}`;
+  if(tradedToday(q)) return pct(q.change) + extCell(q);
+  return `<span class="dayx">closed</span>${extCell(q)}`;
 }
 function anchorPx(q, perf){ const p = q?.[perf]; return isNum(p) && isNum(q.close) ? q.close / (1 + p/100) : NaN; }
 function ipoPx(q){ return anchorPx(q, "Perf.All"); }
@@ -730,7 +742,7 @@ function render(){
   $("kRb").innerHTML = hasHist ? `<span class="muted">gains</span> <span class="${cls(gains)}">${fSigned(gains,2)}</span> <span class="muted">· losses</span> <span class="${cls(losses)}">${fSigned(losses,2)}</span> <span class="muted">· dividends</span> <span class="${cls(divTot)}">${fSigned(divTot,2)}</span>` : `<span class="muted">sales and dividends</span>`;
   $("kU").innerHTML = rows.length ? `<span class="${cls(unreal)}">${fSigned(unreal,2," "+base)}</span>` : "–";
   $("kUb").innerHTML = rows.length ? `${pct(cost ? unreal/cost*100 : NaN)} <span class="muted">if you sold everything now · total P&amp;L</span> <span class="${cls(totalPnl)}">${fSigned(totalPnl,2)}</span>` : `<span class="muted">no open positions</span>`;
-  renderTable(rows, tot, PF);
+  renderTable(rows, tot, PF, rows.length ? dayPct : NaN);
   renderSector(rows, tot);
   renderWatch();
   renderTrades(allEvents(), realized);
@@ -779,7 +791,7 @@ function toggleSort(tbl, k, isText){
 }
 const tick = sym => sym.split(":")[1] || sym;
 
-function renderTable(rows, tot, PF){
+function renderTable(rows, tot, PF, dayTot){
   const tb = $("tbody");
   $("emptyPos").hidden = rows.length > 0;
   $("posCount").textContent = rows.length ? `(${rows.length})` : "";
@@ -794,7 +806,7 @@ function renderTable(rows, tot, PF){
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const benchW = (() => { let s=0,w=0; rows.forEach(r=>{ if(isNum(r.c.benchPct)&&isNum(r.c.costBase)){ s+=r.c.benchPct*r.c.costBase; w+=r.c.costBase; } }); return w? s/w : NaN; })();
   html += `<tr class="total"><td class="l stick">GGD</td><td class="l">${UI.book === "sim" ? "Simulated total" : "Real total"}</td><td class="l">${esc(DB.base)}</td>
-    <td>–</td><td>–</td><td>–</td><td>100.00</td><td>–</td><td>–</td>
+    <td>–</td><td>–</td><td>${fSigned(dayTot,2,"%")}</td><td>–</td><td>100.00</td><td>–</td><td>–</td>
     <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
     <td>${pfv("1W")}</td><td>${pfv("1M")}</td><td>${pfv("YTD")}</td>
     <td>${pfv("1Y")}</td><td>${pfv("10Y")}</td><td>–</td><td title="Since your first open date">${fSigned(PF["ALL"]?.p,2,"%")}</td><td></td></tr>`;
@@ -806,6 +818,7 @@ function renderTable(rows, tot, PF){
       <td class="l">${exFlag(q)}${esc(q.exchange || p.sym.split(":")[0])}</td>
       <td>${tradedToday(q) && isNum(q.open) ? fPx(q.open) : '<span class="dayx">closed</span>'}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(c.iccy)}</span></td>
+      <td>${dayCell(q)}</td>
       <td>${fPx(prevClose(q))}</td>
       <td>${fN(w,2)}</td>
       <td>${fN(p.shares, Number.isInteger(p.shares)?0:4)}</td>
@@ -1483,6 +1496,8 @@ function init(){
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
   $("refreshBtn").onclick = () => refresh();
+  $("extBtn").setAttribute("aria-pressed", String(!!UI.ext));
+  $("extBtn").onclick = () => { UI.ext = !UI.ext; ls.set(LS_UI, UI); $("extBtn").setAttribute("aria-pressed", String(UI.ext)); render(); };
   // load the newest index.html, skipping the browser's cached copy
   const hardReload = () => location.replace(location.pathname + "?v=" + Date.now());
   $("updBtn").onclick = hardReload; $("reloadBtn").onclick = hardReload;
