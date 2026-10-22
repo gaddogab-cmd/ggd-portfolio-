@@ -553,8 +553,8 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <label class="f">Branch<input id="sBranch" autocomplete="off" spellcheck="false" placeholder="main"></label>
       <label class="f full">Fine-grained token<input id="sToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
       <label class="f full">Sync code<textarea id="sCode" spellcheck="false" placeholder="Paste a code generated on your other device"></textarea></label>
-      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm" type="button" id="reloadBtn">Reload app</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm" type="button" id="importEvBtn">Import events</button><button class="btn sm" type="button" id="reloadBtn">Reload app</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden><input type="file" id="importEvFile" accept="application/json,.json" hidden>
       <div class="full msg" id="setMsg"></div>
     </div>
     <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Save &amp; connect</button></div></div>
@@ -571,7 +571,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.21.20";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.22.21";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1584,9 +1584,14 @@ function biMap(t, ts){
 }
 // next earnings date, best source first: your own > Borsa Italiana > Yahoo Finance > TradingView
 function nextEarn(sym){
+  const own = (DB.events || []).filter(ev => ev.sym === sym && ev.kind === "earn" && ev.date >= tzKey(Date.now())).sort((a,b) => a.date < b.date ? -1 : 1)[0];
+  const auto = autoEarn(sym);
+  if(own && (!auto || own.date <= auto.key || Math.abs(kts(own.date) - kts(auto.key)) <= 10*864e5))
+    return { ts: tzWallTs(own.date, own.time), key: own.date, timed: !!own.time, label: own.label, src: "your date" };
+  return auto;
+}
+function autoEarn(sym){
   const q = Q[sym] || {}, now = Date.now(), today = tzKey(now);
-  const own = (DB.events || []).filter(ev => ev.sym === sym && ev.kind === "earn" && ev.date >= today).sort((a,b) => a.date < b.date ? -1 : 1)[0];
-  if(own) return { ts: tzWallTs(own.date, own.time), key: own.date, timed: !!own.time, label: own.label, src: "your date" };
   const bi = ((NEWS && NEWS.ev && NEWS.ev[sym]) || []).map(e => ({ ...e, m: biMap(e.t, tzWallTs(e.d)) })).filter(e => e.m.kind === "earn" && e.d >= today).sort((a,b) => a.d < b.d ? -1 : 1)[0];
   if(bi) return { ts: tzWallTs(bi.d), key: bi.d, timed: false, label: bi.m.label, src: "Borsa Italiana" };
   const tvTs = isNum(q.earnings_release_next_date) ? q.earnings_release_next_date * 1000 : NaN, tc = q.earnings_release_next_time;
@@ -1743,7 +1748,7 @@ function renderStock(){
     <tr><td>Last</td><td>${dv("recent")}</td></tr><tr><td>Next</td><td>${dv("upcoming")}</td></tr><tr><td>Yield</td><td>${isNum(q.dividends_yield) ? fN(q.dividends_yield,2) + "%" : "–"}</td></tr></tbody></table>`;
   const rel = items.filter(n => WIRES.has(n.pid));
   const myEv = (DB.events || []).filter(ev => ev.sym === sym).sort((a,b) => a.date < b.date ? -1 : 1);
-  const mine = `<div class="evsub">Your events <button class="btn sm" type="button" id="stkAddEv" style="margin-left:8px">+ Event</button></div>` + (myEv.length ? myEv.map(ev => `<div class="myev"><span class="num">${keyLabel(ev.date,{day:"2-digit",month:"short",year:"numeric"})}${ev.time ? " " + esc(ev.time) : ""}</span><span><span class="k k-${ev.kind}">${KIND_L[ev.kind] || "O"}</span> ${esc(ev.label || "")}</span><button class="icon" type="button" data-delev="${esc(ev.id)}">Delete</button></div>`).join("") : `<div class="hint">None. Dates come in by themselves; add one only if no source has it.</div>`);
+  const mine = `<div class="evsub">Your events <button class="btn sm" type="button" id="stkAddEv" style="margin-left:8px">+ Event</button></div>` + (myEv.length ? myEv.map(ev => `<div class="myev"><span class="num">${keyLabel(ev.date,{day:"2-digit",month:"short",year:"numeric"})}${ev.time ? " " + esc(ev.time) : ""}</span><span><span class="k k-${ev.kind}">${KIND_L[ev.kind] || "O"}</span> ${esc(ev.label || "")}${ev.src ? ` <a class="muted" href="${esc(ev.src)}" target="_blank" rel="noopener">source ↗</a>` : ""}</span><button class="icon" type="button" data-delev="${esc(ev.id)}">Delete</button></div>`).join("") : `<div class="hint">None. Dates come in by themselves; add one only if no source has it.</div>`);
   $("stkBody").innerHTML = `<div class="tblwrap">${earn}</div>${mine}<div class="tblwrap">${divs}</div><div class="evsub">Press releases</div>` +
     (robotNote ? `<div class="empty">${robotNote}</div>` : rel.length ? rel.slice(0, stkMore ? 15 : 5).map(nrow).join("") + (!stkMore && rel.length > 5 ? `<button class="btn sm" type="button" id="stkMore">Show ${rel.length - 5} more</button>` : "") : `<div class="empty">No recent press releases.</div>`);
 }
@@ -2014,6 +2019,28 @@ function init(){
   };
   $("exportBtn").onclick = exportJson;
   $("importBtn").onclick = () => $("importFile").click();
+  // add a list of events (dates, calls, conferences) without touching anything else; importing twice adds nothing new
+  $("importEvBtn").onclick = () => $("importEvFile").click();
+  $("importEvFile").onchange = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const raw = JSON.parse(await f.text()), list = Array.isArray(raw) ? raw : raw.events;
+      if(!Array.isArray(list)) throw 0;
+      const mySyms = [...new Set([...(DB.watch || []).map(w => w.sym), ...allPosBoth().map(p => p.sym)])];
+      const byIsin = {}; mySyms.forEach(x => { const i = Q[x]?.isin; if(i) byIsin[i] = x; });
+      const clean = list.filter(x => x && x.sym && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && ["earn","ex","pay","other"].includes(x.kind)).map(x => ({
+        id: rid(), sym: mySyms.includes(x.sym) ? x.sym : (byIsin[x.isin] || x.sym), name: x.name || "", kind: x.kind,
+        label: String(x.label || "").slice(0, 60), date: x.date, time: /^\d{2}:\d{2}$/.test(x.time || "") ? x.time : "", src: x.src || "" }));
+      let added = 0;
+      await commit(d => {
+        d.events = d.events || [];
+        clean.forEach(x => { if(!d.events.some(y => y.sym === x.sym && y.date === x.date && y.kind === x.kind && y.label === x.label)){ d.events.push(x); added++; } });
+      }, `Import ${clean.length} events`);
+      $("setMsg").className = "full msg pos"; $("setMsg").textContent = `Imported ${added} new events (${clean.length - added} were already there).`;
+      render();
+    }catch(err){ $("setMsg").className = "full msg neg"; $("setMsg").textContent = "Import failed: not an events file."; }
+    e.target.value = "";
+  };
   $("importFile").onchange = async e => {
     const f = e.target.files[0]; if(!f) return;
     try{ const d = sanitize(JSON.parse(await f.text())); await commit(x => { Object.assign(x, d); }, "Import"); $("setMsg").textContent = `Imported ${d.positions.length} positions.`; refresh(); }
