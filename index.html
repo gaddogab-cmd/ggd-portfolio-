@@ -159,13 +159,14 @@ canvas{display:block;width:100%;height:100%}
 .clocks .mk.open{background:var(--green);box-shadow:0 0 5px var(--green)}
 @media (max-width:700px){.clocks{order:5;width:100%;justify-content:space-between}}
 /* market status strip: one chip per stock exchange in your portfolios and watchlist */
-.mkts{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12px;color:var(--gray-hi);margin-top:-4px}
+.mkts{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:13px;color:var(--gray-hi);margin-top:-4px}
 .mkts:empty{display:none}
 .mkts .lb0{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
 .mkt{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.mkt b{font:500 12px var(--num);color:var(--fg)}
+.mkt b{font:500 13.5px var(--num);color:var(--fg)}
+.mkt img.flag{width:18px;height:13.5px}
 .mkt .st{font-size:10.5px;color:var(--gray)}
-.mkt .mk{width:7px;height:7px;border-radius:50%;background:#3a3f48;flex:none}
+.mkt .mk{width:8px;height:8px;border-radius:50%;background:#3a3f48;flex:none}
 .mkt .mk.open{background:var(--green);box-shadow:0 0 5px var(--green)}
 .mkt .mk.pre{background:var(--yellow);box-shadow:0 0 4px var(--yellow)}
 .mkt.held{color:var(--fg)}
@@ -244,6 +245,14 @@ tr.total td.stick{background:var(--olive)}
 .rng .bar::before{content:"";position:absolute;left:0;right:0;top:9px;height:1px;background:#3a3f48}
 .rng .tri{position:absolute;top:1px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--blue-soft);transform:translateX(-6px)}
 .rowbtns{display:flex;gap:4px;justify-content:flex-end}
+.exp{background:none;border:1px solid #333842;color:var(--gray-hi);cursor:pointer;width:18px;height:18px;line-height:14px;padding:0;margin-right:6px;font-size:11px;vertical-align:1px}
+.exp:hover{border-color:var(--orange);color:var(--orange)}
+.exp[aria-expanded="true"]{background:var(--orange);border-color:var(--orange);color:#000}
+tr.txrow > td{background:#05070a!important;padding:0 8px 8px 34px;text-align:left}
+table.tx{min-width:0;width:auto;font-size:12px;border-collapse:collapse;margin-top:2px}
+table.tx th{background:#1a1d22;color:var(--gray-hi);font-weight:500;padding:4px 10px;position:static;border-right:0}
+table.tx td{padding:4px 10px;border-bottom:1px solid #12161b;font-family:var(--num)}
+table.tx td.l{font-family:var(--ui)}
 .icon{background:none;border:1px solid transparent;color:var(--gray);cursor:pointer;padding:1px 6px;font-size:12px}
 .icon:hover{color:var(--fg);border-color:#333842}
 .act{background:transparent;border:1px solid var(--orange);color:var(--orange);cursor:pointer;padding:1px 9px;font:600 12px var(--ui)}
@@ -483,7 +492,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = the price per share you paid. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in Trades). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = your average price per share over all buys (free shares count at 0). Click ▸ next to a ticker for every transaction. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own time-weighted return over that full period; if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in Trades). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -498,10 +507,13 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         <div class="picked" id="tickPicked" hidden></div>
       </div>
       <label class="f full">Portfolio<select id="fBook"><option value="real">Real Portfolio</option><option value="sim">Simulated Portfolio</option><option value="lollo">LOLLO</option></select></label>
-      <label class="f">Shares<input id="fShares" type="number" inputmode="decimal" step="any" min="0"></label>
-      <label class="f">Price per share<input id="fPrice" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f buyf">Shares<input id="fShares" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f buyf">Price per share<input id="fPrice" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Currency<input id="fCcy" maxlength="3" autocapitalize="characters" placeholder="USD"></label>
-      <label class="f">Open date<input id="fDate" type="date"></label>
+      <label class="f buyf">Date<input id="fDate" type="date"></label>
+      <label class="full hint buyf" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fFree"> Free shares (bonus issue, gift, scrip dividend): price 0, lowers your average cost</label>
+      <div class="full hint" id="fEditNote" hidden>Shares, prices and dates are in the transactions: click ▸ next to the ticker to see, edit or delete each one.</div>
+      <div class="full hint" id="fAddNote" hidden></div>
       <div class="f"><label for="fBench">Benchmark</label>
         <input id="fBench" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" value="SP:SPX" placeholder="S&amp;P 500, DAX, ETF, ISIN" role="combobox" aria-expanded="false" aria-controls="benchSug">
         <div class="sug" id="benchSug" role="listbox" hidden></div>
@@ -542,6 +554,21 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   <div id="stkEv"></div>
   <div class="stabs" role="tablist"><button type="button" data-st="news" aria-selected="true">News</button><button type="button" data-st="rel" aria-selected="false">Releases &amp; earnings</button></div>
   <div class="stk-body" id="stkBody"></div>
+</dialog>
+
+<!-- Edit one buy -->
+<dialog id="txDlg">
+  <form method="dialog" id="txForm" novalidate>
+    <div class="dlg-h"><h3 id="txTitle">Edit transaction</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <label class="f">Date<input id="tDate" type="date"></label>
+      <label class="f">Shares<input id="tQty" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="f">Price per share (<span id="tCcy"></span>)<input id="tPx" type="number" inputmode="decimal" step="any" min="0"></label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="tFree"> Free shares</label>
+      <div class="full msg neg" id="tMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Save</button></div></div>
+  </form>
 </dialog>
 
 <!-- Your own event (dates TradingView is missing) -->
@@ -609,7 +636,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.22.23";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.22.24";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -850,6 +877,41 @@ const BOOK_IDS = Object.keys(BOOKS);
 function bk(b){ return BOOKS[b || UI.book] || BOOKS.real; }
 function openPositions(b){ return DB[bk(b).pos] || []; }
 function allPos(b){ return [...(DB[bk(b).pos] || []), ...(DB[bk(b).closed] || [])]; }
+/* ---------- one position per stock and portfolio: every buy, free share and sale is a transaction ---------- */
+function ensureBuys(p){
+  if(Array.isArray(p.buys) && p.buys.length) return;
+  const sold = (p.sells || []).reduce((a,sl) => a + (sl.qty || 0), 0);
+  p.buys = [{ id: "b" + p.id, date: p.date, qty: +((p.shares || 0) + sold).toFixed(8), price: p.price || 0 }];
+}
+// average-cost accounting over all buys and sales, oldest first: sets shares, average price and each sale's gain or loss
+function replay(p){
+  ensureBuys(p);
+  const ev = [...p.buys.map(b => ({ t: kts(b.date), o: 0, b })), ...(p.sells || []).map(sl => ({ t: saleTs(sl), o: 1, s: sl }))].sort((a,b) => a.t - b.t || a.o - b.o);
+  let sh = 0, cost = 0, avg = 0;
+  for(const e of ev){
+    if(e.b){ sh += e.b.qty; cost += e.b.qty * e.b.price; avg = sh > 0 ? cost / sh : 0; continue; }
+    const sl = e.s, q = Math.min(sl.qty, sh), fx = isNum(sl.pnlBase) && sl.pnl ? sl.pnlBase / sl.pnl : NaN;
+    sl.cost = avg; sl.pnl = (sl.price - avg) * sl.qty; sl.pnlBase = isNum(fx) ? sl.pnl * fx : toBase(sl.pnl, sl.ccy || p.ccy);
+    cost -= avg * q; sh -= q;
+  }
+  p.shares = +Math.max(0, sh).toFixed(8); p.price = sh > 1e-9 ? cost / sh : avg;
+  p.date = p.buys.map(b => b.date).sort()[0];
+}
+// older versions opened a new position for every buy: fold them into one per stock
+function mergeDupes(list){
+  const by = new Map(), out = [];
+  (list || []).forEach(p => {
+    ensureBuys(p);
+    const m = by.get(p.sym);
+    if(!m){ by.set(p.sym, p); out.push(p); return; }
+    m.buys = [...m.buys, ...p.buys]; m.sells = [...(m.sells || []), ...(p.sells || [])];
+    const divs = new Map(); [...(m.divs || []), ...(p.divs || [])].forEach(d => { const o = divs.get(d.id); if(o){ o.amount += d.amount; o.amountBase = (o.amountBase || 0) + (d.amountBase || 0); o.shares = (o.shares || 0) + (d.shares || 0); } else divs.set(d.id, { ...d }); });
+    m.divs = [...divs.values()]; m.divSkip = [...new Set([...(m.divSkip || []), ...(p.divSkip || [])])];
+    if(p.date < m.date){ m.bench = p.bench; m.benchOpen = p.benchOpen; m.benchEst = p.benchEst; }
+    replay(m);
+  });
+  return out;
+}
 function allPosBoth(){ return BOOK_IDS.flatMap(b => allPos(b)); }
 function openAll(){ return BOOK_IDS.flatMap(b => openPositions(b)); }
 function saleTs(sl){ return isNum(sl.ts) ? sl.ts : kts(sl.date) + 17*3600e3; }
@@ -961,6 +1023,28 @@ function toggleSort(tbl, k, isText){
 }
 const tick = sym => sym.split(":")[1] || sym;
 
+// transactions of one position: buys, free shares, sales and dividends, with the average price after each
+const EXP = new Set();
+function txRows(p){
+  ensureBuys(p);
+  const ev = [...p.buys.map(b => ({ t: kts(b.date), o: 0, k: b.free || b.price === 0 ? "free" : "buy", x: b })), ...(p.sells || []).map(sl => ({ t: saleTs(sl), o: 1, k: "sell", x: sl })), ...(p.divs || []).map(dv => ({ t: saleTs(dv), o: 2, k: "div", x: dv }))].sort((a,b) => a.t - b.t || a.o - b.o);
+  let sh = 0, cost = 0;
+  const rows = ev.map(e => {
+    const x = e.x; let amt = NaN, gain = NaN;
+    if(e.k === "buy" || e.k === "free"){ sh += x.qty; cost += x.qty * x.price; amt = -x.qty * x.price; }
+    else if(e.k === "sell"){ const avg = sh ? cost / sh : 0; cost -= avg * Math.min(x.qty, sh); sh -= x.qty; amt = x.qty * x.price; gain = x.pnl; }
+    else { amt = x.amount; gain = x.amount; }
+    const avg = sh > 1e-9 ? cost / sh : NaN;
+    const type = { buy:"Buy", free:"Free shares", sell:"Sell", div:"Dividend" + (x.auto && !x.edited ? " (auto)" : "") }[e.k];
+    const act = e.k === "buy" || e.k === "free" ? `<button class="icon" type="button" data-txedit="${esc(p.id)}|${esc(x.id)}">Edit</button><button class="icon" type="button" data-txdel="${esc(p.id)}|${esc(x.id)}">Delete</button>`
+      : e.k === "sell" ? `<button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|sale">Undo</button>`
+      : `<button class="icon" type="button" data-divedit="${esc(p.id)}|${esc(x.id)}">Edit</button><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|div">Delete</button>`;
+    return `<tr><td class="l">${fDate(e.t, true)}</td><td class="l">${type}</td><td>${e.k === "div" ? "–" : (e.k === "sell" ? "−" : "+") + fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
+      <td>${e.k === "div" ? (isNum(x.perShare) ? fPx(x.perShare) + " /sh" : "–") : fPx(x.price)}</td><td class="${cls(amt)}">${fSigned(amt,2)}</td>
+      <td>${fN(sh, Number.isInteger(+sh.toFixed(6)) ? 0 : 4)}</td><td>${fPx(avg)}</td><td class="${cls(gain)}">${isNum(gain) ? fSigned(gain,2) : "–"}</td><td><div class="rowbtns">${act}</div></td></tr>`;
+  }).reverse().join("");
+  return `<tr class="txrow"><td colspan="22"><table class="tx"><thead><tr><th class="l">Date</th><th class="l">Type</th><th>Shares</th><th>Price (${esc(p.ccy)})</th><th>Cash (${esc(p.ccy)})</th><th>Shares after</th><th>Average price after</th><th>Realized</th><th></th></tr></thead><tbody>${rows}</tbody></table></td></tr>`;
+}
 function renderTable(rows, tot, PF, dayTot){
   const tb = $("tbody");
   $("emptyPos").hidden = rows.length > 0;
@@ -983,7 +1067,7 @@ function renderTable(rows, tot, PF, dayTot){
   for(const {p, c} of sorted){
     const q = c.q, w = tot ? c.valueBase / tot * 100 : NaN;
     html += `<tr data-sym="${esc(p.sym)}">
-      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(p.sym))}</span></td>
+      <td class="l stick"><button class="exp" type="button" data-exp="${esc(p.id)}" aria-expanded="${EXP.has(p.id)}" title="Show all transactions">${EXP.has(p.id) ? "▾" : "▸"}</button>${coFlag(q)}<span class="tk">${esc(tick(p.sym))}</span>${(p.buys || []).length > 1 ? `<span class="muted" style="font-size:10px;margin-left:4px">${p.buys.length}×</span>` : ""}</td>
       <td class="l nm" title="${esc((q.description || p.name || "") + (p.isin ? " · " + p.isin : ""))}">${esc(q.description || p.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || p.sym.split(":")[0])}</td>
       <td>${tradedToday(q) && isNum(q.open) ? fPx(q.open) : '<span class="dayx">closed</span>'}</td>
@@ -1000,7 +1084,7 @@ function renderTable(rows, tot, PF, dayTot){
       ${perfCells(q)}
       <td>${fPx(ipoPx(q))}</td><td>${pct(q["Perf.All"],1)}</td>
       <td><div class="rowbtns"><button class="act" type="button" data-sell="${esc(p.id)}" aria-label="Sell ${esc(p.sym)}">Sell</button><button class="icon" type="button" data-div="${esc(p.id)}" aria-label="Record a dividend for ${esc(p.sym)}">Dividend</button><button class="icon" type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.sym)}">Edit</button></div></td>
-    </tr>`;
+    </tr>${EXP.has(p.id) ? txRows(p) : ""}`;
   }
   tb.innerHTML = html;
 }
@@ -1072,12 +1156,12 @@ function renderTrades(events, realized){
       <td class="l stick">${fDate(e.ts, true)}</td>
       <td class="l stick2">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
       <td class="l nm">${esc(p.name || "–")}</td>
-      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' + (x.auto ? '<span class="tag">AUTO</span>' : '') : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
+      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' + (x.auto ? `<span class="tag">${x.edited ? "EDITED" : "AUTO"}</span>` : '') : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
       <td>${isNum(x.cost) ? fPx(x.cost) + ` <span class="muted">${esc(ccy)}</span>` : "–"}</td>
       <td>${isDiv ? (isNum(x.perShare) ? fPx(x.perShare) + ` <span class="muted">/sh</span>` : "–") : fPx(x.price) + ` <span class="muted">${esc(ccy)}</span>`}</td>
       <td class="${cls(amt)}">${fSigned(amt,2)} <span class="muted">${esc(ccy)}</span></td>
       <td title="${isDiv ? "Yield on your purchase price" : "Sell price vs purchase price"}">${pct(yoc(e))}</td><td class="${cls(b)}">${fSigned(b,2)}</td>
-      <td><div class="rowbtns"><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|${e.kind}" aria-label="Undo">Undo</button></div></td>
+      <td><div class="rowbtns">${isDiv ? `<button class="icon" type="button" data-divedit="${esc(p.id)}|${esc(x.id)}">Edit</button>` : ""}<button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|${e.kind}" aria-label="Undo">${isDiv ? "Delete" : "Undo"}</button></div></td>
     </tr>`;
   }
   $("trBody").innerHTML = html;
@@ -1151,10 +1235,11 @@ function buildSeries(range){
     if(lastTs !== Infinity && !m.has(lastTs)){ const v = interp([...m.entries()].sort((a,b) => a[0]-b[0]), lastTs); if(isNum(v)) m.set(lastTs, v); }
     return { p, iccy, open, sells, lastTs, pts: [...m.entries()].sort((a,b) => a[0]-b[0]) };
   });
-  const sharesAt = (x, t) => x.p.shares + x.sells.reduce((a, y) => a + (y.ts > t ? y.qty : 0), 0);
+  const sharesAt = (x, t) => x.p.shares + x.sells.reduce((a, y) => a + (y.ts > t ? y.qty : 0), 0) - (x.p.buys || []).reduce((a, b) => a + (kts(b.date) > t ? b.qty : 0), 0);
   const bpts = pricePoints(SPX);
   const T = new Set([startTs, now]);
   paths.forEach(x => x.pts.forEach(([t]) => { if(t >= startTs && t <= now) T.add(t); }));
+  paths.forEach(x => (x.p.buys || []).forEach(b => { const t = kts(b.date); if(t >= startTs && t <= now) T.add(t); }));
   bpts.forEach(([t]) => { if(t >= startTs && t <= now) T.add(t); });
   const grid = [...T].sort((a,b) => a-b);
   const P = [0], B = [0];
@@ -1278,7 +1363,8 @@ function sanitize(d){
   if(!Array.isArray(o.lolloClosed)) o.lolloClosed = [];
   if(!Array.isArray(o.watch)) o.watch = [];
   if(!Array.isArray(o.events)) o.events = [];
-  [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed, ...o.lolloPositions, ...o.lolloClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
+  [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed, ...o.lolloPositions, ...o.lolloClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; ensureBuys(p); });
+  ["positions","simPositions","lolloPositions"].forEach(k => { if(new Set(o[k].map(p => p.sym)).size < o[k].length) o[k] = mergeDupes(o[k]); });
   if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
   return o;
 }
@@ -1371,8 +1457,9 @@ function openPos(p){
   $("fBook").value = UI.book || "real";
   $("posDlgTitle").textContent = p ? "Edit position" : "Open position";
   $("delBtn").hidden = !p;
-  $("fTicker").value = p ? p.sym : ""; $("fShares").value = p ? p.shares : ""; $("fPrice").value = p ? p.price : "";
-  $("fCcy").value = p ? p.ccy : ""; $("fDate").value = p ? p.date : today();
+  $("fTicker").value = p ? p.sym : ""; $("fShares").value = ""; $("fPrice").value = ""; $("fFree").checked = false; $("fPrice").disabled = false;
+  $("fCcy").value = p ? p.ccy : ""; $("fCcy").disabled = !!p; $("fDate").value = today();
+  document.querySelectorAll("#posDlg .buyf").forEach(x => x.hidden = !!p); $("fEditNote").hidden = !p; $("fAddNote").hidden = true;
   $("fBench").value = p ? p.bench : SPX; $("fBenchOpen").value = p && isNum(p.benchOpen) ? p.benchOpen : "";
   benchAuto = p ? !!p.benchEst : false;
   $("benchHint").textContent = p ? (p.benchEst ? "Estimated from TradingView history" : "Saved at open") : "Filled automatically";
@@ -1384,6 +1471,8 @@ function openPos(p){
 function pickTicker(h){
   chosen = h;
   $("fTicker").value = h.sym; showPicked(h);
+  if(!editing){ const ex = openPositions($("fBook").value).find(p => p.sym === h.sym);
+    $("fAddNote").hidden = !ex; if(ex) $("fAddNote").textContent = `You already hold ${fN(ex.shares, Number.isInteger(ex.shares) ? 0 : 4)} at an average of ${fPx(ex.price)} ${ex.ccy}: this is added to that position and the average price is updated.`; }
   if(!editing || !$("fCcy").value) $("fCcy").value = normCcy(h.currency);
   if(!$("fPrice").value && isNum(h.close)) $("fPrice").value = h.close;
   $("posMsg").textContent = "";
@@ -1452,22 +1541,40 @@ async function savePos(ev){
     if(!chosen || chosen.sym !== sym){ m.textContent = "Pick the stock from the suggestion list (type the ticker, name or ISIN, then tap the right line)."; tickAC.run(); return; }
   }
   const s = sym;
-  if(!(shares > 0)){ m.textContent = "Enter the number of shares."; return; }
-  if(!(price > 0)){ m.textContent = "Enter the price per share."; return; }
+  const free = $("fFree").checked;
+  if(!editing && !(shares > 0)){ m.textContent = "Enter the number of shares."; return; }
+  if(!editing && !free && !(price > 0)){ m.textContent = "Enter the price per share (or tick Free shares)."; return; }
   if(!/^[A-Z]{3}$/.test(ccy)){ m.textContent = "Currency must be a 3-letter code, e.g. USD, EUR, GBP (GBX for pence)."; return; }
   if(!isNum(benchOpen)){ await fillBenchOpen(true); benchOpen = parseFloat($("fBenchOpen").value); }
-  const benchEst = date < today() && benchAuto;
-  const rec = { id: editing ? editing.id : (Date.now().toString(36) + Math.random().toString(36).slice(2,6)),
-    sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
-    shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now(), sells: editing?.sells || [] };
+  const benchEst = (editing ? editing.date : date) < today() && benchAuto;
+  const px = free ? 0 : price;
+  const meta = { sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
+    bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst };
   $("posSave").disabled = true;
   const toBook = BOOKS[$("fBook").value] ? $("fBook").value : "real", fromBook = editing ? (UI.book || "real") : null;
-  const T = bk(toBook), F = fromBook ? bk(fromBook) : null;
+  const T = bk(toBook), F = fromBook ? bk(fromBook) : null, buyId = rid();
   await commit(d => {
-    if(F && F !== T) d[F.pos] = (d[F.pos] || []).filter(x => x.id !== rec.id);   // moved to the other portfolio
     d[T.pos] = d[T.pos] || [];
-    const i = d[T.pos].findIndex(x => x.id === rec.id); if(i >= 0) d[T.pos][i] = rec; else d[T.pos].push(rec);
-  }, `${editing ? "Edit" : "Open"} ${s} (${T.short})`);
+    if(editing){
+      // edit: ticker, benchmark or portfolio; the transactions stay as they are
+      let pos = (d[F.pos] || []).find(x => x.id === editing.id) || { ...editing };
+      Object.assign(pos, meta);
+      if(F !== T){
+        d[F.pos] = (d[F.pos] || []).filter(x => x.id !== pos.id);
+        const same = d[T.pos].find(x => x.sym === pos.sym);
+        if(same){ d[T.pos] = mergeDupes([...d[T.pos], pos]); return; }      // joins the position already there
+        d[T.pos].push(pos);
+      }
+      return;
+    }
+    const pos = d[T.pos].find(x => x.sym === s);
+    if(pos){                                                              // already held: add a transaction
+      ensureBuys(pos);
+      if(!pos.buys.some(b => b.id === buyId)) pos.buys.push({ id: buyId, date, qty: shares, price: conv(px, ccy, pos.ccy) || px, free });
+      replay(pos); return;
+    }
+    d[T.pos].push({ id: rid(), ...meta, ccy, shares, price: px, date, added: Date.now(), sells: [], buys: [{ id: buyId, date, qty: shares, price: px, free }] });
+  }, `${editing ? "Edit" : free ? "Free shares" : "Buy"} ${s} (${T.short})`);
   $("posSave").disabled = false;
   $("posDlg").close();
   if(toBook !== (UI.book || "real")) setBook(toBook);
@@ -1541,19 +1648,63 @@ async function undoSale(pid, sid, kind){
     let pos = d[K.pos].find(x => x.id === pid);
     if(!pos){ const i = d[K.closed].findIndex(x => x.id === pid); if(i < 0) return; pos = d[K.closed][i]; d[K.closed].splice(i, 1); delete pos.closedDate; d[K.pos].push(pos); }
     const sl = (pos.sells || []).find(x => x.id === sid); if(!sl) return;
-    pos.shares = +(pos.shares + sl.qty).toFixed(8); pos.sells = pos.sells.filter(x => x.id !== sid);
+    pos.sells = pos.sells.filter(x => x.id !== sid); replay(pos);
+    if(d[K.pos].filter(x => x.sym === pos.sym).length > 1) d[K.pos] = mergeDupes(d[K.pos]);   // you bought it again meanwhile
   }, "Undo sale " + hit.p.sym);
+  refresh();
+}
+
+/* ============================== edit or delete one buy ============================== */
+let txEdit = null;
+function openTx(pid, bid){
+  const p = openPositions().find(x => x.id === pid); if(!p) return; ensureBuys(p);
+  const b = p.buys.find(x => x.id === bid); if(!b) return;
+  txEdit = { pid, bid, book: UI.book || "real" };
+  $("txTitle").textContent = `Edit transaction · ${tick(p.sym)}`; $("tCcy").textContent = p.ccy;
+  $("tDate").value = b.date; $("tQty").value = b.qty; $("tPx").value = b.price; $("tFree").checked = !!b.free || b.price === 0; $("tPx").disabled = $("tFree").checked;
+  $("tMsg").textContent = ""; $("txDlg").showModal();
+}
+function sharesOk(p){ // a change must not leave sales selling more than you held at the time
+  const ev = [...p.buys.map(b => ({ t: kts(b.date), o: 0, q: b.qty })), ...(p.sells || []).map(sl => ({ t: saleTs(sl), o: 1, q: -sl.qty }))].sort((a,b) => a.t - b.t || a.o - b.o);
+  let sh = 0; for(const e of ev){ sh += e.q; if(sh < -1e-8) return false; } return true;
+}
+async function saveTx(ev){
+  ev.preventDefault(); if(!txEdit) return;
+  const date = $("tDate").value, qty = parseFloat($("tQty").value), free = $("tFree").checked, px = free ? 0 : parseFloat($("tPx").value);
+  if(!date || date > today()){ $("tMsg").textContent = "Pick a date that is not in the future."; return; }
+  if(!(qty > 0)){ $("tMsg").textContent = "Enter the number of shares."; return; }
+  if(!(px >= 0) || (!free && !(px > 0))){ $("tMsg").textContent = "Enter the price (or tick Free shares)."; return; }
+  const p = openPositions(txEdit.book).find(x => x.id === txEdit.pid), test = JSON.parse(JSON.stringify(p));
+  Object.assign(test.buys.find(x => x.id === txEdit.bid), { date, qty, price: px, free });
+  if(!sharesOk(test)){ $("tMsg").textContent = "That would leave a sale selling more shares than you held at that time."; return; }
+  const { pid, bid, book } = txEdit;
+  await commit(d => { const pos = (d[bk(book).pos] || []).find(x => x.id === pid); if(!pos) return; ensureBuys(pos);
+    const b = pos.buys.find(x => x.id === bid); if(!b) return; Object.assign(b, { date, qty, price: px, free }); replay(pos); }, "Edit transaction");
+  $("txDlg").close(); txEdit = null; refresh();
+}
+async function deleteTx(pid, bid){
+  const book = UI.book || "real", p = openPositions(book).find(x => x.id === pid); if(!p) return; ensureBuys(p);
+  const b = p.buys.find(x => x.id === bid); if(!b) return;
+  const last = p.buys.length === 1 && !(p.sells || []).length;
+  const test = JSON.parse(JSON.stringify(p)); test.buys = test.buys.filter(x => x.id !== bid);
+  if(!last && !sharesOk(test)){ await confirmBox("Can't delete", "A later sale needs these shares. Undo that sale first (in the transactions or the Trades tab)."); return; }
+  if(!(await confirmBox("Delete transaction", last ? `This is the only transaction of ${p.sym}: the whole position is deleted.` : `Delete the ${b.free ? "free shares" : "buy"} of ${b.qty} shares on ${b.date}? The average price is recalculated.`))) return;
+  await commit(d => { const K = bk(book);
+    if(last){ d[K.pos] = (d[K.pos] || []).filter(x => x.id !== pid); return; }
+    const pos = (d[K.pos] || []).find(x => x.id === pid); if(!pos) return; ensureBuys(pos); pos.buys = pos.buys.filter(x => x.id !== bid); replay(pos); }, "Delete transaction");
   refresh();
 }
 
 /* ============================== dividends ============================== */
 let divPos = null;
-function openDiv(p){
-  divPos = p;
+let divEdit = null;
+function openDiv(p, dv){
+  divPos = p; divEdit = dv || null;
   $("divTitle").textContent = `Dividend · ${tick(p.sym)}`;
   $("dInfo").innerHTML = `${esc(p.name || p.sym)}<br>Held <b>${fN(p.shares, Number.isInteger(p.shares) ? 0 : 4)}</b> shares · purchase price <b>${fPx(p.price)} ${esc(p.ccy)}</b>`;
   document.querySelectorAll(".dCcy").forEach(x => x.textContent = p.ccy);
-  $("dPer").value = ""; $("dTot").value = ""; $("dDate").value = today(); $("dDate").min = p.date; $("dDate").max = today();
+  $("dPer").value = dv && isNum(dv.perShare) ? +dv.perShare.toFixed(6) : ""; $("dTot").value = dv ? +dv.amount.toFixed(4) : ""; $("dDate").value = dv ? dv.date : today(); $("dDate").min = p.date; $("dDate").max = today();
+  $("dGo").textContent = dv ? "Save changes" : "Save dividend"; $("divTitle").textContent = `${dv ? "Edit dividend" : "Dividend"} · ${tick(p.sym)}`;
   $("dMsg").textContent = ""; $("dGo").disabled = false;
   $("divDlg").showModal(); $("dPer").focus();
 }
@@ -1561,15 +1712,19 @@ async function saveDiv(ev){
   ev.preventDefault();
   const p = divPos, m = $("dMsg"); if(!p) return;
   const per = parseFloat($("dPer").value), tot = parseFloat($("dTot").value), date = $("dDate").value || today();
-  const amount = tot > 0 ? tot : per > 0 ? per * p.shares : NaN;
+  const shHeld = divEdit && divEdit.shares ? divEdit.shares : p.shares;
+  const amount = tot > 0 ? tot : per > 0 ? per * shHeld : NaN;
   if(!(amount > 0)){ m.textContent = "Enter the dividend per share or the total you received."; return; }
   if(date > today()){ m.textContent = "The payment date can't be in the future."; return; }
   const rec = { id: rid(), date, ts: date === today() ? Date.now() : kts(date) + 12*3600e3, amount, perShare: per > 0 ? per : amount / p.shares,
     shares: p.shares, cost: p.price, ccy: p.ccy, amountBase: toBase(amount, p.ccy) };
   const book = UI.book || "real";
   $("dGo").disabled = true;
-  await commit(d => { const pos = (d[bk(book).pos] || []).find(x => x.id === p.id); if(pos && !(pos.divs || []).some(x => x.id === rec.id)) pos.divs = [...(pos.divs || []), rec]; }, `Dividend ${p.sym}`);
-  $("divDlg").close(); divPos = null; refresh();
+  if(divEdit){
+    const id = divEdit.id, upd = { amount, perShare: amount / shHeld, date, ts: rec.ts, amountBase: toBase(amount, p.ccy), edited: true };
+    await commit(d => { const K = bk(book), pos = [...(d[K.pos] || []), ...(d[K.closed] || [])].find(x => x.id === p.id); const dv = pos && (pos.divs || []).find(x => x.id === id); if(dv) Object.assign(dv, upd); }, `Edit dividend ${p.sym}`);
+  } else await commit(d => { const pos = (d[bk(book).pos] || []).find(x => x.id === p.id); if(pos && !(pos.divs || []).some(x => x.id === rec.id)) pos.divs = [...(pos.divs || []), rec]; }, `Dividend ${p.sym}`);
+  $("divDlg").close(); divPos = null; divEdit = null; refresh();
 }
 
 /* ============================== time in CET/CEST ============================== */
@@ -1807,6 +1962,10 @@ const MARKET_ZONE = { america:"America/New_York", canada:"America/Toronto", braz
   portugal:"Europe/Lisbon", austria:"Europe/Vienna", sweden:"Europe/Stockholm", finland:"Europe/Helsinki", denmark:"Europe/Copenhagen", norway:"Europe/Oslo", poland:"Europe/Warsaw",
   greece:"Europe/Athens", turkey:"Europe/Istanbul", israel:"Asia/Jerusalem", japan:"Asia/Tokyo", china:"Asia/Shanghai", hongkong:"Asia/Hong_Kong", taiwan:"Asia/Taipei", korea:"Asia/Seoul",
   india:"Asia/Kolkata", singapore:"Asia/Singapore", australia:"Australia/Sydney", newzealand:"Pacific/Auckland", southafrica:"Africa/Johannesburg", saudiarabia:"Asia/Riyadh", uae:"Asia/Dubai" };
+// rough longitude of each market's main exchange, to order the strip from west to east
+const MARKET_LON = { mexico:-99, canada:-79, america:-74, brazil:-46, ireland:-6, portugal:-9, uk:0, spain:-3.7, france:2.3, belgium:4.4, netherlands:4.9,
+  switzerland:8.5, germany:8.7, italy:9.2, norway:10.7, denmark:12.6, austria:16.4, sweden:18.1, poland:21, greece:23.7, finland:24.9, southafrica:28, turkey:29,
+  israel:34.8, saudiarabia:46.7, uae:55.3, india:72.9, singapore:103.8, china:114.1, hongkong:114.2, taiwan:121.5, korea:127, japan:139.7, australia:151.2, newzealand:174.8 };
 // open / pre-market / after-hours / closed straight from TradingView's live session (holidays included)
 function renderMarkets(){
   const el = $("mkts"); if(!el) return;
@@ -1817,11 +1976,12 @@ function renderMarkets(){
   });
   if(!ex.size){ el.innerHTML = ""; return; }
   const ST = { market:["open","open"], pre_market:["pre","pre-market"], post_market:["pre","after-hours"] };
-  const list = [...ex.entries()].sort((a,b) => (b[1].held - a[1].held) || a[0].localeCompare(b[0]));
-  el.innerHTML = `<span class="lb0">Markets</span>` + list.map(([name, { q, held }]) => {
+  // west to east
+  const list = [...ex.entries()].sort((a,b) => ((MARKET_LON[a[1].q.market] ?? 0) - (MARKET_LON[b[1].q.market] ?? 0)) || a[0].localeCompare(b[0]));
+  el.innerHTML = list.map(([name, { q, held }]) => {
     const st = ST[q.current_session] || ["", "closed"], zone = MARKET_ZONE[q.market];
     const t = zone ? new Intl.DateTimeFormat("en-GB", { timeZone: zone, hour:"2-digit", minute:"2-digit" }).format(new Date()) : "";
-    return `<span class="mkt${held ? " held" : ""}" title="${esc(name)}: ${st[1]}${zone ? " · local time " + t : ""}${held ? " · you hold stocks here" : " · watchlist only"}"><span class="mk ${st[0]}"></span>${exFlag(q)}${esc(name)}${t ? ` <b>${t}</b>` : ""}${st[0] === "pre" ? ` <span class="st">${st[1]}</span>` : ""}</span>`;
+    return `<span class="mkt${held ? " held" : ""}" title="${esc(name)}: ${st[1]}${zone ? " · local time " + t : ""}${held ? " · you hold stocks here" : " · watchlist only"}"><span class="mk ${st[0]}"></span>${exFlag(q)}${esc(name)}${t ? ` <b>${t}</b>` : ""}</span>`;
   }).join("");
 }
 function renderClocks(){
@@ -1915,7 +2075,7 @@ async function autoDividends(){
         const id = "auto-" + exKey;
         if((p.divs || []).some(x => x.id === id) || (p.divSkip || []).includes(id)) continue;
         if((p.divs || []).some(x => !x.auto && Math.abs(saleTs(x) - payTs) < 12*864e5)) continue;   // you already entered it by hand
-        const sh = p.shares + (p.sells || []).reduce((a,sl) => a + (sl.date >= exKey ? sl.qty : 0), 0);
+        const sh = p.shares + (p.sells || []).reduce((a,sl) => a + (sl.date >= exKey ? sl.qty : 0), 0) - (p.buys || []).reduce((a,b) => a + (b.date >= exKey ? b.qty : 0), 0);
         if(!(sh > 0)) continue;
         const per = conv(amt, normCcy(q.currency || p.iccy || p.ccy), p.ccy); if(!isNum(per)) continue;
         const amount = per * sh;
@@ -2044,6 +2204,7 @@ function init(){
   benchAC = autocomplete($("fBench"), $("benchSug"), pickBench);
   $("fDate").addEventListener("change", () => fillBenchOpen(true));
   $("fBenchOpen").addEventListener("input", () => { benchAuto = false; $("benchHint").textContent = "Entered by you"; });
+  $("fFree").addEventListener("change", () => { $("fPrice").disabled = $("fFree").checked; if($("fFree").checked) $("fPrice").value = 0; });
   $("posForm").addEventListener("submit", savePos);
   $("delBtn").onclick = async () => {
     if(!editing) return;
@@ -2073,7 +2234,18 @@ function init(){
   $("calToday").onclick = () => { UI.calo = 0; renderCalendar(); };
   renderClocks(); setInterval(renderClocks, 15000);
   setInterval(() => { if(!document.hidden && UI.tab === "wl") renderEvents(); }, 30000);
+  const divEditClick = e => { const b = e.target.closest("[data-divedit]"); if(!b) return false;
+    const [pid, did] = b.dataset.divedit.split("|"), p = allPos().find(x => x.id === pid), dv = p && (p.divs || []).find(x => x.id === did);
+    if(p && dv) openDiv(p, dv); return true; };
+  $("txForm").addEventListener("submit", saveTx);
+  $("tFree").addEventListener("change", () => { $("tPx").disabled = $("tFree").checked; if($("tFree").checked) $("tPx").value = 0; });
+  $("trBody").addEventListener("click", divEditClick);
   $("tbody").addEventListener("click", e => {
+    const x = e.target.closest("[data-exp]"); if(x){ const id = x.dataset.exp; EXP.has(id) ? EXP.delete(id) : EXP.add(id); render(); return; }
+    const te = e.target.closest("[data-txedit]"); if(te){ const [pid, bid] = te.dataset.txedit.split("|"); openTx(pid, bid); return; }
+    const td = e.target.closest("[data-txdel]"); if(td){ const [pid, bid] = td.dataset.txdel.split("|"); deleteTx(pid, bid); return; }
+    if(divEditClick(e)) return;
+    const un = e.target.closest("[data-undo]"); if(un){ const [pid, sid, kind] = un.dataset.undo.split("|"); undoSale(pid, sid, kind === "sale" ? "sale" : kind); return; }
     if(stockClick(e)) return;
     const b = e.target.closest("[data-edit]"); if(b){ const p = openPositions().find(x => x.id === b.dataset.edit); if(p) openPos(p); return; }
     const sb = e.target.closest("[data-sell]"); if(sb){ const p = openPositions().find(x => x.id === sb.dataset.sell); if(p) openSell(p); return; }
