@@ -163,6 +163,8 @@ canvas{display:block;width:100%;height:100%}
 .ev .x{color:var(--gray-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .evsub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-top:6px}
 .k{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font:700 10px var(--num);color:#000;border-radius:2px}
+.k-buy{background:var(--blue);color:#fff} .k-sell{background:var(--orange)} .k-free{background:var(--yellow)}
+#view-tr .panel + .panel{margin-top:14px}
 .k-earn{background:var(--orange)} .k-ex{background:var(--green)} .k-pay{background:var(--green-dim);color:#fff} .k-rel{background:var(--blue);color:#fff} .k-other{background:var(--yellow)}
 .lb-other{color:var(--yellow)} .unsure{color:var(--gray);font-weight:400}
 .myev{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #12161b;font-size:13px}
@@ -505,23 +507,38 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </div>
 
   <div class="view" id="view-tr" role="tabpanel" hidden>
-  <section class="panel" aria-label="Trades">
-    <div class="ph"><h2 id="trTitle">Realized trades</h2><div class="sub">Every sale and dividend, with its gain or loss. Totals in <span id="baseLbl3">EUR</span>.</div></div>
+  <section class="panel" aria-label="Equity trades">
+    <div class="ph"><div><h2 id="trTitle">Equity trades</h2><div class="sub">Every buy, free share and sale, newest first. Totals in <span id="baseLbl3">EUR</span>.</div></div></div>
+    <div class="legend2" id="trFilters"><span>Show:</span><button type="button" class="lgf" data-f="buy" aria-pressed="true"><span class="k k-buy">B</span>Buy</button><button type="button" class="lgf" data-f="sell" aria-pressed="true"><span class="k k-sell">S</span>Sell</button><button type="button" class="lgf" data-f="free" aria-pressed="true"><span class="k k-free">F</span>Free shares</button><span id="trNote" class="muted"></span></div>
     <div class="tblwrap">
       <table class="ttbl">
-        <thead data-tbl="tr"><tr>
-          <th class="l stick" data-k="dt">Date</th><th class="l" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th data-k="qty">Shares sold</th><th data-k="cost">Avg cost</th><th data-k="px">Sell Px</th>
-          <th data-k="pnl">Realized P&amp;L</th><th data-k="pct">Realized %</th><th data-k="base">P&amp;L (<span id="baseLbl4">EUR</span>)</th><th></th>
+        <thead data-tbl="eq"><tr>
+          <th class="l stick" data-k="dt">Date</th><th class="l" data-k="ty" data-t="1">Type</th><th class="l" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th data-k="qty">Shares</th><th data-k="px">Price</th>
+          <th data-k="cash">Cash</th><th data-k="base">Cash (<span id="baseLbl4">EUR</span>)</th><th data-k="avg">Avg cost</th><th data-k="pnl">Realized P&amp;L (<span id="baseLbl7">EUR</span>)</th><th data-k="pct">Realized %</th><th></th>
         </tr></thead>
         <tbody id="trBody"></tbody>
       </table>
     </div>
-    <div class="empty" id="trEmpty">No sales or dividends yet. Use <b>Sell</b> or <b>Dividend</b> on a position: the amount lands here and in Realized P&amp;L.</div>
+    <div class="empty" id="trEmpty">No trades yet. Use <b>+ Position</b> to record a buy, and <b>Sell</b> on a position to record a sale.</div>
+  </section>
+
+  <section class="panel" aria-label="Dividends">
+    <div class="ph"><div><h2 id="dvTitle">Dividends</h2><div class="sub">Every dividend received, gross. AUTO = booked from TradingView on the payment date. Totals in <span id="baseLbl5">EUR</span>.</div></div></div>
+    <div class="tblwrap">
+      <table class="ttbl">
+        <thead data-tbl="dv"><tr>
+          <th class="l stick" data-k="dt">Paid on</th><th class="l" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th data-k="sh">Shares held</th><th data-k="per">Per share</th>
+          <th data-k="amt">Amount</th><th data-k="yoc">Yield on cost</th><th data-k="base">Amount (<span id="baseLbl6">EUR</span>)</th><th class="l" data-k="src" data-t="1">Source</th><th></th>
+        </tr></thead>
+        <tbody id="dvBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="dvEmpty">No dividends yet. They are booked automatically on the payment date when you held the shares before the ex-date, or use <b>Dividend</b> on a position.</div>
   </section>
   </div>
 
   <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = your average price per share over all buys (free shares count at 0). Click ▸ next to a ticker for every transaction. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own return over that full period (see Performance chart for the two methods); if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in Trades). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. <b>Performance chart</b>: <b>On capital</b> (default) = your gain in euros so far (price moves, sales, dividends) ÷ the most money you had invested in the period, so the line has the shape of your P&amp;L and, with no sales, ends at your P&amp;L %; each benchmark is bought with the same money on the same dates and sold in the same proportions. <b>TWR</b> = time-weighted return, the standard for fund managers: it ignores how much money was in, so a small early buy that did well can make it look much higher than your P&amp;L. Both also drive the header 1 Week / 1 Month and the total row. Pick one or more benchmarks in <b>Benchmarks ▾</b> (your choice syncs to every device); lines use daily closes, plus hourly prices for the last month, saved by the news robot; each line is in its own currency, like your positions. The header 1 Week / 1 Month compare with the first benchmark you picked. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
+    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = your average price per share over all buys (free shares count at 0). Click ▸ next to a ticker for every transaction. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own return over that full period (see Performance chart for the two methods); if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in the Dividends table of the Trades tab). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. <b>Performance chart</b>: <b>On capital</b> (default) = your gain in euros so far (price moves, sales, dividends) ÷ the most money you had invested in the period, so the line has the shape of your P&amp;L and, with no sales, ends at your P&amp;L %; each benchmark is bought with the same money on the same dates and sold in the same proportions. <b>TWR</b> = time-weighted return, the standard for fund managers: it ignores how much money was in, so a small early buy that did well can make it look much higher than your P&amp;L. Both also drive the header 1 Week / 1 Month and the total row. Pick one or more benchmarks in <b>Benchmarks ▾</b> (your choice syncs to every device); lines use daily closes, plus hourly prices for the last month, saved by the news robot; each line is in its own currency, like your positions. The header 1 Week / 1 Month compare with the first benchmark you picked. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
   </p>
 </div>
 
@@ -665,7 +682,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.22.25";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.22.26";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1016,16 +1033,16 @@ function perfCell(pf){ return pf ? pct(pf.p) : "–"; }
 function render(){
   NOW = Date.now(); PPC = {};
   const base = DB.base;
-  ["baseLbl","baseLbl2","baseLbl3","baseLbl4"].forEach(id => $(id).textContent = base);
+  ["baseLbl","baseLbl2","baseLbl3","baseLbl4","baseLbl5","baseLbl6","baseLbl7"].forEach(id => $(id).textContent = base);
   const rows = openPositions().map(p => ({ p, c: calc(p) }));
   const B = BOOKS[UI.book] ? UI.book : "real", BK = BOOKS[B];
   document.body.classList.toggle("sim", B === "sim"); document.body.classList.toggle("lollo", B === "lollo");
   $("kBook").textContent = BK.tag; $("kBook").className = "bk bk-" + B;
   $("chartName").textContent = B === "real" ? "GGD" : BK.label; $("lgName").textContent = B === "real" ? "GGD Portfolio" : BK.label;
   $("posTitle").textContent = B === "lollo" ? "LOLLO positions" : BK.short === "Sim" ? "Simulated positions" : "Real positions";
-  $("trTitle").textContent = B === "lollo" ? "LOLLO trades" : B === "sim" ? "Simulated trades" : "Real trades";
+  $("trTitle").textContent = `${BK.short === "Sim" ? "Simulated" : BK.short} equity trades`; $("dvTitle").textContent = `${BK.short === "Sim" ? "Simulated" : BK.short} dividends`;
   const TRC = { real:"trCountR", sim:"trCountS", lollo:"trCountL" };
-  BOOK_IDS.forEach(b => { const n = allEvents(b).length; $(TRC[b]).textContent = n ? `(${n})` : ""; });
+  BOOK_IDS.forEach(b => { const n = allTrades(b).length + allDivs(b).length; $(TRC[b]).textContent = n ? `(${n})` : ""; });
   renderMarkets();
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
@@ -1063,7 +1080,7 @@ function render(){
   renderTable(rows, tot, PF, rows.length ? dayPct : NaN);
   renderSector(rows, tot);
   renderWatch();
-  renderTrades(allEvents(), realized);
+  renderTrades();
   renderEvents();
   paintSortHeads();
   drawChart();
@@ -1228,30 +1245,95 @@ function renderWatchSectors(rows){
     empty: rows.length ? (p === "day" ? "No market in your watchlist has traded yet today." : "Waiting for prices.") : "Add stocks to your watchlist to see how each sector performs."
   });
 }
-function renderTrades(events, realized){
-  $("trEmpty").hidden = events.length > 0;
-  if(!events.length){ $("trBody").innerHTML = ""; return; }
-  const yoc = e => e.kind === "div" ? (isNum(e.s.perShare) && e.s.cost ? e.s.perShare / e.s.cost * 100 : NaN) : (e.s.cost ? (e.s.price / e.s.cost - 1) * 100 : NaN);
-  const keys = { dt: e => e.ts, tk: e => tick(e.p.sym), nm: e => (e.p.name || "").toLowerCase(), qty: e => e.kind === "sale" ? e.s.qty : NaN, cost: e => e.s.cost,
-    px: e => e.kind === "sale" ? e.s.price : e.s.perShare, pnl: e => eventBase(e), pct: yoc, base: e => eventBase(e) };
-  const nS = events.filter(e => e.kind === "sale").length, nD = events.length - nS;
-  let html = `<tr class="total"><td class="l stick">Total</td><td class="l">–</td><td class="l">${nS} sale${nS===1?"":"s"} · ${nD} dividend${nD===1?"":"s"}</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>${fSigned(realized,2)}</td><td></td></tr>`;
-  for(const e of applySort(events, "tr", keys)){
-    const { p, s: x } = e, ccy = x.ccy || p.ccy, b = eventBase(e), isDiv = e.kind === "div";
-    const amt = isDiv ? x.amount : x.pnl;
-    html += `<tr data-sym="${esc(p.sym)}">
+// equity trades of one book: every buy, free share and sale, with the average cost after each
+function allTrades(b){
+  const out = [];
+  allPos(b).forEach(p => {
+    ensureBuys(p);
+    const open = (DB[bk(b).pos] || []).includes(p);
+    const ev = [...p.buys.map(x => ({ kind: x.free || !(x.price > 0) ? "free" : "buy", p, s: x, ts: kts(x.date), o: 0, open })),
+      ...(p.sells || []).map(x => ({ kind: "sell", p, s: x, ts: saleTs(x), o: 1, open }))].sort((a,b) => a.ts - b.ts || a.o - b.o);
+    let sh = 0, cost = 0;
+    ev.forEach(e => {
+      const x = e.s;
+      if(e.kind === "sell"){ const avg = sh > 0 ? cost / sh : 0; cost -= avg * Math.min(x.qty, sh); sh = Math.max(0, sh - x.qty); e.avg = isNum(x.cost) ? x.cost : avg; }
+      else { sh += x.qty; cost += x.qty * (x.price || 0); e.avg = sh > 0 ? cost / sh : NaN; }
+      out.push(e);
+    });
+  });
+  return out.sort((a,b) => b.ts - a.ts || b.o - a.o);
+}
+function trOn(f){ return !(UI.trf && UI.trf[f] === false); }
+function trCash(e){ const x = e.s; return e.kind === "sell" ? x.qty * x.price : -x.qty * (x.price || 0); }
+function trCashBase(e){ return toBase(trCash(e), e.kind === "sell" ? (e.s.ccy || e.p.ccy) : e.p.ccy); }
+function renderTrades(){
+  const B = BOOKS[UI.book] ? UI.book : "real";
+  const all = allTrades(B), shown = all.filter(e => trOn(e.kind));
+  document.querySelectorAll("#trFilters .lgf").forEach(b => b.setAttribute("aria-pressed", String(trOn(b.dataset.f))));
+  const n = k => all.filter(e => e.kind === k).length;
+  $("trNote").textContent = all.length ? `${n("buy")} buy${n("buy") === 1 ? "" : "s"} · ${n("free")} free · ${n("sell")} sale${n("sell") === 1 ? "" : "s"}` + (shown.length < all.length ? ` · showing ${shown.length}` : "") : "";
+  $("trEmpty").hidden = all.length > 0;
+  if(!shown.length){ $("trBody").innerHTML = all.length ? `<tr><td class="l" colspan="12"><span class="muted">Nothing to show: turn a type back on above.</span></td></tr>` : ""; }
+  else {
+    const pctOf = e => e.kind === "sell" && e.s.cost ? (e.s.price / e.s.cost - 1) * 100 : NaN;
+    const baseOf = e => trCashBase(e);
+    const TY = { buy: "Buy", sell: "Sell", free: "Free shares" }, KK = { buy: "B", sell: "S", free: "F" };
+    const keys = { dt: e => e.ts, ty: e => TY[e.kind], tk: e => tick(e.p.sym), nm: e => (e.p.name || "").toLowerCase(), qty: e => e.s.qty, px: e => e.s.price,
+      cash: e => trCashBase(e), avg: e => e.avg, pnl: e => e.kind === "sell" ? saleBase(e.s, e.p) : NaN, pct: pctOf, base: baseOf };
+    const sum = f => shown.reduce((a, e) => { const v = f(e); return isNum(v) ? a + v : a; }, 0);
+    const invested = sum(e => e.kind === "sell" ? NaN : -trCashBase(e)), proceeds = sum(e => e.kind === "sell" ? trCashBase(e) : NaN), realized = sum(e => e.kind === "sell" ? saleBase(e.s, e.p) : NaN);
+    let html = `<tr class="total"><td class="l stick">Total</td><td class="l" colspan="3">Bought ${fN(invested,2)} · sold ${fN(proceeds,2)}</td><td>–</td><td>–</td><td>–</td><td class="${cls(proceeds - invested)}" title="Net cash: sold minus bought">${fSigned(proceeds - invested,2)}</td><td>–</td><td class="${cls(realized)}">${fSigned(realized,2)}</td><td>–</td><td></td></tr>`;
+    for(const e of applySort(shown, "eq", keys)){
+      const { p, s: x } = e, ccy = e.kind === "sell" ? (x.ccy || p.ccy) : p.ccy, isSell = e.kind === "sell";
+      const cash = trCash(e), base = baseOf(e);
+      const act = isSell ? `<button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|sale">Undo</button>`
+        : e.open ? `<button class="icon" type="button" data-txedit="${esc(p.id)}|${esc(x.id)}">Edit</button><button class="icon" type="button" data-txdel="${esc(p.id)}|${esc(x.id)}">Delete</button>`
+        : `<span class="muted" title="This position is fully sold: undo its last sale to change its buys">–</span>`;
+      html += `<tr data-sym="${esc(p.sym)}">
+        <td class="l stick">${fDate(e.ts, true)}</td>
+        <td class="l"><span class="k k-${e.kind}">${KK[e.kind]}</span> ${TY[e.kind]}</td>
+        <td class="l stick2">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
+        <td class="l nm">${esc(p.name || "–")}</td>
+        <td>${isSell ? "−" : "+"}${fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
+        <td>${fPx(x.price || 0)} <span class="muted">${esc(ccy)}</span></td>
+        <td class="${cls(cash)}">${fSigned(cash,2)} <span class="muted">${esc(ccy)}</span></td>
+        <td class="${cls(base)}">${fSigned(base,2)}</td>
+        <td title="${isSell ? "Average cost of the shares sold" : "Average cost of the position after this trade"}">${isNum(e.avg) ? fPx(e.avg) : "–"}</td>
+        <td class="${cls(isSell ? saleBase(x, p) : NaN)}">${isSell ? fSigned(saleBase(x, p),2) : "–"}</td>
+        <td>${isSell ? pct(pctOf(e)) : "–"}</td>
+        <td><div class="rowbtns">${act}</div></td>
+      </tr>`;
+    }
+    $("trBody").innerHTML = html;
+  }
+  // ---------- dividends ----------
+  const divs = allDivs(B).map(x => ({ p: x.p, s: x.d, ts: saleTs(x.d) })).sort((a,b) => b.ts - a.ts);
+  $("dvEmpty").hidden = divs.length > 0;
+  if(!divs.length){ $("dvBody").innerHTML = ""; return; }
+  const src = x => x.auto ? (x.edited ? "AUTO · edited" : "AUTO") : "Manual";
+  const sharesOf = x => isNum(x.shares) && x.shares ? x.shares : isNum(x.perShare) && x.perShare ? x.amount / x.perShare : NaN;
+  const yoc = e => isNum(e.s.perShare) && e.s.cost ? e.s.perShare / e.s.cost * 100 : NaN;
+  const dk = { dt: e => e.ts, tk: e => tick(e.p.sym), nm: e => (e.p.name || "").toLowerCase(), sh: e => sharesOf(e.s), per: e => e.s.perShare,
+    amt: e => divBase(e.s, e.p), yoc, base: e => divBase(e.s, e.p), src: e => src(e.s) };
+  const tot = divs.reduce((a, e) => { const v = divBase(e.s, e.p); return isNum(v) ? a + v : a; }, 0);
+  const yr = new Date().getFullYear(), ytd = divs.reduce((a, e) => { const v = divBase(e.s, e.p); return new Date(e.ts).getFullYear() === yr && isNum(v) ? a + v : a; }, 0);
+  let h = `<tr class="total"><td class="l stick">Total</td><td class="l" colspan="2">${divs.length} dividend${divs.length === 1 ? "" : "s"} · ${yr}: ${fN(ytd,2)}</td><td>–</td><td>–</td><td>–</td><td>–</td><td class="${cls(tot)}">${fSigned(tot,2)}</td><td></td><td></td></tr>`;
+  for(const e of applySort(divs, "dv", dk)){
+    const { p, s: x } = e, ccy = x.ccy || p.ccy, b = divBase(x, p), sh = sharesOf(x);
+    h += `<tr data-sym="${esc(p.sym)}">
       <td class="l stick">${fDate(e.ts, true)}</td>
       <td class="l stick2">${coFlag(Q[p.sym])}<span class="tk">${esc(tick(p.sym))}</span>${p.shares > 0 ? "" : ' <span class="tag">CLOSED</span>'}</td>
       <td class="l nm">${esc(p.name || "–")}</td>
-      <td>${isDiv ? '<span class="tag held">DIVIDEND</span>' + (x.auto ? `<span class="tag">${x.edited ? "EDITED" : "AUTO"}</span>` : '') : fN(x.qty, Number.isInteger(x.qty) ? 0 : 4)}</td>
-      <td>${isNum(x.cost) ? fPx(x.cost) + ` <span class="muted">${esc(ccy)}</span>` : "–"}</td>
-      <td>${isDiv ? (isNum(x.perShare) ? fPx(x.perShare) + ` <span class="muted">/sh</span>` : "–") : fPx(x.price) + ` <span class="muted">${esc(ccy)}</span>`}</td>
-      <td class="${cls(amt)}">${fSigned(amt,2)} <span class="muted">${esc(ccy)}</span></td>
-      <td title="${isDiv ? "Yield on your purchase price" : "Sell price vs purchase price"}">${pct(yoc(e))}</td><td class="${cls(b)}">${fSigned(b,2)}</td>
-      <td><div class="rowbtns">${isDiv ? `<button class="icon" type="button" data-divedit="${esc(p.id)}|${esc(x.id)}">Edit</button>` : ""}<button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|${e.kind}" aria-label="Undo">${isDiv ? "Delete" : "Undo"}</button></div></td>
+      <td>${isNum(sh) ? fN(sh, Number.isInteger(+sh.toFixed(6)) ? 0 : 4) : "–"}</td>
+      <td>${isNum(x.perShare) ? fPx(x.perShare) + ` <span class="muted">${esc(ccy)}</span>` : "–"}</td>
+      <td class="${cls(x.amount)}">${fSigned(x.amount,2)} <span class="muted">${esc(ccy)}</span></td>
+      <td title="Dividend per share ÷ your average purchase price">${pct(yoc(e))}</td>
+      <td class="${cls(b)}">${fSigned(b,2)}</td>
+      <td class="l">${x.auto ? `<span class="tag">${x.edited ? "EDITED" : "AUTO"}</span>` : '<span class="muted">Manual</span>'}</td>
+      <td><div class="rowbtns"><button class="icon" type="button" data-divedit="${esc(p.id)}|${esc(x.id)}">Edit</button><button class="icon" type="button" data-undo="${esc(p.id)}|${esc(x.id)}|div">Delete</button></div></td>
     </tr>`;
   }
-  $("trBody").innerHTML = html;
+  $("dvBody").innerHTML = h;
 }
 
 /* ============================== rendering: sector active contribution ============================== */
@@ -2409,7 +2491,7 @@ function init(){
   };
   ["evToday","calBody"].forEach(id => $(id).addEventListener("click", stockClick));
   $("evFilters").addEventListener("click", e => { const b = e.target.closest(".lgf"); if(!b) return; UI.evf = { ...(UI.evf || {}), [b.dataset.f]: !evOn(b.dataset.f) }; ls.set(LS_UI, UI); renderEvents(); });
-  $("trBody").addEventListener("click", e => { stockClick(e); });
+  $("trFilters").addEventListener("click", e => { const b = e.target.closest(".lgf"); if(!b) return; UI.trf = { ...(UI.trf || {}), [b.dataset.f]: !trOn(b.dataset.f) }; ls.set(LS_UI, UI); renderTrades(); });
   document.querySelectorAll("#stkDlg .stabs button").forEach(b => b.onclick = () => { stkTab = b.dataset.st; stkMore = false; renderStock(); });
   $("stkBody").addEventListener("click", e => { if(e.target.id === "stkMore"){ stkMore = true; renderStock(); } });
   $("calSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.calv = b.dataset.v; UI.calo = 0; ls.set(LS_UI, UI); renderCalendar(); });
@@ -2423,7 +2505,14 @@ function init(){
     if(p && dv) openDiv(p, dv); return true; };
   $("txForm").addEventListener("submit", saveTx);
   $("tFree").addEventListener("change", () => { $("tPx").disabled = $("tFree").checked; if($("tFree").checked) $("tPx").value = 0; });
-  $("trBody").addEventListener("click", divEditClick);
+  // equity trades and dividends tables: edit / delete / undo, or click a ticker for its panel
+  ["trBody","dvBody"].forEach(id => $(id).addEventListener("click", e => {
+    const te = e.target.closest("[data-txedit]"); if(te){ const [pid, bid] = te.dataset.txedit.split("|"); openTx(pid, bid); return; }
+    const td = e.target.closest("[data-txdel]"); if(td){ const [pid, bid] = td.dataset.txdel.split("|"); deleteTx(pid, bid); return; }
+    if(divEditClick(e)) return;
+    const un = e.target.closest("[data-undo]"); if(un){ const [pid, sid, kind] = un.dataset.undo.split("|"); undoSale(pid, sid, kind); return; }
+    stockClick(e);
+  }));
   $("tbody").addEventListener("click", e => {
     const x = e.target.closest("[data-exp]"); if(x){ const id = x.dataset.exp; EXP.has(id) ? EXP.delete(id) : EXP.add(id); render(); return; }
     const te = e.target.closest("[data-txedit]"); if(te){ const [pid, bid] = te.dataset.txedit.split("|"); openTx(pid, bid); return; }
@@ -2447,7 +2536,6 @@ function init(){
   $("dTot").addEventListener("input", () => { const v = parseFloat($("dTot").value); if(divPos && v > 0) $("dPer").value = +(v / divPos.shares).toFixed(6); });
   $("xQty").addEventListener("input", sellEst); $("xPx").addEventListener("input", sellEst);
   $("xAll").onclick = () => { if(selling){ $("xQty").value = selling.shares; sellEst(); } };
-  $("trBody").addEventListener("click", e => { const b = e.target.closest("[data-undo]"); if(b){ const [pid, sid, kind] = b.dataset.undo.split("|"); undoSale(pid, sid, kind); } });
   $("wBody").addEventListener("click", e => {
     const g = e.target.closest("[data-grp]"); if(g){ UI.wcol = UI.wcol || {}; UI.wcol[g.dataset.grp] = !UI.wcol[g.dataset.grp]; ls.set(LS_UI, UI); render(); return; }
     if(stockClick(e)) return;
