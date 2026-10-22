@@ -148,6 +148,23 @@ canvas{display:block;width:100%;height:100%}
 .myev{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #12161b;font-size:13px}
 .calnav{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg)}
 .calnav span{min-width:120px;text-align:center;font-weight:600}
+.calnav .btn{padding:2px 8px;font-size:11.5px}
+/* world clocks in the header */
+.clocks{display:flex;gap:14px;font-size:12px;color:var(--gray);white-space:nowrap}
+.clocks b{color:var(--fg);font:500 13px var(--num);margin-left:5px}
+.clocks .cl{display:inline-flex;align-items:center;gap:5px}
+.clocks .mk{width:6px;height:6px;border-radius:50%;background:#3a3f48}
+.clocks .mk.open{background:var(--green);box-shadow:0 0 5px var(--green)}
+@media (max-width:700px){.clocks{order:5;width:100%;justify-content:space-between}}
+/* event card at the top of the stock panel */
+.evcard{margin:10px 14px 0;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--orange);background:#0a0d11;display:flex;flex-direction:column;gap:4px}
+.evcard.k2-ex,.evcard.k2-pay{border-left-color:var(--green)} .evcard.k2-rel{border-left-color:var(--blue)} .evcard.k2-other{border-left-color:var(--yellow)}
+.evcard .h{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.evcard .w{font:13px var(--num);color:var(--fg)}
+.evcard .w span{color:var(--gray)}
+.evcard .d{font-size:12.5px;color:var(--gray-hi)}
+.evcard .rl{font-size:12.5px;padding:3px 0;border-top:1px solid #141820}
+.evcard a{color:var(--fg)} .evcard a:hover{color:var(--orange)}
 .cal{padding:6px 10px 10px}
 .calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
 .calgrid .dow{font-size:10px;color:var(--gray);text-align:center;padding-bottom:2px;letter-spacing:.06em}
@@ -307,6 +324,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   <header class="top">
     <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small></div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></div>
+    <div class="clocks" id="clocks"></div>
     <div class="actions">
       <button class="btn primary" id="addBtn" type="button">+ Position</button>
       <button class="btn primary" id="updBtn" type="button" hidden>Update app</button>
@@ -401,7 +419,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
    <div class="evcol">
     <div class="ph">
       <h2>Calendar</h2>
-      <div class="calnav"><button class="icon" type="button" id="calPrev" aria-label="Previous">‹</button><span id="calLabel"></span><button class="icon" type="button" id="calNext" aria-label="Next">›</button></div>
+      <div class="calnav"><button class="icon" type="button" id="calPrev" aria-label="Previous">‹</button><span id="calLabel"></span><button class="icon" type="button" id="calNext" aria-label="Next">›</button><button class="btn sm" type="button" id="calToday">Today</button></div>
       <div class="seg" id="calSeg"><button type="button" data-v="w" aria-pressed="false">Week</button><button type="button" data-v="m" aria-pressed="true">Month</button><button type="button" data-v="y" aria-pressed="false">Year</button></div>
     </div>
     <div class="cal" id="calBody"></div>
@@ -502,6 +520,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <dialog id="stkDlg" class="wide">
   <div class="dlg-h"><h3 id="stkTitle">Stock</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
   <div class="stk-top" id="stkTop"></div>
+  <div id="stkEv"></div>
   <div class="stabs" role="tablist"><button type="button" data-st="news" aria-selected="true">News</button><button type="button" data-st="rel" aria-selected="false">Releases &amp; earnings</button></div>
   <div class="stk-body" id="stkBody"></div>
 </dialog>
@@ -571,7 +590,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.22.21";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.22.22";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1606,32 +1625,33 @@ function buildEvents(){
   const out = [], mine = DB.events || [], now = Date.now();
   // your own events
   mine.forEach(ev => { const q = Q[ev.sym] || { description: ev.name || tick(ev.sym) };
-    out.push({ sym: ev.sym, q, f: {}, kind: ev.kind, L: KIND_L[ev.kind] || "O", ts: tzWallTs(ev.date, ev.time), key: ev.date, timed: !!ev.time, custom: true, label: ev.label, id: ev.id,
+    out.push({ sym: ev.sym, q, f: {}, kind: ev.kind, L: KIND_L[ev.kind] || "O", ts: tzWallTs(ev.date, ev.time), key: ev.date, timed: !!ev.time, custom: true, label: ev.label, id: ev.id, url: ev.src, src: ev.src ? "your list" : "added by you",
       txt: `${ev.label || ({earn:"Earnings report",ex:"Ex-dividend",pay:"Dividend payment",other:"Event"})[ev.kind]} (added by you)` }); });
   for(const [sym, f] of evSymbols()){
     const q = Q[sym]; if(!q) continue;
     const add = e => out.push({ sym, q, f, ...e });
     const ne = nextEarn(sym);
     if(ne && ne.src !== "your date" && ne.src !== "Borsa Italiana"){
-      add({ kind:"earn", L:"E", ts: ne.ts, key: ne.key, timed: ne.timed, unsure: ne.unsure,
+      add({ kind:"earn", L:"E", ts: ne.ts, key: ne.key, timed: ne.timed, unsure: ne.unsure, tc: ne.tc, src: ne.src, label: fiscalLabel(sym, ne.ts), eps: q.earnings_per_share_forecast_next_fq, rev: q.revenue_forecast_next_fq,
         txt: `Earnings ${ne.tc === 1 ? "after close" : ne.tc === -1 ? "before open" : "(time not confirmed)"} · source ${ne.src} · EPS est ${fN(q.earnings_per_share_forecast_next_fq,2)} · revenue est ${fBig(q.revenue_forecast_next_fq)}` });
     }
     // Italian companies: every event from Borsa Italiana's official calendar
     ((NEWS && NEWS.ev && NEWS.ev[sym]) || []).forEach(e => { const ts = tzWallTs(e.d), m = biMap(e.t, ts);
       if(m.kind === "earn" && (DB.events || []).some(ev => ev.sym === sym && ev.kind === "earn" && ev.date === e.d)) return;
-      add({ kind: m.kind, L: KIND_L[m.kind], ts, key: e.d, timed: false, label: m.label, txt: `${e.t} · source Borsa Italiana` }); });
+      add({ kind: m.kind, L: KIND_L[m.kind], ts, key: e.d, timed: false, label: m.label, src: "Borsa Italiana", orig: e.t, txt: `${e.t} · source Borsa Italiana` }); });
     if(isNum(q.earnings_release_date)){
       const ts = q.earnings_release_date * 1000;
-      add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: false, past: true,
+      add({ kind:"earn", L:"E", ts, key: tzKey(ts), timed: false, past: true, src: "TradingView",
+        eps: q.earnings_per_share_forecast_fq, epsA: q.earnings_per_share_fq, epsS: q.eps_surprise_percent_fq, rev: q.revenue_forecast_fq, revA: q.revenue_fq, revS: q.revenue_surprise_percent_fq,
         txt: `Earnings reported · EPS ${fN(q.earnings_per_share_fq,2)} vs est ${fN(q.earnings_per_share_forecast_fq,2)}${isNum(q.eps_surprise_percent_fq) ? " (" + fSigned(q.eps_surprise_percent_fq,1,"%") + ")" : ""}` });
     }
     const ccy = normCcy(q.currency);
     [["recent"],["upcoming"]].forEach(([w]) => {
       const ex = q["dividend_ex_date_" + w], pay = q["dividend_payment_date_" + w], amt = q["dividend_amount_" + w];
-      if(isNum(ex)) add({ kind:"ex", L:"X", ts: ex*1000, key: utcKey(ex*1000), timed:false, txt:`Ex-dividend ${fN(amt,3)} ${ccy} per share` });
-      if(isNum(pay)) add({ kind:"pay", L:"P", ts: pay*1000, key: utcKey(pay*1000), timed:false, txt:`Dividend paid ${fN(amt,3)} ${ccy} per share` });
+      if(isNum(ex)) add({ kind:"ex", L:"X", ts: ex*1000, key: utcKey(ex*1000), timed:false, src:"TradingView", amt, ccy, payKey: isNum(pay) ? utcKey(pay*1000) : "", txt:`Ex-dividend ${fN(amt,3)} ${ccy} per share` });
+      if(isNum(pay)) add({ kind:"pay", L:"P", ts: pay*1000, key: utcKey(pay*1000), timed:false, src:"TradingView", amt, ccy, txt:`Dividend paid ${fN(amt,3)} ${ccy} per share` });
     });
-    newsFor(sym).filter(n => WIRES.has(n.pid)).forEach(n => add({ kind:"rel", L:"R", ts: n.at*1000, key: tzKey(n.at*1000), timed:true, txt: n.t, url: n.url }));
+    newsFor(sym).filter(n => WIRES.has(n.pid)).forEach(n => add({ kind:"rel", L:"R", ts: n.at*1000, key: tzKey(n.at*1000), timed:true, txt: n.t, url: n.url, src: n.src }));
   }
   const seen = new Set();
   return out.filter(e => { const id = e.sym + e.kind + e.key + (e.kind === "rel" ? e.txt : ""); if(seen.has(id)) return false; seen.add(id); return true; }).sort((a,b) => a.ts - b.ts);
@@ -1643,16 +1663,25 @@ function shortName(q, sym){
   return n.replace(/,?\s+(Inc\.?|Corp\.?|Ltd\.?|plc|AG|SE|SA|SpA|NV)\.?$/i, "").trim();
 }
 // reported quarter from the report date: Oct-Dec reports Q3, Jan-Mar Q4, Apr-Jun Q1, Jul-Sep Q2
+// the company's own (fiscal) quarter, read from TradingView's earnings preview headline, e.g. "V Q4'26 Earnings: ..."
+function fiscalLabel(sym, ts){
+  const t = tick(sym).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp("^" + t + "\\s+([QH][1-4])'(\\d{2})\\s+Earnings", "i");
+  const hit = newsFor(sym).filter(n => ts - n.at*1000 < 45*864e5 && n.at*1000 - ts < 5*864e5).map(n => (n.t || "").match(re)).find(Boolean);
+  return hit ? `${hit[1].toUpperCase()} Report` : "";
+}
 function qLabel(ts){ const m = new Date(ts).getUTCMonth(); return `Q${m <= 2 ? 4 : m <= 5 ? 1 : m <= 8 ? 2 : 3} Report`; }
 function evLabel(e){ if(e.label && !(e.n > 1)) return e.label; return e.kind === "other" ? "Event" : e.kind === "earn" ? qLabel(e.ts) + (e.unsure ? "?" : "") : e.kind === "ex" ? "Ex-dividend" : e.kind === "pay" ? "Dividend paid" : (e.n > 1 ? `${e.n} press releases` : "Press release"); }
+let EVREG = [];
+function regEv(e){ EVREG.push(e); return EVREG.length - 1; }
 function evRow(e, later){
   const t = later ? keyLabel(e.key, { day:"2-digit", month:"short" }) : (e.timed ? tzTime(e.ts) : "—");
-  return `<div class="ev${later ? " later" : ""}" data-sym="${esc(e.sym)}" title="${esc(e.txt + (e.unsure ? " · TradingView's date may be wrong: add the right one with + Event" : ""))}"><span class="t">${t}</span><span class="nm2">${coFlag(e.q)}${esc(shortName(e.q, e.sym))}</span><span class="lb lb-${e.kind}${e.unsure ? " unsure" : ""}">${esc(evLabel(e))}</span></div>`;
+  return `<div class="ev${later ? " later" : ""}" data-sym="${esc(e.sym)}" data-evi="${regEv(e)}" title="${esc(e.txt + (e.unsure ? " · TradingView's date may be wrong: add the right one with + Event" : ""))}"><span class="t">${t}</span><span class="nm2">${coFlag(e.q)}${esc(shortName(e.q, e.sym))}</span><span class="lb lb-${e.kind}${e.unsure ? " unsure" : ""}">${esc(evLabel(e))}</span></div>`;
 }
 let EV = [];
 function renderEvents(){
   if(!$("evToday")) return;
-  EV = buildEvents();
+  EV = buildEvents(); EVREG = [];
   const tk = tzKey(Date.now()), now = Date.now();
   $("evClock").innerHTML = `${new Date().toLocaleDateString("en-GB",{ timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" })} · <b class="num">${tzTime(now)}</b> ${tzName()}`;
   document.querySelectorAll("#evFilters .lgf").forEach(b => b.setAttribute("aria-pressed", String(evOn(b.dataset.f))));
@@ -1674,7 +1703,7 @@ function evOn(kind){ return (UI.evf || {})[kind] !== false; }
 // same company + same kind on the same day -> one entry with a count
 function groupEv(list){
   const m = new Map();
-  list.forEach(e => { const k = e.key + "|" + e.sym + "|" + e.kind; if(m.has(k)) m.get(k).n++; else m.set(k, { ...e, n: 1 }); });
+  list.forEach(e => { const k = e.key + "|" + e.sym + "|" + e.kind; if(m.has(k)){ const g = m.get(k); g.n++; g.items.push(e); } else m.set(k, { ...e, n: 1, items: [e] }); });
   return [...m.values()];
 }
 function renderCalendar(){
@@ -1684,7 +1713,7 @@ function renderCalendar(){
   const byKey = {}; grouped.forEach(e => (byKey[e.key] ||= []).push(e));
   const cnt = e => e.n > 1 ? e.n + " " : "";
   const tip = e => tick(e.sym) + " · " + (e.n > 1 ? `${e.n} × ${evLabel(e)}` : e.txt);
-  const chip = e => `<span class="evc k-${e.kind}" data-sym="${esc(e.sym)}" title="${esc(tip(e))}">${cnt(e)}${esc(tick(e.sym))} ${e.L}</span>`;
+  const chip = e => `<span class="evc k-${e.kind}" data-sym="${esc(e.sym)}" data-evi="${regEv(e)}" title="${esc(tip(e))}">${cnt(e)}${esc(tick(e.sym))} ${e.L}</span>`;
   const el = $("calBody");
   if(v === "w"){
     const d0 = new Date(kts(tk)); const dow = (d0.getDay() + 6) % 7;
@@ -1708,15 +1737,56 @@ function renderCalendar(){
   const Y = +tk.slice(0,4) + off; $("calLabel").textContent = String(Y);
   let h = '<div class="calyear">';
   for(let m=1;m<=12;m++){ const mk = `${Y}-${String(m).padStart(2,"0")}`, es = grouped.filter(e => e.key.slice(0,7) === mk);
-    h += `<div class="mo${tk.slice(0,7) === mk ? " cur" : ""}"><h4>${new Date(Y, m-1, 1).toLocaleDateString("en-GB",{month:"short"})}</h4>${es.slice(0,6).map(e => `<div class="yl" data-sym="${esc(e.sym)}" title="${esc(tip(e))}"><span class="k k-${e.kind}" style="width:13px;height:13px;line-height:13px;font-size:8.5px">${e.L}</span> ${+e.key.slice(8)} ${cnt(e)}${esc(tick(e.sym))}</div>`).join("")}${es.length > 6 ? `<span class="more">+${es.length-6} more</span>` : ""}</div>`; }
+    h += `<div class="mo${tk.slice(0,7) === mk ? " cur" : ""}"><h4>${new Date(Y, m-1, 1).toLocaleDateString("en-GB",{month:"short"})}</h4>${es.slice(0,6).map(e => `<div class="yl" data-sym="${esc(e.sym)}" data-evi="${regEv(e)}" title="${esc(tip(e))}"><span class="k k-${e.kind}" style="width:13px;height:13px;line-height:13px;font-size:8.5px">${e.L}</span> ${+e.key.slice(8)} ${cnt(e)}${esc(tick(e.sym))}</div>`).join("")}${es.length > 6 ? `<span class="more">+${es.length-6} more</span>` : ""}</div>`; }
   el.innerHTML = h + "</div>";
 }
 
 /* ============================== stock panel: TradingView chart, news, releases & earnings ============================== */
-let stkSym = null, stkTab = "news", stkMore = false;
-function openStock(sym){ if(!sym) return; stkSym = sym; stkTab = "news"; stkMore = false; renderStock(); if(!$("stkDlg").open) $("stkDlg").showModal(); loadNews(); }
+let stkSym = null, stkTab = "news", stkMore = false, stkEv = null;
+function openStock(sym, ev){ if(!sym) return; stkSym = sym; stkEv = ev || null; stkTab = "news"; stkMore = false; renderStock(); if(!$("stkDlg").open) $("stkDlg").showModal(); loadNews(); }
+// local time where the company trades, shown next to CET
+const MKT_TZ = { america:["America/New_York","New York"], china:["Asia/Shanghai","Shenzhen"], hongkong:["Asia/Hong_Kong","Hong Kong"], japan:["Asia/Tokyo","Tokyo"], uk:["Europe/London","London"], canada:["America/Toronto","Toronto"], australia:["Australia/Sydney","Sydney"], korea:["Asia/Seoul","Seoul"], taiwan:["Asia/Taipei","Taipei"], india:["Asia/Kolkata","Mumbai"] };
+function zoneTime(ts, zone){ return new Intl.DateTimeFormat("en-GB", { timeZone: zone, hour:"2-digit", minute:"2-digit" }).format(new Date(ts)); }
+function evCard(e){
+  if(!e) return "";
+  const q = Q[e.sym] || e.q || {}, name = shortName(q, e.sym), past = e.ts < Date.now() && e.key <= tzKey(Date.now());
+  const day = keyLabel(e.key, { weekday:"long", day:"2-digit", month:"long", year:"numeric" });
+  const lz = MKT_TZ[q.market];
+  const when = e.timed ? `${tzTime(e.ts)} ${tzName(e.ts)}${lz ? ` <span>· ${zoneTime(e.ts, lz[0])} ${lz[1]}</span>` : ""}` : `<span>time not confirmed</span>`;
+  const sess = e.tc === 1 ? " <span>· after the market closes</span>" : e.tc === -1 ? " <span>· before the market opens</span>" : "";
+  let title = `${name} · ${evLabel({ ...e, n: 1 })}`, lines = [];
+  if(e.kind === "earn"){
+    title = `${name} · ${evLabel({ ...e, n: 1 })} ${past ? "released" : "scheduled"}`;
+    if(isNum(e.epsA)) lines.push(`EPS ${fN(e.epsA,2)} vs ${fN(e.eps,2)} expected ${isNum(e.epsS) ? "(" + pct(e.epsS,1) + ")" : ""} · revenue ${fBig(e.revA)} vs ${fBig(e.rev)} expected ${isNum(e.revS) ? "(" + pct(e.revS,1) + ")" : ""}`);
+    else if(isNum(e.eps) || isNum(e.rev)) lines.push(`Analysts expect EPS ${fN(e.eps,2)} · revenue ${fBig(e.rev)}`);
+    if(e.unsure) lines.push(`<span class="muted">The date is not confirmed by the company yet.</span>`);
+  }
+  if(e.kind === "ex") lines.push(`Buy before this day to receive ${fN(e.amt,3)} ${esc(e.ccy || "")} per share${e.payKey ? ", paid on " + keyLabel(e.payKey, { day:"2-digit", month:"short" }) : ""}.`);
+  if(e.kind === "pay") lines.push(`${fN(e.amt,3)} ${esc(e.ccy || "")} per share paid to shareholders.`);
+  if(e.orig) lines.push(`Borsa Italiana: “${esc(e.orig)}”`);
+  if(e.kind === "rel"){
+    const items = (e.items || [e]).slice().sort((a,b) => b.ts - a.ts);
+    title = `${name} · ${items.length > 1 ? items.length + " press releases" : "Press release"}`;
+    lines = items.slice(0, 8).map(x => `<div class="rl">${tzTime(x.ts)} · <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.txt)}</a> <span class="muted">${esc(x.src || "")}</span></div>`);
+  }
+  const src = e.kind === "rel" ? "" : `<div class="d muted">Source: ${esc(e.src || "")}${e.url ? ` · <a href="${esc(e.url)}" target="_blank" rel="noopener">open ↗</a>` : ""}</div>`;
+  return `<div class="evcard k2-${e.kind}"><div class="h"><span class="k k-${e.kind}">${e.L}</span>${esc(title)}</div><div class="w">${day} · ${when}${sess}</div>${lines.map(l => l.startsWith("<div") ? l : `<div class="d">${l}</div>`).join("")}${src}</div>`;
+}
+/* ============================== world clocks ============================== */
+const CLOCKS = [["New York","America/New_York",[[9,30],[16,0]]], ["Geneva","Europe/Zurich",[[9,0],[17,30]]], ["Shenzhen","Asia/Shanghai",[[9,30],[15,0]]]];
+function renderClocks(){
+  const el = $("clocks"); if(!el) return;
+  const now = new Date();
+  el.innerHTML = CLOCKS.map(([n, z, [o, c]]) => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: z, hourCycle:"h23", weekday:"short", hour:"2-digit", minute:"2-digit" }).formatToParts(now).map(x => [x.type, x.value]));
+    const mins = +p.hour * 60 + +p.minute, wk = !["Sat","Sun"].includes(p.weekday);
+    const open = wk && mins >= o[0]*60 + o[1] && mins < c[0]*60 + c[1];
+    return `<span class="cl" title="${n}: stock exchange ${open ? "open" : "closed"} (regular hours, holidays not included)"><span class="mk${open ? " open" : ""}"></span>${n}<b>${p.hour}:${p.minute}</b></span>`;
+  }).join("");
+}
 function renderStock(){
   const sym = stkSym; if(!sym) return;
+  $("stkEv").innerHTML = evCard(stkEv);
   const q = Q[sym] || {}, ccy = normCcy(q.currency);
   $("stkTitle").innerHTML = `${coFlag(q)}<span class="tk">${esc(tick(sym))}</span> · ${esc(q.description || sym)}`;
   const msQ = q.isin || q.description || tick(sym);
@@ -1936,7 +2006,7 @@ function init(){
   // click a ticker or company name (or an event) to open the stock panel
   const stockClick = e => {
     if(e.target.closest("button, a")) return false;
-    const ev = e.target.closest("[data-sym].ev, .evc[data-sym], .yl[data-sym]"); if(ev){ openStock(ev.dataset.sym); return true; }
+    const ev = e.target.closest("[data-sym].ev, .evc[data-sym], .yl[data-sym]"); if(ev){ openStock(ev.dataset.sym, EVREG[+ev.dataset.evi]); return true; }
     const cell = e.target.closest("td.stick, td.stick2, td.nm"); const tr = e.target.closest("tr[data-sym]");
     if(cell && tr && !cell.closest("tr.grp, tr.total")){ openStock(tr.dataset.sym); return true; }
     return false;
@@ -1949,6 +2019,8 @@ function init(){
   $("calSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.calv = b.dataset.v; UI.calo = 0; ls.set(LS_UI, UI); renderCalendar(); });
   $("calPrev").onclick = () => { UI.calo = (UI.calo || 0) - 1; renderCalendar(); };
   $("calNext").onclick = () => { UI.calo = (UI.calo || 0) + 1; renderCalendar(); };
+  $("calToday").onclick = () => { UI.calo = 0; renderCalendar(); };
+  renderClocks(); setInterval(renderClocks, 15000);
   setInterval(() => { if(!document.hidden && UI.tab === "wl") renderEvents(); }, 30000);
   $("tbody").addEventListener("click", e => {
     if(stockClick(e)) return;
