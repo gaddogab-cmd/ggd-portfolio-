@@ -51,8 +51,10 @@ button,input,select{font:inherit;color:inherit}
 
 /* top bar */
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;border-bottom:1px solid var(--line);padding-bottom:10px}
-.brand{font-weight:700;font-size:22px;letter-spacing:.02em;color:var(--yellow);white-space:nowrap}
+.brand{font-weight:700;font-size:22px;letter-spacing:.02em;color:var(--orange);white-space:nowrap}
 body.sim .kpis{outline:1px dashed var(--blue);outline-offset:3px}
+body.lollo .kpis{outline:1px dashed var(--yellow);outline-offset:3px}
+.bk-lollo{color:var(--yellow)}
 .kpi .lab .bk{font-weight:700;margin-right:4px}
 .bk-real{color:var(--orange)} .bk-sim{color:var(--blue-soft)}
 .brand small{color:var(--gray);font-weight:500;font-size:12px;letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
@@ -156,6 +158,17 @@ canvas{display:block;width:100%;height:100%}
 .clocks .mk{width:6px;height:6px;border-radius:50%;background:#3a3f48}
 .clocks .mk.open{background:var(--green);box-shadow:0 0 5px var(--green)}
 @media (max-width:700px){.clocks{order:5;width:100%;justify-content:space-between}}
+/* market status strip: one chip per stock exchange in your portfolios and watchlist */
+.mkts{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12px;color:var(--gray-hi);margin-top:-4px}
+.mkts:empty{display:none}
+.mkts .lb0{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+.mkt{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.mkt b{font:500 12px var(--num);color:var(--fg)}
+.mkt .st{font-size:10.5px;color:var(--gray)}
+.mkt .mk{width:7px;height:7px;border-radius:50%;background:#3a3f48;flex:none}
+.mkt .mk.open{background:var(--green);box-shadow:0 0 5px var(--green)}
+.mkt .mk.pre{background:var(--yellow);box-shadow:0 0 4px var(--yellow)}
+.mkt.held{color:var(--fg)}
 /* event card at the top of the stock panel */
 .evcard{margin:10px 14px 0;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--orange);background:#0a0d11;display:flex;flex-direction:column;gap:4px}
 .evcard.k2-ex,.evcard.k2-pay{border-left-color:var(--green)} .evcard.k2-rel{border-left-color:var(--blue)} .evcard.k2-other{border-left-color:var(--yellow)}
@@ -240,12 +253,14 @@ tr.total td.stick{background:var(--olive)}
 .tabs{display:flex;gap:4px;border-bottom:2px solid var(--orange);overflow-x:auto}
 .tabs button{background:#14171c;border:1px solid #333842;border-bottom:0;padding:7px 16px;cursor:pointer;color:var(--gray-hi);font:600 13px var(--ui);white-space:nowrap}
 .tabs button:hover{color:var(--fg)}
-/* Real tabs orange, Simulated tabs blue, Watchlist grey */
+/* Real tabs orange, Simulated tabs blue, LOLLO tabs yellow, Watchlist grey */
 .tabs button.t-real{border-top:2px solid var(--orange);color:var(--orange)}
 .tabs button.t-sim{border-top:2px solid var(--blue);color:var(--blue-soft)}
 .tabs button.t-wl{border-top:2px solid var(--gray)}
 .tabs button.t-real[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
 .tabs button.t-sim[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.tabs button.t-lollo{border-top:2px solid var(--yellow);color:var(--yellow)}
+.tabs button.t-lollo[aria-selected="true"]{background:var(--yellow);border-color:var(--yellow);color:#000}
 .tabs button.t-wl[aria-selected="true"]{background:var(--gray-hi);border-color:var(--gray-hi);color:#000}
 .tabs button span{font-weight:400;opacity:.8}
 .view{display:flex;flex-direction:column;gap:12px}
@@ -334,6 +349,8 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     </div>
   </header>
 
+  <div class="mkts" id="mkts" aria-label="Markets of your stocks"></div>
+
   <section class="kpis" aria-label="Portfolio summary">
     <div class="kpi"><div class="lab"><span class="bk bk-real" id="kBook">REAL</span>Market value</div><div class="val" id="kVal">–</div><div class="sub muted" id="kCost">cost –</div></div>
     <div class="kpi"><div class="lab">Day</div><div class="val" id="kDayPct">–</div><div class="sub" id="kDayAbs">–</div></div>
@@ -346,16 +363,18 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   <nav class="tabs" id="tabsNav" role="tablist" aria-label="Views">
     <button type="button" role="tab" class="t-real" id="tab-real" data-tab="real" aria-selected="true">Real Portfolio</button>
     <button type="button" role="tab" class="t-sim" id="tab-sim" data-tab="sim" aria-selected="false">Simulated Portfolio</button>
+    <button type="button" role="tab" class="t-lollo" id="tab-lollo" data-tab="lollo" aria-selected="false">LOLLO</button>
     <button type="button" role="tab" class="t-wl" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
     <button type="button" role="tab" class="t-real" id="tab-trreal" data-tab="trreal" aria-selected="false">Real Trades <span id="trCountR"></span></button>
     <button type="button" role="tab" class="t-sim" id="tab-trsim" data-tab="trsim" aria-selected="false">Simulated Trades <span id="trCountS"></span></button>
+    <button type="button" role="tab" class="t-lollo" id="tab-trlollo" data-tab="trlollo" aria-selected="false">LOLLO Trades <span id="trCountL"></span></button>
   </nav>
 
   <div class="view" id="view-pf" role="tabpanel">
   <div class="row2">
     <section class="panel" aria-label="Performance chart">
       <div class="ph">
-        <div><h2>GGD vs S&amp;P 500</h2><div class="sub">Time-weighted return, rebased to 0%</div></div>
+        <div><h2><span id="chartName">GGD</span> vs S&amp;P 500</h2><div class="sub">Time-weighted return, rebased to 0%</div></div>
         <div class="seg" id="rangeSeg">
           <button type="button" data-r="1W" aria-pressed="false">1W</button>
           <button type="button" data-r="1M" aria-pressed="false">1M</button>
@@ -366,7 +385,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         </div>
       </div>
       <div class="chartbox" id="chartBox"><canvas id="chart"></canvas><div class="tip" id="tip" hidden></div><div class="overlay" id="chartMsg" hidden></div></div>
-      <div class="legend"><span><i style="background:var(--blue)"></i>GGD Portfolio <b class="num" id="lgP"></b></span><span><i style="background:var(--yellow)"></i>S&amp;P 500 <b class="num" id="lgB"></b></span></div>
+      <div class="legend"><span><i style="background:var(--blue)"></i><span id="lgName">GGD Portfolio</span> <b class="num" id="lgP"></b></span><span><i style="background:var(--yellow)"></i>S&amp;P 500 <b class="num" id="lgB"></b></span></div>
     </section>
 
     <section class="panel" aria-label="Sector active contribution">
@@ -478,7 +497,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         <div class="sug" id="tickSug" role="listbox" hidden></div>
         <div class="picked" id="tickPicked" hidden></div>
       </div>
-      <label class="f full">Portfolio<select id="fBook"><option value="real">Real Portfolio</option><option value="sim">Simulated Portfolio</option></select></label>
+      <label class="f full">Portfolio<select id="fBook"><option value="real">Real Portfolio</option><option value="sim">Simulated Portfolio</option><option value="lollo">LOLLO</option></select></label>
       <label class="f">Shares<input id="fShares" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Price per share<input id="fPrice" type="number" inputmode="decimal" step="any" min="0"></label>
       <label class="f">Currency<input id="fCcy" maxlength="3" autocapitalize="characters" placeholder="USD"></label>
@@ -590,7 +609,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.22.22";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.22.23";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -823,12 +842,16 @@ function weighted(rows, key){
   return w ? s / w : NaN;
 }
 function rid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-/* ---------- two books: Real and Simulated, each with its own positions, sales and history ---------- */
-const BOOKS = { real: { pos:"positions", closed:"closed", label:"Real Portfolio", short:"Real" }, sim: { pos:"simPositions", closed:"simClosed", label:"Simulated Portfolio", short:"Sim" } };
+/* ---------- three books: Real, Simulated and LOLLO, each with its own positions, sales and history ---------- */
+const BOOKS = { real: { pos:"positions", closed:"closed", label:"Real Portfolio", short:"Real", tag:"REAL", col:"var(--orange)" },
+  sim: { pos:"simPositions", closed:"simClosed", label:"Simulated Portfolio", short:"Sim", tag:"SIMULATED", col:"var(--blue)" },
+  lollo: { pos:"lolloPositions", closed:"lolloClosed", label:"LOLLO", short:"LOLLO", tag:"LOLLO", col:"var(--yellow)" } };
+const BOOK_IDS = Object.keys(BOOKS);
 function bk(b){ return BOOKS[b || UI.book] || BOOKS.real; }
 function openPositions(b){ return DB[bk(b).pos] || []; }
 function allPos(b){ return [...(DB[bk(b).pos] || []), ...(DB[bk(b).closed] || [])]; }
-function allPosBoth(){ return [...allPos("real"), ...allPos("sim")]; }
+function allPosBoth(){ return BOOK_IDS.flatMap(b => allPos(b)); }
+function openAll(){ return BOOK_IDS.flatMap(b => openPositions(b)); }
 function saleTs(sl){ return isNum(sl.ts) ? sl.ts : kts(sl.date) + 17*3600e3; }
 function allSales(b){ return allPos(b).flatMap(p => (p.sells || []).map(sl => ({ p, s: sl }))).sort((a,b) => saleTs(b.s) - saleTs(a.s)); }
 function allDivs(b){ return allPos(b).flatMap(p => (p.divs || []).map(dv => ({ p, d: dv }))); }
@@ -846,12 +869,15 @@ function render(){
   const base = DB.base;
   ["baseLbl","baseLbl2","baseLbl3","baseLbl4"].forEach(id => $(id).textContent = base);
   const rows = openPositions().map(p => ({ p, c: calc(p) }));
-  const isSim = UI.book === "sim";
-  document.body.classList.toggle("sim", isSim);
-  $("kBook").textContent = isSim ? "SIMULATED" : "REAL"; $("kBook").className = "bk " + (isSim ? "bk-sim" : "bk-real");
-  $("posTitle").textContent = isSim ? "Simulated positions" : "Real positions";
-  $("trTitle").textContent = isSim ? "Simulated trades" : "Real trades";
-  ["real","sim"].forEach(b => { const n = allEvents(b).length; $(b === "real" ? "trCountR" : "trCountS").textContent = n ? `(${n})` : ""; });
+  const B = BOOKS[UI.book] ? UI.book : "real", BK = BOOKS[B];
+  document.body.classList.toggle("sim", B === "sim"); document.body.classList.toggle("lollo", B === "lollo");
+  $("kBook").textContent = BK.tag; $("kBook").className = "bk bk-" + B;
+  $("chartName").textContent = B === "real" ? "GGD" : BK.label; $("lgName").textContent = B === "real" ? "GGD Portfolio" : BK.label;
+  $("posTitle").textContent = B === "lollo" ? "LOLLO positions" : BK.short === "Sim" ? "Simulated positions" : "Real positions";
+  $("trTitle").textContent = B === "lollo" ? "LOLLO trades" : B === "sim" ? "Simulated trades" : "Real trades";
+  const TRC = { real:"trCountR", sim:"trCountS", lollo:"trCountL" };
+  BOOK_IDS.forEach(b => { const n = allEvents(b).length; $(TRC[b]).textContent = n ? `(${n})` : ""; });
+  renderMarkets();
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const day = rows.reduce((a,r) => a + (isNum(r.c.dayBase) ? r.c.dayBase : 0), 0);
@@ -949,7 +975,7 @@ function renderTable(rows, tot, PF, dayTot){
   let html = "";
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
   const benchW = (() => { let s=0,w=0; rows.forEach(r=>{ if(isNum(r.c.benchPct)&&isNum(r.c.costBase)){ s+=r.c.benchPct*r.c.costBase; w+=r.c.costBase; } }); return w? s/w : NaN; })();
-  html += `<tr class="total"><td class="l stick">GGD</td><td class="l">${UI.book === "sim" ? "Simulated total" : "Real total"}</td><td class="l">${esc(DB.base)}</td>
+  html += `<tr class="total"><td class="l stick">GGD</td><td class="l">${UI.book === "sim" ? "Simulated total" : UI.book === "lollo" ? "LOLLO total" : "Real total"}</td><td class="l">${esc(DB.base)}</td>
     <td>–</td><td>–</td><td>${fSigned(dayTot,2,"%")}</td><td>–</td><td>100.00</td><td>–</td><td>–</td>
     <td>${fSigned(tot-cost,2)}</td><td>${fSigned(cost?(tot/cost-1)*100:NaN,2,"%")}</td><td>${fSigned(benchW,2,"%")}</td><td>–</td>
     <td>${pfv("1W")}</td><td>${pfv("1M")}</td><td>${pfv("YTD")}</td>
@@ -983,9 +1009,9 @@ function renderTable(rows, tot, PF, dayTot){
 function secOf(q){ return q.sector || (q.type === "fund" ? "Funds / ETFs" : q.type === "index" ? "Indices" : q.type === "dr" ? "Depositary receipts" : "Other"); }
 function avgOf(rows, f){ const v = rows.map(f).filter(isNum); return v.length ? v.reduce((a,b) => a+b, 0) / v.length : NaN; }
 function watchRow({ w, q }){
-  const held = openPositions("real").some(p => p.sym === w.sym), simHeld = openPositions("sim").some(p => p.sym === w.sym);
+  const held = openPositions("real").some(p => p.sym === w.sym), simHeld = openPositions("sim").some(p => p.sym === w.sym), lolloHeld = openPositions("lollo").some(p => p.sym === w.sym);
   return `<tr data-sym="${esc(w.sym)}">
-      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}</td>
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}${lolloHeld ? '<span class="tag" style="border-color:var(--yellow);color:var(--yellow)">LOLLO</span>' : ''}</td>
       <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || w.sym.split(":")[0])}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(normCcy(q.currency))}</span></td><td>${dayCell(q)}</td><td>${fPx(prevClose(q))}</td>
@@ -1248,9 +1274,11 @@ function sanitize(d){
   if(!Array.isArray(o.closed)) o.closed = [];
   if(!Array.isArray(o.simPositions)) o.simPositions = [];
   if(!Array.isArray(o.simClosed)) o.simClosed = [];
+  if(!Array.isArray(o.lolloPositions)) o.lolloPositions = [];
+  if(!Array.isArray(o.lolloClosed)) o.lolloClosed = [];
   if(!Array.isArray(o.watch)) o.watch = [];
   if(!Array.isArray(o.events)) o.events = [];
-  [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
+  [...o.positions, ...o.closed, ...o.simPositions, ...o.simClosed, ...o.lolloPositions, ...o.lolloClosed].forEach(p => { if(!Array.isArray(p.sells)) p.sells = []; });
   if(!o.snaps || typeof o.snaps !== "object") o.snaps = {};
   return o;
 }
@@ -1287,7 +1315,7 @@ async function refresh(){
     const base = majorCcy(DB.base);
     const syms = new Set([SPX]);
     const ccys = new Set();
-    [...openPositions("real"), ...openPositions("sim")].forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); });
+    openAll().forEach(p => { syms.add(p.sym); if(p.bench) syms.add(p.bench); });
     allPosBoth().forEach(p => { syms.add(p.sym); ccys.add(majorCcy(p.ccy)); if(p.iccy) ccys.add(majorCcy(p.iccy)); });
     (DB.watch || []).forEach(w => syms.add(w.sym));
     ccys.delete(base);
@@ -1433,7 +1461,7 @@ async function savePos(ev){
     sym: s, name: chosen?.description || editing?.name || "", isin: chosen?.isin || editing?.isin || "", iccy: normCcy(chosen?.currency || editing?.iccy || ccy),
     shares, price, ccy, date, bench, benchOpen: isNum(benchOpen) ? benchOpen : null, benchEst, added: editing?.added || Date.now(), sells: editing?.sells || [] };
   $("posSave").disabled = true;
-  const toBook = $("fBook").value === "sim" ? "sim" : "real", fromBook = editing ? (UI.book || "real") : null;
+  const toBook = BOOKS[$("fBook").value] ? $("fBook").value : "real", fromBook = editing ? (UI.book || "real") : null;
   const T = bk(toBook), F = fromBook ? bk(fromBook) : null;
   await commit(d => {
     if(F && F !== T) d[F.pos] = (d[F.pos] || []).filter(x => x.id !== rec.id);   // moved to the other portfolio
@@ -1576,8 +1604,7 @@ function evSymbols(){
   const m = new Map();
   const mark = (sym, f) => { const o = m.get(sym) || {}; o[f] = true; m.set(sym, o); };
   (DB.watch || []).forEach(w => mark(w.sym, "watch"));
-  openPositions("real").forEach(p => mark(p.sym, "real"));
-  openPositions("sim").forEach(p => mark(p.sym, "sim"));
+  BOOK_IDS.forEach(b => openPositions(b).forEach(p => mark(p.sym, b)));
   return m;
 }
 // wall-clock time in CET/CEST -> timestamp
@@ -1694,7 +1721,7 @@ function renderEvents(){
   if(!today.length) rows.push(`<div class="ev" style="cursor:default"><span class="t">—</span><span class="nm2 muted">Nothing today</span><span></span></div>`);
   const up = next.slice(0, Math.max(0, MAX - rows.length));
   if(up.length) rows.push(`<div class="evsep">Upcoming</div>`, ...up.map(e => evRow(e, true)));
-  $("evToday").innerHTML = (DB.watch || []).length || openPositions("real").length || openPositions("sim").length ? rows.join("") : `<div class="empty" style="padding:8px 0;text-align:left">Add stocks to your watchlist to see their events.</div>`;
+  $("evToday").innerHTML = (DB.watch || []).length || openAll().length ? rows.join("") : `<div class="empty" style="padding:8px 0;text-align:left">Add stocks to your watchlist to see their events.</div>`;
   $("newsNote").textContent = !SYNC ? "Releases need sync turned on." : NEWS && NEWS.missing ? "Releases: set up the news robot (guide Step 6)." : NEWS && NEWS.updated ? `News updated ${tzTime(NEWS.updated)}` : "";
   renderCalendar();
 }
@@ -1774,7 +1801,31 @@ function evCard(e){
 }
 /* ============================== world clocks ============================== */
 const CLOCKS = [["New York","America/New_York",[[9,30],[16,0]]], ["Geneva","Europe/Zurich",[[9,0],[17,30]]], ["Shenzhen","Asia/Shanghai",[[9,30],[15,0]]]];
+// local time zone of each market (TradingView "market" name)
+const MARKET_ZONE = { america:"America/New_York", canada:"America/Toronto", brazil:"America/Sao_Paulo", mexico:"America/Mexico_City", uk:"Europe/London", ireland:"Europe/Dublin",
+  germany:"Europe/Berlin", france:"Europe/Paris", italy:"Europe/Rome", spain:"Europe/Madrid", switzerland:"Europe/Zurich", netherlands:"Europe/Amsterdam", belgium:"Europe/Brussels",
+  portugal:"Europe/Lisbon", austria:"Europe/Vienna", sweden:"Europe/Stockholm", finland:"Europe/Helsinki", denmark:"Europe/Copenhagen", norway:"Europe/Oslo", poland:"Europe/Warsaw",
+  greece:"Europe/Athens", turkey:"Europe/Istanbul", israel:"Asia/Jerusalem", japan:"Asia/Tokyo", china:"Asia/Shanghai", hongkong:"Asia/Hong_Kong", taiwan:"Asia/Taipei", korea:"Asia/Seoul",
+  india:"Asia/Kolkata", singapore:"Asia/Singapore", australia:"Australia/Sydney", newzealand:"Pacific/Auckland", southafrica:"Africa/Johannesburg", saudiarabia:"Asia/Riyadh", uae:"Asia/Dubai" };
+// open / pre-market / after-hours / closed straight from TradingView's live session (holidays included)
+function renderMarkets(){
+  const el = $("mkts"); if(!el) return;
+  const held = new Set(openAll().map(p => p.sym)), ex = new Map();
+  [...openAll().map(p => p.sym), ...(DB.watch || []).map(w => w.sym)].forEach(sym => {
+    const q = Q[sym]; if(!q || !q.exchange || ["index","forex"].includes(q.type)) return;
+    const o = ex.get(q.exchange) || { q, held: false, n: 0 }; o.n++; if(held.has(sym)) o.held = true; ex.set(q.exchange, o);
+  });
+  if(!ex.size){ el.innerHTML = ""; return; }
+  const ST = { market:["open","open"], pre_market:["pre","pre-market"], post_market:["pre","after-hours"] };
+  const list = [...ex.entries()].sort((a,b) => (b[1].held - a[1].held) || a[0].localeCompare(b[0]));
+  el.innerHTML = `<span class="lb0">Markets</span>` + list.map(([name, { q, held }]) => {
+    const st = ST[q.current_session] || ["", "closed"], zone = MARKET_ZONE[q.market];
+    const t = zone ? new Intl.DateTimeFormat("en-GB", { timeZone: zone, hour:"2-digit", minute:"2-digit" }).format(new Date()) : "";
+    return `<span class="mkt${held ? " held" : ""}" title="${esc(name)}: ${st[1]}${zone ? " · local time " + t : ""}${held ? " · you hold stocks here" : " · watchlist only"}"><span class="mk ${st[0]}"></span>${exFlag(q)}${esc(name)}${t ? ` <b>${t}</b>` : ""}${st[0] === "pre" ? ` <span class="st">${st[1]}</span>` : ""}</span>`;
+  }).join("");
+}
 function renderClocks(){
+  renderMarkets();
   const el = $("clocks"); if(!el) return;
   const now = new Date();
   el.innerHTML = CLOCKS.map(([n, z, [o, c]]) => {
@@ -1825,7 +1876,7 @@ function renderStock(){
 
 /* ============================== your own events ============================== */
 function openEvDlg(sym){
-  const syms = [...new Set([...(DB.watch || []).map(w => w.sym), ...openPositions("real").map(p => p.sym), ...openPositions("sim").map(p => p.sym)])];
+  const syms = [...new Set([...(DB.watch || []).map(w => w.sym), ...openAll().map(p => p.sym)])];
   const opts = syms.map(x => ({ x, n: shortName(Q[x], x) })).sort((a,b) => a.n.localeCompare(b.n));
   $("eSym").innerHTML = opts.map(o => `<option value="${esc(o.x)}">${esc(o.n)} (${esc(tick(o.x))})</option>`).join("");
   if(sym) $("eSym").value = sym;
@@ -1853,7 +1904,7 @@ let autoDivBusy = false;
 async function autoDividends(){
   if(autoDivBusy || !Object.keys(Q).length) return;
   const adds = [], now = Date.now();
-  for(const book of ["real","sim"]){
+  for(const book of BOOK_IDS){
     for(const p of allPos(book)){
       const q = Q[p.sym]; if(!q) continue;
       for(const w of ["recent","upcoming"]){
@@ -1904,22 +1955,22 @@ function buyFromWatch(sym){
 
 /* ============================== Real / Simulated switch ============================== */
 function setBook(b){
-  b = b === "sim" ? "sim" : "real";
+  b = BOOKS[b] ? b : "real";
   const v = (TABS[UI.tab] || {}).view;
   if(v === "pf") showTab(b); else if(v === "tr") showTab("tr" + b); else { UI.book = b; ls.set(LS_UI, UI); render(); }
 }
 
 /* ============================== tabs ============================== */
-const TABS = { real:{ view:"pf", book:"real" }, sim:{ view:"pf", book:"sim" }, wl:{ view:"wl" }, trreal:{ view:"tr", book:"real" }, trsim:{ view:"tr", book:"sim" } };
+const TABS = { real:{ view:"pf", book:"real" }, sim:{ view:"pf", book:"sim" }, lollo:{ view:"pf", book:"lollo" }, wl:{ view:"wl" }, trreal:{ view:"tr", book:"real" }, trsim:{ view:"tr", book:"sim" }, trlollo:{ view:"tr", book:"lollo" } };
 function showTab(t){
-  if(t === "pf") t = UI.book === "sim" ? "sim" : "real";          // names used by older versions
-  if(t === "tr") t = UI.book === "sim" ? "trsim" : "trreal";
+  if(t === "pf") t = BOOKS[UI.book] ? UI.book : "real";          // names used by older versions
+  if(t === "tr") t = "tr" + (BOOKS[UI.book] ? UI.book : "real");
   if(!TABS[t]) t = "real";
   const T = TABS[t];
   UI.tab = t; if(T.book) UI.book = T.book; ls.set(LS_UI, UI);
   document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
   ["pf","wl","tr"].forEach(k => $("view-" + k).hidden = k !== T.view);
-  $("tabsNav").style.borderBottomColor = T.book === "sim" ? "var(--blue)" : T.book === "real" ? "var(--orange)" : "var(--gray-hi)";
+  $("tabsNav").style.borderBottomColor = T.book ? BOOKS[T.book].col : "var(--gray-hi)";
   render();
 }
 
