@@ -682,7 +682,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.22.26";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.23.27";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -919,6 +919,7 @@ function histFor(sym){
     e.d.forEach((d, i) => { const v = e.p[i]; if(isNum(v)) pts.push([kts(new Date((d + 1) * 864e5).toISOString().slice(0,10)), v, "d"]); });
     (e.ht || []).forEach((s, i) => { const v = e.hp[i]; if(isNum(v)) pts.push([s * 1000, v, "h"]); });
     pts.sort((a,b) => a[0]-b[0]);
+    if((e.ht || []).length){ const h0 = e.ht[0] * 1000; pts = pts.filter(x => x[2] === "h" || x[0] <= h0); }
     // drop history that does not match the live quote (other listing, other currency)
     const last = pts.length ? pts[pts.length-1][1] : NaN;
     if(q && ((e.c && q.currency && ccyKey(e.c) !== normCcy(q.currency)) || (isNum(q.close) && isNum(last) && (last / q.close > 1.6 || last / q.close < 0.6)))) pts = null;
@@ -1382,6 +1383,11 @@ function renderSector(rows, tot){
 }
 
 /* ============================== chart ============================== */
+function rangeStartTs(r){
+  if(r === "1W") return NOW - 7*864e5;                                   // exactly one week back from now
+  if(r === "1M"){ const d = new Date(NOW); d.setMonth(d.getMonth() - 1); return d.getTime(); }
+  const k = rangeStart(r); return k ? kts(k) : -Infinity;
+}
 function rangeStart(r){ const t = today(); return r==="1W"?shift(t,{d:-7}):r==="1M"?shift(t,{m:-1}):r==="3M"?shift(t,{m:-3}):r==="YTD"?ytdStart(t):r==="1Y"?shift(t,{y:-1}):null; }
 function retMode(){ return UI.ret === "twr" ? "twr" : "cap"; }
 function buildSeries(range, mode){
@@ -1404,7 +1410,7 @@ function buildSeries(range, mode){
     return { p, iccy, ev, divs, open: Math.min(...p.buys.map(b => kts(b.date))), pts: pricePoints(p.sym), sh: 0, u: {} };
   });
   const inception = Math.min(...paths.map(x => x.open));
-  const rs = rangeStart(range), rsTs = rs ? kts(rs) : -Infinity;
+  const rsTs = rangeStartTs(range);
   const startTs = Math.max(rsTs, inception);
   const benches = chartBenches().map(sym => ({ sym, pts: pricePoints(sym) })).filter(b => b.pts.length);
   const T = new Set([startTs, now]);
@@ -1531,8 +1537,11 @@ function drawChart(){
   let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
   if(hi - lo < 0.5){ hi += 0.25; lo -= 0.25; }
   const step = niceStep(hi - lo); lo = Math.floor(lo/step)*step; hi = Math.ceil(hi/step)*step;
-  const t0 = s.grid[0], t1 = s.grid[s.grid.length-1];
-  const x = t => padL + (t - t0) / ((t1 - t0) || 1) * (W - padL - padR);
+  // x axis in trading time: nights, weekends and holidays (no price moves anywhere) shrink to 1 hour on 1W/1M, to 1 day on longer views
+  const N = s.grid.length, t0 = s.grid[0], t1 = s.grid[N-1], span = t1 - t0, intra = span <= 45*864e5;
+  const CAP = intra ? 3600e3 : 864e5, pos = [0];
+  for(let i = 1; i < N; i++) pos.push(pos[i-1] + Math.min(s.grid[i] - s.grid[i-1], CAP));
+  const X = i => padL + pos[i] / (pos[N-1] || 1) * (W - padL - padR);
   const y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
   g.font = `11px ${C("--num")}`; g.textBaseline = "middle";
   for(let v = lo; v <= hi + step/2; v += step){
@@ -1541,47 +1550,58 @@ function drawChart(){
     g.beginPath(); g.moveTo(padL, yy); g.lineTo(W - padR, yy); g.stroke();
     g.fillStyle = C("--gray"); g.textAlign = "left"; g.fillText(fSigned(Math.abs(v)<1e-9?0:v, step<1?1:0, "%"), W - padR + 6, yy);
   }
-  // x labels
-  g.textAlign = "center"; g.textBaseline = "alphabetic"; g.fillStyle = C("--gray");
-  const nLab = Math.max(2, Math.min(6, Math.floor((W - padR) / 90)));
-  for(let i=0;i<nLab;i++){
-    const t = t0 + (t1 - t0) * i / (nLab - 1);
-    const d = new Date(t);
-    const span = t1 - t0;
-    const txt = span > 200*864e5 ? d.toLocaleDateString("en-GB",{month:"short",year:"2-digit"}) : span < 2*864e5 ? d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"});
-    g.textAlign = i===0 ? "left" : i===nLab-1 ? "right" : "center";
-    g.fillText(txt, x(t), H - 6);
+  // x labels: one per trading day on 1W/1M (with a faint separator on 1W), one per month on longer views
+  g.textBaseline = "alphabetic"; g.fillStyle = C("--gray");
+  const dayK = t => { const d = new Date(t); return d.getFullYear() * 400 + d.getMonth() * 32 + d.getDate(); };
+  const monK = t => { const d = new Date(t); return d.getFullYear() * 12 + d.getMonth(); };
+  const fmt = t => { const d = new Date(t);
+    return span <= 10*864e5 ? d.toLocaleDateString("en-GB",{ weekday:"short", day:"numeric" }) : intra ? d.toLocaleDateString("en-GB",{ day:"numeric", month:"short" })
+      : span > 400*864e5 ? d.toLocaleDateString("en-GB",{ month:"short", year:"2-digit" }) : d.toLocaleDateString("en-GB",{ month:"short" }); };
+  const key = intra ? dayK : monK, minGap = intra && span > 10*864e5 ? 46 : 40;
+  let lastX = -Infinity;
+  for(let i = 0; i < N; i++){
+    if(i > 0 && key(s.grid[i]) === key(s.grid[i-1])) continue;
+    const xx = X(i);
+    if(span <= 10*864e5 && i > 0){ g.strokeStyle = "#1a1f27"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke(); }
+    const txt = fmt(s.grid[i]), tw = g.measureText(txt).width;
+    if(xx - lastX < Math.max(minGap, tw + 14) || xx > W - padR - tw / 2) continue;
+    g.textAlign = xx < padL + tw / 2 ? "left" : "center";
+    g.fillText(txt, xx, H - 6); lastX = xx;
   }
   const line = (arr, color, fill, width) => {
     g.beginPath(); let started = false;
-    arr.forEach((v,i) => { if(!isNum(v)) return; const xx = x(s.grid[i]), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
+    arr.forEach((v,i) => { if(!isNum(v)) return; const xx = X(i), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
     g.strokeStyle = color; g.lineWidth = width || 2; g.lineJoin = "round"; g.stroke();
     if(fill){
-      g.lineTo(x(t1), y(0)); g.lineTo(x(t0), y(0)); g.closePath();
+      g.lineTo(X(N-1), y(0)); g.lineTo(X(0), y(0)); g.closePath();
       const gr = g.createLinearGradient(0, padT, 0, H - padB); gr.addColorStop(0, "rgba(47,139,255,.22)"); gr.addColorStop(1, "rgba(47,139,255,0)");
       g.fillStyle = gr; g.fill();
     }
-    const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(x(t1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
+    const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(X(N-1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
   };
   [...bl].reverse().forEach(b => line(s.Bs[b], benchColor(b), false, 1.5));
   line(s.P, C("--blue"), true);
   renderLegend(s);
-  chartGeom = { s, x, y, W, H, padR, bl };
+  chartGeom = { s, X, y, W, H, padR, bl };
+  // say where the lines start when the portfolio is younger than the chosen period
+  const sub = $("chartSub");
+  if(s.clipped && UI.range !== "ALL") sub.textContent += ` · since your first buy, ${new Date(s.startTs).toLocaleDateString("en-GB",{ day:"numeric", month:"short" })}: benchmarks start there too`;
 }
 function chartHover(ev){
   const tip = $("tip");
   if(!chartGeom){ tip.hidden = true; return; }
   const r = $("chart").getBoundingClientRect();
   const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
-  const { s, x, bl } = chartGeom;
-  let best = 0, bd = Infinity;
-  s.grid.forEach((gp,i) => { const d = Math.abs(x(gp) - px); if(d < bd){ bd = d; best = i; } });
+  const { s, X, bl } = chartGeom;
+  let lo = 0, hi = s.grid.length - 1;                        // positions grow with i: binary search the nearest point
+  while(hi - lo > 1){ const m = (lo + hi) >> 1; if(X(m) < px) lo = m; else hi = m; }
+  const best = Math.abs(X(lo) - px) <= Math.abs(X(hi) - px) ? lo : hi;
   const d = new Date(s.grid[best]);
   const span = s.grid[s.grid.length-1] - s.grid[0], intraday = d.getHours() || d.getMinutes();
-  const when = d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) + (span < 45*864e5 && intraday ? " " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : "");
+  const when = d.toLocaleDateString("en-GB",{ ...(span <= 45*864e5 ? { weekday:"short" } : {}), day:"2-digit", month:"short", year:"numeric" }) + (span <= 45*864e5 && intraday ? " " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : "");
   tip.innerHTML = `${when}<br><span style="color:var(--blue)">${esc(bookName(false))}</span> ${fSigned(s.P[best],2,"%")}` + bl.map(b => `<br><span style="color:${benchColor(b)}">${esc(benchName(b))}</span> ${fSigned(s.Bs[b][best],2,"%")}`).join("");
   tip.hidden = false;
-  const tx = Math.min(Math.max(4, x(s.grid[best]) + 10), r.width - tip.offsetWidth - 4);
+  const tx = Math.min(Math.max(4, X(best) + 10), r.width - tip.offsetWidth - 4);
   tip.style.left = tx + "px"; tip.style.top = "10px";
 }
 
