@@ -682,7 +682,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.23.27";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.10.26.28";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -899,15 +899,28 @@ function pricePointsRaw(sym){
   // some indices (e.g. FTSE MIB) only get end-of-day prices on TradingView's free feed: then today's hourly history beats the stale quote
   const stale = !!(h && q && isNum(q.time) && q.time * 1000 < t0 && h.some(x => x[0] > t0 && x[0] < NOW));
   if(h && h.length){
-    const from = h[0][0], hasT0 = h.some(x => x[0] === t0);
-    out = out.filter(x => x[0] < from || x[0] > t0 || (x[0] === t0 && !hasT0 && !stale));
+    const from = h[0][0];
+    out = out.filter(x => x[0] < from);
     h.forEach(x => { if(x[0] < NOW) out.push(x); });
   }
   if(q && isNum(q.close) && !stale) out.push([Math.max(NOW, t0 + 1), q.close, "now"]);
-  return out.sort((a,b) => a[0]-b[0]);
+  out.sort((a,b) => a[0]-b[0]);
+  // real price history: a price holds until the next print (step), so moves never leak into nights, weekends or holidays.
+  // only the rough fallback points (no history yet) are joined with straight lines
+  out.step = !!(h && h.length);
+  return out;
 }
 /* ---------- price history from hist.json (written by the news robot) ---------- */
 let HIST = null, histAt = 0, HCACHE = {};
+// first midnight after every instrument's hourly history has started (≈ 3 weeks ago)
+function histCut(){
+  if(!HIST || !HIST.s) return null;
+  if(HIST._cut !== undefined) return HIST._cut;
+  const firsts = Object.values(HIST.s).map(e => (e.ht || [])[0]).filter(isNum);
+  if(!firsts.length) return (HIST._cut = null);
+  const d = new Date(Math.max(...firsts) * 1000 + 864e5);
+  return (HIST._cut = kts(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`));
+}
 function ccyKey(c){ c = String(c || ""); return c === "GBp" ? "GBX" : c === "ZAc" ? "ZAC" : c.toUpperCase(); }
 function histFor(sym){
   if(sym in HCACHE) return HCACHE[sym];
@@ -915,11 +928,12 @@ function histFor(sym){
   let pts = null;
   if(e && Array.isArray(e.d)){
     pts = [];
-    // a daily close counts from 00:00 of the next day, like the live "previous close"
-    e.d.forEach((d, i) => { const v = e.p[i]; if(isNum(v)) pts.push([kts(new Date((d + 1) * 864e5).toISOString().slice(0,10)), v, "d"]); });
-    (e.ht || []).forEach((s, i) => { const v = e.hp[i]; if(isNum(v)) pts.push([s * 1000, v, "h"]); });
+    // daily closes count from 00:00 of the next day (every market has closed by then); from one common cut-off
+    // (the same day for every instrument, inside everyone's hourly history) hourly prices take over at their real time
+    const cut = histCut();
+    e.d.forEach((d, i) => { const v = e.p[i], t = kts(new Date((d + 1) * 864e5).toISOString().slice(0,10)); if(isNum(v) && (cut == null || !(e.ht || []).length || t <= cut)) pts.push([t, v, "d"]); });
+    (e.ht || []).forEach((s, i) => { const v = e.hp[i]; if(isNum(v) && (cut == null || s * 1000 > cut)) pts.push([s * 1000, v, "h"]); });
     pts.sort((a,b) => a[0]-b[0]);
-    if((e.ht || []).length){ const h0 = e.ht[0] * 1000; pts = pts.filter(x => x[2] === "h" || x[0] <= h0); }
     // drop history that does not match the live quote (other listing, other currency)
     const last = pts.length ? pts[pts.length-1][1] : NaN;
     if(q && ((e.c && q.currency && ccyKey(e.c) !== normCcy(q.currency)) || (isNum(q.close) && isNum(last) && (last / q.close > 1.6 || last / q.close < 0.6)))) pts = null;
@@ -943,6 +957,7 @@ function interp(pts, ts){
   if(ts >= pts[n-1][0]) return pts[n-1][1];
   let lo = 0, hi = n - 1;                                  // binary search: pts[lo][0] < ts <= pts[hi][0]
   while(hi - lo > 1){ const mid = (lo + hi) >> 1; if(pts[mid][0] < ts) lo = mid; else hi = mid; }
+  if(pts.step) return pts[hi][0] === ts ? pts[hi][1] : pts[lo][1];
   const [t0,v0] = pts[lo], [t1,v1] = pts[hi];
   return t1 === t0 ? v1 : v0 + (v1-v0) * (ts-t0)/(t1-t0);
 }
@@ -1389,6 +1404,14 @@ function rangeStartTs(r){
   const k = rangeStart(r); return k ? kts(k) : -Infinity;
 }
 function rangeStart(r){ const t = today(); return r==="1W"?shift(t,{d:-7}):r==="1M"?shift(t,{m:-1}):r==="3M"?shift(t,{m:-3}):r==="YTD"?ytdStart(t):r==="1Y"?shift(t,{y:-1}):null; }
+// when on that day a trade happened: the hourly price nearest to the trade price (history of the last month);
+// older trades keep the day's start (buys) or 17:00 (sales), where only daily closes exist
+function tradeTs(pts, date, price, dflt){
+  if(!isNum(price) || !pts || !pts.length) return dflt;
+  const a = kts(date), b = a + 864e5; let best = null, bd = Infinity;
+  for(const x of pts){ if(x[2] !== "h" || x[0] < a || x[0] >= b) continue; const d = Math.abs(x[1] - price); if(d < bd - 1e-9){ bd = d; best = x[0]; } }
+  return best == null ? dflt : best;
+}
 function retMode(){ return UI.ret === "twr" ? "twr" : "cap"; }
 function buildSeries(range, mode){
   // Two ways to measure the portfolio over [max(window start, first buy), now]:
@@ -1404,10 +1427,11 @@ function buildSeries(range, mode){
     ensureBuys(p);
     const iccy = normCcy(Q[p.sym]?.currency || p.iccy || p.ccy);
     const ev = new Map(), at = t => { if(!ev.has(t)) ev.set(t, { buys: [], sells: [] }); return ev.get(t); };
-    p.buys.forEach(b => at(kts(b.date)).buys.push({ qty: b.qty, px: b.free || !(b.price > 0) ? NaN : conv(b.price, p.ccy, iccy) }));
-    (p.sells || []).forEach(sl => at(saleTs(sl)).sells.push({ qty: sl.qty, px: conv(sl.price, sl.ccy || p.ccy, iccy), cost: conv(sl.cost, sl.ccy || p.ccy, iccy) }));
+    const pp = pricePoints(p.sym);
+    p.buys.forEach(b => { const bp = b.free || !(b.price > 0) ? NaN : conv(b.price, p.ccy, iccy); at(tradeTs(pp, b.date, bp, kts(b.date))).buys.push({ qty: b.qty, px: bp }); });
+    (p.sells || []).forEach(sl => { const sp = conv(sl.price, sl.ccy || p.ccy, iccy); at(isNum(sl.ts) ? sl.ts : tradeTs(pp, sl.date, sp, saleTs(sl))).sells.push({ qty: sl.qty, px: sp, cost: conv(sl.cost, sl.ccy || p.ccy, iccy) }); });
     const divs = (p.divs || []).map(dv => [saleTs(dv), divBase(dv, p)]).filter(x => isNum(x[1]));
-    return { p, iccy, ev, divs, open: Math.min(...p.buys.map(b => kts(b.date))), pts: pricePoints(p.sym), sh: 0, u: {} };
+    return { p, iccy, ev, divs, open: Math.min(...ev.keys()), pts: pp, sh: 0, u: {} };
   });
   const inception = Math.min(...paths.map(x => x.open));
   const rsTs = rangeStartTs(range);
@@ -1476,9 +1500,9 @@ function renderLegend(s){
   const v = a => s ? ` <b class="num"><span class="${cls(last(a))}">${fSigned(last(a),2,"%")}</span></b>` : "";
   let h = `<span><i style="background:var(--blue)"></i><span id="lgName">${esc(bookName(true))}</span>${v(s && s.P)}</span>`;
   chartBenches().forEach(b => { h += `<span><i style="background:${benchColor(b)}"></i>${esc(benchName(b))}${v(s && s.Bs[b])}</span>`; });
-  const noHist = chartBenches().filter(b => Q[b] && !histFor(b));
-  if(HIST && HIST.missing) h += `<span class="lnote">Daily detail needs the updated news robot (news.yml)</span>`;
-  else if(HIST && noHist.length) h += `<span class="lnote">Rough history for ${esc(noHist.map(benchName).join(", "))} until the robot's next run</span>`;
+  const noHist = [...chartBenches().filter(b => Q[b] && !histFor(b)).map(benchName), ...(s ? chartRough : [])];
+  if(HIST && HIST.missing) h += `<span class="lnote">Dashed lines are rough: price history needs the news robot (news.yml)</span>`;
+  else if(noHist.length) h += `<span class="lnote">Dashed = rough history for ${esc([...new Set(noHist)].join(", "))} until the robot's next run</span>`;
   $("legend").innerHTML = h;
   $("benchN").textContent = `(${chartBenches().length})`;
 }
@@ -1515,7 +1539,7 @@ async function removeCustomBench(sym){
   DB.chartBench = chartBenches().filter(x => x !== sym); render(); renderBenchPicker();
 }
 
-let chartGeom = null;
+let chartGeom = null, chartRough = [];
 function drawChart(){
   const cv = $("chart"), box = $("chartBox"), msg = $("chartMsg");
   const dpr = window.devicePixelRatio || 1;
@@ -1568,10 +1592,11 @@ function drawChart(){
     g.textAlign = xx < padL + tw / 2 ? "left" : "center";
     g.fillText(txt, xx, H - 6); lastX = xx;
   }
-  const line = (arr, color, fill, width) => {
+  const line = (arr, color, fill, width, dashed) => {
+    g.setLineDash(dashed ? [5, 4] : []);
     g.beginPath(); let started = false;
     arr.forEach((v,i) => { if(!isNum(v)) return; const xx = X(i), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
-    g.strokeStyle = color; g.lineWidth = width || 2; g.lineJoin = "round"; g.stroke();
+    g.strokeStyle = color; g.lineWidth = width || 2; g.lineJoin = "round"; g.stroke(); g.setLineDash([]);
     if(fill){
       g.lineTo(X(N-1), y(0)); g.lineTo(X(0), y(0)); g.closePath();
       const gr = g.createLinearGradient(0, padT, 0, H - padB); gr.addColorStop(0, "rgba(47,139,255,.22)"); gr.addColorStop(1, "rgba(47,139,255,0)");
@@ -1579,8 +1604,12 @@ function drawChart(){
     }
     const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(X(N-1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
   };
-  [...bl].reverse().forEach(b => line(s.Bs[b], benchColor(b), false, 1.5));
-  line(s.P, C("--blue"), true);
+  // dashed = no real price history yet (rough line through a few TradingView points): it bends on the same dates as every other rough line
+  const rough = sym => !pricePoints(sym).step;
+  const roughPos = allPos().filter(p => Q[p.sym] && rough(p.sym)).map(p => tick(p.sym));
+  [...bl].reverse().forEach(b => line(s.Bs[b], benchColor(b), false, 1.5, rough(b)));
+  line(s.P, C("--blue"), true, 2, roughPos.length > 0);
+  chartRough = roughPos;
   renderLegend(s);
   chartGeom = { s, X, y, W, H, padR, bl };
   // say where the lines start when the portfolio is younger than the chosen period
