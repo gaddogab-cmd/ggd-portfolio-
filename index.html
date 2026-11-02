@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: terminal-style stack. KPI strip, chart + sector panel side by side, full-width positions grid. */
-:root{
+:root{--ix:#2dd4bf;
   --bg:#000;
   --panel:#07090c;
   --line:#23272e;
@@ -99,6 +99,27 @@ canvas{display:block;width:100%;height:100%}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--gray-hi);padding:0 10px 8px;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
 .legend .lnote{color:var(--gray);font-size:11px}
+/* S&P 500 heatmap */
+.ixh{flex-wrap:wrap;gap:8px}
+.ixh > div:first-child{margin-right:auto}
+.ixk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ixk > div{background:var(--panel);padding:8px 12px}
+.ixk .l1{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray)}
+.ixk .v{font:600 18px var(--num);margin-top:2px}
+.ixk .s{font-size:11.5px;color:var(--gray-hi);margin-top:1px}
+.ixk .on{box-shadow:inset 0 2px 0 var(--ix)}
+.hmap{position:relative;height:620px;margin:8px 10px 0;background:#000;overflow:hidden;touch-action:pan-y}
+.hsec{position:absolute;box-sizing:border-box;border:1px solid #000}
+.hsec > b{position:absolute;left:0;top:0;right:0;height:15px;line-height:15px;font:600 10.5px var(--ui);color:#cfd3da;text-transform:uppercase;letter-spacing:.04em;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#0d1015}
+.ht{position:absolute;box-sizing:border-box;border:1px solid #000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;text-align:center;line-height:1.05}
+.ht:hover{outline:2px solid #fff;outline-offset:-2px;z-index:2}
+.ht b{font-family:var(--ui);font-weight:700;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+.ht span{font-family:var(--num);opacity:.95;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+.hmleg{display:flex;align-items:center;gap:8px;padding:6px 10px 10px;font:11px var(--num);color:var(--gray-hi);flex-wrap:wrap}
+.hmleg .bar{display:flex;height:12px}
+.hmleg .bar i{width:34px}
+.hmtip{position:fixed;z-index:20;pointer-events:none;max-width:280px}
+@media (max-width:700px){.hmap{height:460px;margin:6px 4px 0}}
 /* benchmark picker */
 .bsel{position:relative;margin-left:auto}
 .bpop{position:absolute;right:0;top:calc(100% + 4px);z-index:8;width:min(340px,calc(100vw - 32px));background:#0b0e12;border:1px solid #3a3f48;box-shadow:0 8px 24px rgba(0,0,0,.6)}
@@ -164,7 +185,8 @@ canvas{display:block;width:100%;height:100%}
 .evsub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-top:6px}
 .k{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font:700 10px var(--num);color:#000;border-radius:2px}
 .k-buy{background:var(--blue);color:#fff} .k-sell{background:var(--orange)} .k-free{background:var(--yellow)}
-#view-tr .panel + .panel{margin-top:14px}
+#view-tr .panel + .panel,#view-ix .panel + .panel{margin-top:14px}
+.hmtip{white-space:normal}
 .k-earn{background:var(--orange)} .k-ex{background:var(--green)} .k-pay{background:var(--green-dim);color:#fff} .k-rel{background:var(--blue);color:#fff} .k-other{background:var(--yellow)}
 .lb-other{color:var(--yellow)} .unsure{color:var(--gray);font-weight:400}
 .myev{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #12161b;font-size:13px}
@@ -286,6 +308,16 @@ table.tx td.l{font-family:var(--ui)}
 .tabs button.t-real{border-top:2px solid var(--orange);color:var(--orange)}
 .tabs button.t-sim{border-top:2px solid var(--blue);color:var(--blue-soft)}
 .tabs button.t-wl{border-top:2px solid var(--gray)}
+.tabs button.t-ix{border-top:2px solid var(--ix);color:var(--ix)}
+.tabs button.t-ix[aria-selected="true"]{background:var(--ix);border-color:var(--ix);color:#000}
+.tabs .caret{font-size:10px;margin-left:2px;opacity:1}
+.tabsbar{position:relative}
+.pfmenu{position:absolute;left:0;top:100%;z-index:9;min-width:230px;background:#0b0e12;border:1px solid #3a3f48;box-shadow:0 8px 24px rgba(0,0,0,.6);padding:4px 0}
+.pfmenu .mh{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);padding:8px 12px 3px}
+.pfmenu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;color:var(--fg);font:500 14px var(--ui);padding:8px 12px;cursor:pointer;text-align:left}
+.pfmenu button:hover{background:#142033}
+.pfmenu button[aria-checked="true"]{color:var(--orange)}
+.pfmenu button i{width:10px;height:10px;flex:none}
 .tabs button.t-real[aria-selected="true"]{background:var(--orange);border-color:var(--orange);color:#000}
 .tabs button.t-sim[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
 .tabs button.t-lollo{border-top:2px solid var(--yellow);color:var(--yellow)}
@@ -389,15 +421,21 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <div class="kpi"><div class="lab">Unrealized P&amp;L</div><div class="val" id="kU">–</div><div class="sub" id="kUb">–</div></div>
   </section>
 
+  <div class="tabsbar">
   <nav class="tabs" id="tabsNav" role="tablist" aria-label="Views">
-    <button type="button" role="tab" class="t-real" id="tab-real" data-tab="real" aria-selected="true">Real Portfolio</button>
-    <button type="button" role="tab" class="t-sim" id="tab-sim" data-tab="sim" aria-selected="false">Simulated Portfolio</button>
-    <button type="button" role="tab" class="t-lollo" id="tab-lollo" data-tab="lollo" aria-selected="false">LOLLO</button>
+    <button type="button" role="tab" class="t-real" id="tab-pf" data-tab="pf" aria-selected="true" aria-haspopup="menu" aria-expanded="false" aria-controls="pfMenu"><span id="pfLabel">Real Portfolio</span> <span class="caret" aria-hidden="true">▾</span></button>
+    <button type="button" role="tab" class="t-real" id="tab-tr" data-tab="tr" aria-selected="false">Trades <span id="trCount"></span></button>
     <button type="button" role="tab" class="t-wl" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
-    <button type="button" role="tab" class="t-real" id="tab-trreal" data-tab="trreal" aria-selected="false">Real Trades <span id="trCountR"></span></button>
-    <button type="button" role="tab" class="t-sim" id="tab-trsim" data-tab="trsim" aria-selected="false">Simulated Trades <span id="trCountS"></span></button>
-    <button type="button" role="tab" class="t-lollo" id="tab-trlollo" data-tab="trlollo" aria-selected="false">LOLLO Trades <span id="trCountL"></span></button>
   </nav>
+  <div class="pfmenu" id="pfMenu" role="menu" hidden>
+    <div class="mh">Portfolios</div>
+    <button type="button" role="menuitemradio" data-pfs="real"><i style="background:var(--orange)"></i>Real Portfolio</button>
+    <button type="button" role="menuitemradio" data-pfs="sim"><i style="background:var(--blue)"></i>Simulated Portfolio</button>
+    <button type="button" role="menuitemradio" data-pfs="lollo"><i style="background:var(--yellow)"></i>LOLLO</button>
+    <div class="mh">Index heatmaps</div>
+    <button type="button" role="menuitemradio" data-pfs="spx"><i style="background:var(--ix)"></i>S&amp;P 500</button>
+  </div>
+  </div>
 
   <div class="view" id="view-pf" role="tabpanel">
   <div class="row2">
@@ -454,6 +492,46 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       </table>
     </div>
     <div class="empty" id="emptyPos" hidden>No positions yet. Use <b>+ Position</b> to add one: ticker, shares, price per share, currency and benchmark.</div>
+  </section>
+  </div>
+
+  <div class="view" id="view-ix" role="tabpanel" hidden>
+  <section class="panel" aria-label="S&amp;P 500 heatmap">
+    <div class="ph ixh">
+      <div><h2>S&amp;P 500 heatmap</h2><div class="sub" id="ixSub">Loading the 503 members…</div></div>
+      <div class="seg" id="ixWSeg" title="Tile size"><button type="button" data-w="cap" aria-pressed="true">Cap weight</button><button type="button" data-w="ew" aria-pressed="false">Equal weight</button></div>
+      <div class="seg" id="ixPSeg"><button type="button" data-p="d" aria-pressed="true">1D</button><button type="button" data-p="w" aria-pressed="false">1W</button><button type="button" data-p="m" aria-pressed="false">1M</button><button type="button" data-p="ytd" aria-pressed="false">YTD</button><button type="button" data-p="y" aria-pressed="false">1Y</button></div>
+    </div>
+    <div class="ixk" id="ixKpis"></div>
+    <div class="hmap" id="hmap" aria-label="Tiles sized by index weight, coloured by return"></div>
+    <div class="hmleg" id="hmLeg"></div>
+    <div class="tip hmtip" id="hmTip" hidden></div>
+  </section>
+
+  <section class="panel" aria-label="S&amp;P 500 vs Equal Weight chart">
+    <div class="ph">
+      <div><h2>S&amp;P 500 vs S&amp;P 500 Equal Weight</h2><div class="sub" id="ixcSub">Price return of both official indices, rebased to 0%</div></div>
+      <div class="seg" id="ixRSeg"><button type="button" data-r="1W" aria-pressed="false">1W</button><button type="button" data-r="1M" aria-pressed="false">1M</button><button type="button" data-r="3M" aria-pressed="false">3M</button><button type="button" data-r="YTD" aria-pressed="false">YTD</button><button type="button" data-r="1Y" aria-pressed="true">1Y</button><button type="button" data-r="ALL" aria-pressed="false">All</button></div>
+    </div>
+    <div class="chartbox"><canvas id="ixChart"></canvas><div class="tip" id="ixTip" hidden></div><div class="overlay" id="ixChartMsg" hidden></div></div>
+    <div class="legend" id="ixLegend"></div>
+  </section>
+
+  <section class="panel" aria-label="S&amp;P 500 members">
+    <div class="ph"><div><h2>S&amp;P 500 members</h2><div class="sub" id="ixtSub"></div></div>
+      <div class="seg" id="ixgSeg"><button type="button" data-g="1" aria-pressed="true">By sector</button><button type="button" data-g="0" aria-pressed="false">Flat</button></div>
+      <div class="wadd"><input id="ixFind" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Find: ticker or name" aria-label="Find a member"></div>
+    </div>
+    <div class="tblwrap">
+      <table class="wtbl">
+        <thead data-tbl="ix"><tr>
+          <th class="l stick" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th><th data-k="wt">Weight</th>
+          <th data-k="last">Last</th><th data-k="day">Day %</th><th data-k="pc">Close Px</th><th data-k="rg">52 Wk Range</th>
+          <th data-k="w">1W</th><th data-k="m">1M</th><th data-k="ytd">YTD</th><th data-k="y">1Y</th><th data-k="ct">Contribution</th><th class="l" data-k="sub" data-t="1">Sub-industry</th><th></th>
+        </tr></thead>
+        <tbody id="ixBody"></tbody>
+      </table>
+    </div>
   </section>
   </div>
 
@@ -682,14 +760,15 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.10.26.28";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.02.29";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
 // chart benchmarks: [TradingView symbol, short name, full name, group]. The news robot keeps the same list (Yahoo symbols) for daily history.
 const BENCH_PRESETS = [
   ["SP:SPX","S&P 500","S&P 500 index","US"],
-  ["AMEX:RSP","S&P 500 EW","S&P 500 Equal Weight (RSP ETF)","US"],
+  ["SP:SPXEW","S&P 500 EW","S&P 500 Equal Weight index (official)","US"],
+  ["AMEX:RSP","S&P 500 EW ETF","S&P 500 Equal Weight (RSP ETF)","US"],
   ["NASDAQ:NDX","Nasdaq 100","Nasdaq 100 index","US"],
   ["TVC:RUT","Russell 2000","Russell 2000 small caps","US"],
   ["EURONEXT:IWDA","MSCI World","MSCI World (iShares IWDA, EUR)","Global"],
@@ -1057,8 +1136,7 @@ function render(){
   $("chartName").textContent = B === "real" ? "GGD" : BK.label; $("lgName").textContent = B === "real" ? "GGD Portfolio" : BK.label;
   $("posTitle").textContent = B === "lollo" ? "LOLLO positions" : BK.short === "Sim" ? "Simulated positions" : "Real positions";
   $("trTitle").textContent = `${BK.short === "Sim" ? "Simulated" : BK.short} equity trades`; $("dvTitle").textContent = `${BK.short === "Sim" ? "Simulated" : BK.short} dividends`;
-  const TRC = { real:"trCountR", sim:"trCountS", lollo:"trCountL" };
-  BOOK_IDS.forEach(b => { const n = allTrades(b).length + allDivs(b).length; $(TRC[b]).textContent = n ? `(${n})` : ""; });
+  { const n = allTrades(B).length + allDivs(B).length; $("trCount").textContent = (BK.short === "Sim" ? "· Simulated" : "· " + BK.short) + (n ? ` (${n})` : ""); }
   renderMarkets();
   const tot = rows.reduce((a,r) => a + (isNum(r.c.valueBase) ? r.c.valueBase : 0), 0);
   const cost = rows.reduce((a,r) => a + (isNum(r.c.costBase) ? r.c.costBase : 0), 0);
@@ -1100,6 +1178,7 @@ function render(){
   renderEvents();
   paintSortHeads();
   drawChart();
+  renderIndex();
 }
 
 /* ============================== rendering: table ============================== */
@@ -1539,32 +1618,23 @@ async function removeCustomBench(sym){
   DB.chartBench = chartBenches().filter(x => x !== sym); render(); renderBenchPicker();
 }
 
-let chartGeom = null, chartRough = [];
-function drawChart(){
-  const cv = $("chart"), box = $("chartBox"), msg = $("chartMsg");
+// line chart on a canvas: grid = timestamps, lines = [{ vals, color, fill, width, dashed }] in %, x axis in trading time
+function paintLines(cv, grid, lines){
   const dpr = window.devicePixelRatio || 1;
   const W = cv.clientWidth, H = cv.clientHeight;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
-  const s = buildSeries(UI.range);
-  $("chartSub").textContent = retMode() === "cap" ? "Gain on the money you put in, as % of the most you had invested · benchmarks bought with the same money on the same dates" : "Time-weighted return, rebased to 0%";
-  renderLegend(null);
-  chartGeom = null;
-  if(!s){ msg.hidden = false; msg.textContent = allPos().length ? "Loading prices…" : "Add a position to start the performance chart."; return; }
-  if(s.grid.length < 2){ msg.hidden = false; msg.textContent = "History starts at your earliest open date. Points build up daily; set a past open date to see history now."; return; }
-  msg.hidden = true;
   const css = getComputedStyle(document.documentElement);
   const C = n => css.getPropertyValue(n).trim();
   const padL = 8, padR = 52, padT = 10, padB = 22;
-  const bl = chartBenches().filter(b => s.Bs[b]);
-  const all = [s.P, ...bl.map(b => s.Bs[b])].flat().filter(isNum);
+  const all = lines.flatMap(l => l.vals).filter(isNum);
   let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
   if(hi - lo < 0.5){ hi += 0.25; lo -= 0.25; }
   const step = niceStep(hi - lo); lo = Math.floor(lo/step)*step; hi = Math.ceil(hi/step)*step;
   // x axis in trading time: nights, weekends and holidays (no price moves anywhere) shrink to 1 hour on 1W/1M, to 1 day on longer views
-  const N = s.grid.length, t0 = s.grid[0], t1 = s.grid[N-1], span = t1 - t0, intra = span <= 45*864e5;
+  const N = grid.length, t0 = grid[0], t1 = grid[N-1], span = t1 - t0, intra = span <= 45*864e5;
   const CAP = intra ? 3600e3 : 864e5, pos = [0];
-  for(let i = 1; i < N; i++) pos.push(pos[i-1] + Math.min(s.grid[i] - s.grid[i-1], CAP));
+  for(let i = 1; i < N; i++) pos.push(pos[i-1] + Math.min(grid[i] - grid[i-1], CAP));
   const X = i => padL + pos[i] / (pos[N-1] || 1) * (W - padL - padR);
   const y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
   g.font = `11px ${C("--num")}`; g.textBaseline = "middle";
@@ -1584,10 +1654,10 @@ function drawChart(){
   const key = intra ? dayK : monK, minGap = intra && span > 10*864e5 ? 46 : 40;
   let lastX = -Infinity;
   for(let i = 0; i < N; i++){
-    if(i > 0 && key(s.grid[i]) === key(s.grid[i-1])) continue;
+    if(i > 0 && key(grid[i]) === key(grid[i-1])) continue;
     const xx = X(i);
     if(span <= 10*864e5 && i > 0){ g.strokeStyle = "#1a1f27"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke(); }
-    const txt = fmt(s.grid[i]), tw = g.measureText(txt).width;
+    const txt = fmt(grid[i]), tw = g.measureText(txt).width;
     if(xx - lastX < Math.max(minGap, tw + 14) || xx > W - padR - tw / 2) continue;
     g.textAlign = xx < padL + tw / 2 ? "left" : "center";
     g.fillText(txt, xx, H - 6); lastX = xx;
@@ -1604,14 +1674,33 @@ function drawChart(){
     }
     const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(X(N-1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
   };
+  lines.forEach(l => line(l.vals, l.color, l.fill, l.width, l.dashed));
+  return { X, y, W, H, grid };
+}
+let chartGeom = null, chartRough = [];
+function drawChart(){
+  const cv = $("chart"), box = $("chartBox"), msg = $("chartMsg");
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  const s = buildSeries(UI.range);
+  $("chartSub").textContent = retMode() === "cap" ? "Gain on the money you put in, as % of the most you had invested · benchmarks bought with the same money on the same dates" : "Time-weighted return, rebased to 0%";
+  renderLegend(null);
+  chartGeom = null;
+  if(!s){ msg.hidden = false; msg.textContent = allPos().length ? "Loading prices…" : "Add a position to start the performance chart."; return; }
+  if(s.grid.length < 2){ msg.hidden = false; msg.textContent = "History starts at your earliest open date. Points build up daily; set a past open date to see history now."; return; }
+  msg.hidden = true;
+  const bl = chartBenches().filter(b => s.Bs[b]);
   // dashed = no real price history yet (rough line through a few TradingView points): it bends on the same dates as every other rough line
   const rough = sym => !pricePoints(sym).step;
   const roughPos = allPos().filter(p => Q[p.sym] && rough(p.sym)).map(p => tick(p.sym));
-  [...bl].reverse().forEach(b => line(s.Bs[b], benchColor(b), false, 1.5, rough(b)));
-  line(s.P, C("--blue"), true, 2, roughPos.length > 0);
+  const css = getComputedStyle(document.documentElement);
+  const geo = paintLines(cv, s.grid, [...[...bl].reverse().map(b => ({ vals: s.Bs[b], color: benchColor(b), width: 1.5, dashed: rough(b) })),
+    { vals: s.P, color: css.getPropertyValue("--blue").trim(), fill: true, width: 2, dashed: roughPos.length > 0 }]);
   chartRough = roughPos;
   renderLegend(s);
-  chartGeom = { s, X, y, W, H, padR, bl };
+  chartGeom = { s, X: geo.X, bl };
   // say where the lines start when the portfolio is younger than the chosen period
   const sub = $("chartSub");
   if(s.clipped && UI.range !== "ALL") sub.textContent += ` · since your first buy, ${new Date(s.startTs).toLocaleDateString("en-GB",{ day:"numeric", month:"short" })}: benchmarks start there too`;
@@ -1727,6 +1816,7 @@ async function refresh(){
     autoDividends();
     loadNews();
     loadHist();
+    if(UI.tab === "pf" && pfSel() === "spx") loadIndex(true);
   }catch(e){
     setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
     render();
@@ -2301,7 +2391,7 @@ function renderClocks(){
 function renderStock(){
   const sym = stkSym; if(!sym) return;
   $("stkEv").innerHTML = evCard(stkEv);
-  const q = Q[sym] || {}, ccy = normCcy(q.currency);
+  const q = Q[sym] || IQ[sym] || {}, ccy = normCcy(q.currency);
   $("stkTitle").innerHTML = `${coFlag(q)}<span class="tk">${esc(tick(sym))}</span> · ${esc(q.description || sym)}`;
   const msQ = q.isin || q.description || tick(sym);
   $("stkTop").innerHTML = `<div><div class="stk-px">${fPx(q.close)} <small>${esc(ccy)}</small> &nbsp;${dayCell(q)}</div><div class="hint">${exFlag(q)}${esc(q.exchange || sym.split(":")[0])}${q.isin ? " · " + esc(q.isin) : ""}${q.sector ? " · " + esc(q.sector) : ""}</div></div>
@@ -2416,25 +2506,287 @@ function buyFromWatch(sym){
   pickTicker({ sym, currency: q.currency || "", description: q.description || w.name, isin: w.isin, close: q.close });
 }
 
-/* ============================== Real / Simulated switch ============================== */
-function setBook(b){
-  b = BOOKS[b] ? b : "real";
-  const v = (TABS[UI.tab] || {}).view;
-  if(v === "pf") showTab(b); else if(v === "tr") showTab("tr" + b); else { UI.book = b; ls.set(LS_UI, UI); render(); }
+
+/* ============================== S&P 500 heatmap ============================== */
+// members and live quotes: TradingView's S&P 500 list. Index shares, GICS sectors and reference closes: spx.json from the robot
+// (SPY daily holdings, Wikipedia GICS list, Yahoo official closes). Every return = live price ÷ official close on the reference day − 1.
+let IQ = {}, iqAt = 0, SPXD = null, spxAt = 0, ixBusy = false;
+const IX_COLS = [...COLS, "float_shares_outstanding", "total_shares_outstanding", "industry"];
+const IXK = ["d","w","m","ytd","y"], IXL = { d:"1D", w:"1W", m:"1M", ytd:"YTD", y:"1Y" }, IX_SCALE = { d:3, w:6, m:10, ytd:30, y:40 };
+const TV_PERF = { w:"Perf.W", m:"Perf.1M", ytd:"Perf.YTD", y:"Perf.Y" };
+async function loadIndex(force){
+  if(ixBusy) return;
+  const fresh = Date.now() - iqAt < Math.max(30, DB.refresh || 60) * 900;
+  if(force || !fresh || !Object.keys(IQ).length){
+    ixBusy = true;
+    try{
+      const r = await fetch(SCAN_URL.replace("/global/", "/america/"), { method:"POST", body: JSON.stringify({ symbols:{ symbolset:["SYML:SP;SPX"] }, columns: IX_COLS, range:[0,1000] }) });
+      const j = await r.json(), m = {};
+      (j.data || []).forEach(x => { const o = {}; IX_COLS.forEach((c,i) => o[c] = x.d[i]); m[x.s] = o; });
+      if(Object.keys(m).length > 400){ IQ = m; iqAt = Date.now(); }
+    }catch(e){}
+    ixBusy = false;
+  }
+  await loadSpx();
+  if(!$("view-ix").hidden) renderIndex();
+}
+async function loadSpx(force){
+  if(!SYNC || (!force && Date.now() - spxAt < 30*60e3)) return;
+  spxAt = Date.now();
+  try{
+    const r = await fetch(`${ghUrlFor("spx.json")}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: { ...ghHeaders(), Accept: "application/vnd.github.raw+json" }, cache: "no-store" });
+    if(r.status === 404){ SPXD = { missing: true }; return; }
+    if(r.ok) SPXD = JSON.parse(await r.text());
+  }catch(e){}
+}
+// last session of an index from its robot history: { now, prev, at } (now = latest hourly price, prev = the close before that session)
+function histSession(sym){
+  const e = HIST && HIST.s && HIST.s[sym]; if(!e || !(e.d || []).length) return null;
+  const n = e.d.length, ht = e.ht || [], tl = ht.length ? ht[ht.length-1] : null;
+  if(tl != null && Math.floor(tl / 86400) > e.d[n-1]) return { now: e.hp[ht.length-1], prev: e.p[n-1], at: tl * 1000 };
+  return n > 1 ? { now: e.p[n-1], prev: e.p[n-2], at: e.d[n-1] * 864e5, close: true } : null;
+}
+function ixModel(){
+  const sd = SPXD && SPXD.m ? SPXD : null, P = IXK.includes(UI.ixp) ? UI.ixp : "d", EW = UI.ixw === "ew";
+  const k = IXK.indexOf(P), reb = sd ? sd.reb || [] : [], rows = [];
+  for(const [sym, q] of Object.entries(IQ)){
+    const t = tick(sym), e = sd && sd.m[t], px = q.close;
+    if(!isNum(px) || px <= 0) continue;
+    const refs = e ? e.slice(3, 8) : null, qr = e ? e.slice(8) : [];
+    const ret = {};
+    IXK.forEach((kk, i) => {
+      if(kk === "d") ret.d = isNum(q.change) ? q.change / 100 : NaN;                          // last session vs the close before it
+      else if(refs && isNum(refs[i]) && refs[i] > 0) ret[kk] = px / refs[i] - 1;
+      else ret[kk] = sd ? NaN : (isNum(q[TV_PERF[kk]]) ? q[TV_PERF[kk]] / 100 : NaN);       // no robot file yet: TradingView's own figures
+    });
+    const exact = !!(e && isNum(e[0]));
+    const shares = exact ? e[0] : (isNum(q.float_shares_outstanding) && q.float_shares_outstanding > 0 ? q.float_shares_outstanding : q.total_shares_outstanding);
+    const lastReb = qr.length ? qr[qr.length-1] : NaN;
+    rows.push({ sym, t, q, px, ret, exact, shares, qr, sec: (e && e[1]) || secOf(q), sub: (e && e[2]) || q.industry || "",
+      capNow: isNum(shares) ? shares * px : 0, ewNow: isNum(lastReb) && lastReb > 0 ? px / lastReb : 1 });
+  }
+  const capT = rows.reduce((a,r) => a + r.capNow, 0), ewT = rows.reduce((a,r) => a + r.ewNow, 0);
+  rows.forEach(r => { r.wCap = capT ? r.capNow / capT * 100 : NaN; r.wEw = ewT ? r.ewNow / ewT * 100 : NaN; r.w = EW ? r.wEw : r.wCap; });
+  // returns of the whole index rebuilt from today's members, and each member's contribution (percentage points)
+  const rebuilt = {}, contrib = {};
+  IXK.forEach(kk => {
+    // cap weight: index shares × price at the start of the period
+    let num = 0, den = 0;
+    rows.forEach(r => { const v = r.ret[kk]; if(!isNum(v) || !isNum(r.shares)) return; const st = r.shares * r.px / (1 + v); num += st * v; den += st; });
+    const cap = den ? num / den : NaN;
+    // equal weight: equal at each rebalance close, drifting in between (the S&P 500 Equal Weight method)
+    const refDate = sd && sd.ref ? sd.ref[kk] : null;
+    let b0 = -1; reb.forEach((d, j) => { if(kk === "d" ? true : d <= refDate) b0 = j; });
+    let ew = NaN, w0ew = {};
+    if(b0 >= 0){
+      const mean = f => { let a = 0, n = 0; rows.forEach(r => { const v = f(r); if(isNum(v)){ a += v; n++; } }); return n ? a / n : NaN; };
+      const start = r => isNum(r.ret[kk]) ? r.px / (1 + r.ret[kk]) : NaN;
+      const lRef = mean(r => start(r) / r.qr[b0]);
+      let lNow = 1;
+      for(let j = b0; j < reb.length; j++) lNow *= mean(r => (j + 1 < reb.length ? r.qr[j+1] : r.px) / r.qr[j]);
+      ew = lNow / lRef - 1;
+      let tw = 0; rows.forEach(r => { const v = start(r) / r.qr[b0]; if(isNum(v) && isNum(r.ret[kk])){ w0ew[r.sym] = v; tw += v; } });
+      Object.keys(w0ew).forEach(s => w0ew[s] /= tw);
+    } else {
+      const v = rows.map(r => r.ret[kk]).filter(isNum); ew = v.length ? v.reduce((a,b) => a + b, 0) / v.length : NaN;
+      rows.forEach(r => { if(isNum(r.ret[kk])) w0ew[r.sym] = 1 / v.length; });
+    }
+    rebuilt[kk] = { cap, ew };
+    if(kk === P) rows.forEach(r => { const v = r.ret[kk]; if(!isNum(v)){ r.ct = NaN; return; }
+      r.ct = EW ? (w0ew[r.sym] || 0) * v * 100 : (den ? r.shares * r.px / (1 + v) / den * v * 100 : NaN); });
+  });
+  // official indices: S&P 500 (live TradingView level vs official closes) and S&P 500 Equal Weight (robot's hourly history)
+  const official = { cap:{}, ew:{} }, spx = Q[SPX] || {}, ixr = sd && sd.ix ? sd.ix : {};
+  const ewS = histSession("SP:SPXEW");
+  IXK.forEach((kk, i) => {
+    official.cap[kk] = kk === "d" ? (isNum(spx.change) ? spx.change / 100 : NaN) : (ixr["SP:SPX"] && isNum(ixr["SP:SPX"][i]) && isNum(spx.close) ? spx.close / ixr["SP:SPX"][i] - 1 : (sd ? NaN : (isNum(spx[TV_PERF[kk]]) ? spx[TV_PERF[kk]] / 100 : NaN)));
+    official.ew[kk] = !ewS ? NaN : kk === "d" ? ewS.now / ewS.prev - 1 : (ixr["SP:SPXEW"] && isNum(ixr["SP:SPXEW"][i]) ? ewS.now / ixr["SP:SPXEW"][i] - 1 : NaN);
+  });
+  return { rows, P, EW, sd, rebuilt, official, ewS, exactN: rows.filter(r => r.exact).length };
+}
+// squarified treemap: items [{ v }] → [{ it, x, y, w, h }]
+function squarify(items, x, y, w, h){
+  const out = [], rest = items.filter(i => i.v > 0).sort((a,b) => b.v - a.v);
+  const total = rest.reduce((a,i) => a + i.v, 0); if(!total || w <= 0 || h <= 0) return out;
+  const sc = w * h / total; let row = [];
+  const worst = (rw, len) => { let s = 0, mx = 0, mn = Infinity; rw.forEach(i => { const a = i.v * sc; s += a; mx = Math.max(mx, a); mn = Math.min(mn, a); }); return Math.max(len*len*mx/(s*s), s*s/(len*len*mn)); };
+  const lay = rw => {
+    const s = rw.reduce((a,i) => a + i.v * sc, 0);
+    if(w >= h){ const cw = s / h; let yy = y; rw.forEach(i => { const ih = i.v * sc / cw; out.push({ it: i, x, y: yy, w: cw, h: ih }); yy += ih; }); x += cw; w -= cw; }
+    else { const rh = s / w; let xx = x; rw.forEach(i => { const iw = i.v * sc / rh; out.push({ it: i, x: xx, y, w: iw, h: rh }); xx += iw; }); y += rh; h -= rh; }
+  };
+  while(rest.length){
+    const len = Math.min(w, h), it = rest[0];
+    if(!row.length || worst([...row, it], len) <= worst(row, len)){ row.push(it); rest.shift(); }
+    else { lay(row); row = []; }
+  }
+  if(row.length) lay(row);
+  return out;
+}
+const HM_STOPS = [[-1,[246,53,56]],[-.66,[191,64,69]],[-.33,[139,68,78]],[0,[65,69,84]],[.33,[53,118,78]],[.66,[47,158,79]],[1,[48,204,90]]];
+function hmColor(r, max){
+  if(!isNum(r)) return "#24272e";
+  const x = Math.max(-1, Math.min(1, r * 100 / max));
+  for(let i = 1; i < HM_STOPS.length; i++) if(x <= HM_STOPS[i][0]){
+    const [a, ca] = HM_STOPS[i-1], [b, cb] = HM_STOPS[i], f = (x - a) / (b - a);
+    return `rgb(${ca.map((c,j) => Math.round(c + (cb[j] - c) * f)).join(",")})`;
+  }
+  return "rgb(48,204,90)";
+}
+let IXM = null;
+function renderIndex(){
+  if($("view-ix").hidden) return;
+  const M = IXM = ixModel(), { rows, P, EW, sd } = M;
+  document.querySelectorAll("#ixWSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.w === "ew") === EW)));
+  document.querySelectorAll("#ixPSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === P)));
+  const spx = Q[SPX] || {}, live = tradedToday(spx);
+  const sess = isNum(spx.time) ? new Date(spx.time * 1000).toLocaleDateString("en-GB",{ weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York" }) : "";
+  ixSess = sess;
+  if(!rows.length){ $("ixSub").textContent = "Loading the 503 members from TradingView…"; $("hmap").innerHTML = ""; $("ixKpis").innerHTML = ""; $("ixBody").innerHTML = ""; drawIxChart(); return; }
+  const src = sd ? `Weights: index shares from SPY holdings (${esc(sd.hold || "–")}) × live prices · returns vs official closes (${esc(Object.entries(sd.ref).filter(([k]) => k !== "d").map(([k,v]) => IXL[k] + " " + v.slice(5)).join(", "))})`
+    : (SPXD && SPXD.missing ? "Approximate: weights from float shares, returns from TradingView · exact data needs the updated news robot (news.yml)" : "Approximate until the robot's S&P 500 file loads");
+  $("ixSub").innerHTML = `${rows.length} members · ${P === "d" ? (live ? "today's session" : "last session " + esc(sess)) : IXL[P] + " return"} · ${src}`;
+  // KPIs
+  const o = M.official, rb = M.rebuilt[P], f = v => isNum(v) ? fSigned(v * 100, 2, "%") : "–";
+  const up = rows.filter(r => r.ret[P] > 0).length, dn = rows.filter(r => r.ret[P] < 0).length;
+  const spread = isNum(o.ew[P]) && isNum(o.cap[P]) ? (o.ew[P] - o.cap[P]) * 100 : NaN;
+  const ewAt = !M.ewS ? "" : M.ewS.close ? "close " + new Date(M.ewS.at).toLocaleDateString("en-GB",{ weekday:"short", day:"numeric", month:"short", timeZone:"UTC" }) : new Date(M.ewS.at).toLocaleString("en-GB",{ day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
+  $("ixKpis").innerHTML = `
+    <div class="${EW ? "" : "on"}"><div class="l1">S&amp;P 500 · ${IXL[P]}</div><div class="v ${cls(o.cap[P])}">${f(o.cap[P])}</div><div class="s">official index · rebuilt from members ${f(rb.cap)}</div></div>
+    <div class="${EW ? "on" : ""}"><div class="l1">S&amp;P 500 Equal Weight · ${IXL[P]}</div><div class="v ${cls(o.ew[P])}">${f(o.ew[P])}</div><div class="s">official index${ewAt ? " (" + esc(ewAt) + ")" : ""} · rebuilt ${f(rb.ew)}</div></div>
+    <div><div class="l1">Equal − Cap weight</div><div class="v ${cls(spread)}">${isNum(spread) ? fSigned(spread, 2, " pp") : "–"}</div><div class="s">${isNum(spread) ? (spread > 0 ? "the average stock beat the index" : "the largest stocks led") : ""}</div></div>
+    <div><div class="l1">Breadth · ${IXL[P]}</div><div class="v"><span class="pos">${up}</span> <span class="muted">/</span> <span class="neg">${dn}</span></div><div class="s">members up / down</div></div>`;
+  // treemap: sectors, then members, area = weight
+  const box = $("hmap"), W = box.clientWidth, H = box.clientHeight, max = IX_SCALE[P];
+  const secs = {}; rows.forEach(r => { if(isNum(r.w) && r.w > 0) (secs[r.sec] ||= []).push(r); });
+  let html = "";
+  for(const sr of squarify(Object.entries(secs).map(([name, rs]) => ({ name, rs, v: rs.reduce((a,r) => a + r.w, 0) })), 0, 0, W, H)){
+    const hd = sr.h > 34 && sr.w > 50 ? 15 : 0, sw = sr.it.rs.reduce((a,r) => a + r.w, 0);
+    html += `<div class="hsec" style="left:${sr.x}px;top:${sr.y}px;width:${sr.w}px;height:${sr.h}px">${hd ? `<b title="${esc(sr.it.name)} · ${fN(sw,1)}%">${esc(sr.it.name)} <span style="color:var(--gray)">${fN(sw,1)}%</span></b>` : ""}</div>`;
+    for(const t of squarify(sr.it.rs.map(r => ({ r, v: r.w })), sr.x + 1, sr.y + hd + 1, sr.w - 2, sr.h - hd - 2)){
+      const r = t.it.r, v = r.ret[P], fs = Math.max(8, Math.min(26, Math.sqrt(t.w * t.h) / 5.2));
+      const showT = t.w > 22 && t.h > 13, showP = showT && t.h > fs * 2.3 && t.w > 34;
+      html += `<div class="ht" data-sym="${esc(r.sym)}" style="left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;background:${hmColor(v, max)}">${showT ? `<b style="font-size:${fs.toFixed(1)}px">${esc(r.t)}</b>` : ""}${showP ? `<span style="font-size:${Math.max(8, fs * .62).toFixed(1)}px">${isNum(v) ? fSigned(v * 100, 2, "%") : "–"}</span>` : ""}</div>`;
+    }
+  }
+  box.innerHTML = html;
+  const st = HM_STOPS.map(([x]) => x);
+  $("hmLeg").innerHTML = `<span class="bar">${[-1,-.66,-.33,0,.33,.66,1].map(x => `<i style="background:${hmColor(x * max / 100, max)}"></i>`).join("")}</span><span>${fSigned(-max,0,"%")} … ${fSigned(max,0,"%")}</span><span class="muted">· tile area = ${EW ? "S&amp;P 500 Equal Weight index weight (equal at the last rebalance" + (sd && sd.reb && sd.reb.length ? ", " + esc(sd.reb[sd.reb.length-1]) : "") + ", drifted since)" : "index weight (float-adjusted market cap)"} · click a tile for the stock panel</span>`;
+  renderIxTable(M);
+  drawIxChart();
+}
+function ixTip(e){
+  const tip = $("hmTip"), el = e.target.closest(".ht");
+  if(!el || !IXM){ tip.hidden = true; return; }
+  const r = IXM.rows.find(x => x.sym === el.dataset.sym); if(!r){ tip.hidden = true; return; }
+  const P = IXM.P;
+  tip.innerHTML = `<b>${esc(r.t)}</b> · ${esc(r.q.description || "")}<br><span class="muted">${esc(r.sec)}${r.sub ? " · " + esc(r.sub) : ""}</span><br>`
+    + `${fPx(r.px)} USD · ${IXL[P]} <span class="${cls(r.ret[P])}">${isNum(r.ret[P]) ? fSigned(r.ret[P] * 100, 2, "%") : "–"}</span><br>`
+    + `Weight ${fN(r.wCap, 3)}% cap · ${fN(r.wEw, 3)}% equal<br>Contribution ${isNum(r.ct) ? fSigned(r.ct, 3, " pp") : "–"} <span class="muted">(${IXM.EW ? "equal" : "cap"} weight)</span>`;
+  tip.hidden = false;
+  const x = (e.touches ? e.touches[0].clientX : e.clientX), y = (e.touches ? e.touches[0].clientY : e.clientY);
+  tip.style.left = Math.min(x + 14, window.innerWidth - tip.offsetWidth - 6) + "px"; tip.style.top = Math.min(y + 14, window.innerHeight - tip.offsetHeight - 6) + "px";
+}
+let ixSess = "";
+function ixRow(r, P){
+  const watched = (DB.watch || []).some(w => w.sym === r.sym), q = r.q, c = v => `<td>${isNum(v) ? pct(v * 100) : "–"}</td>`;
+  return `<tr data-sym="${esc(r.sym)}">
+    <td class="l stick">${coFlag(q)}<span class="tk">${esc(r.t)}</span>${watched ? '<span class="tag held">WATCH</span>' : ""}</td>
+    <td class="l nm" title="${esc(q.description || "")}">${esc(q.description || "–")}</td>
+    <td title="cap ${fN(r.wCap,3)}% · equal ${fN(r.wEw,3)}%">${fN(r.w, 3)}%</td>
+    <td>${fPx(q.close)}</td><td>${tradedToday(q) ? dayCell(q) : (isNum(r.ret.d) ? `${pct(r.ret.d * 100)} <span class="muted" style="font-size:10px" title="Last session (${esc(ixSess)}): the market has not opened yet today">last</span>` : "–")}</td><td>${fPx(prevClose(q))}</td><td>${rangeCell(q)}</td>
+    ${c(r.ret.w)}${c(r.ret.m)}${c(r.ret.ytd)}${c(r.ret.y)}
+    <td class="${cls(r.ct)}">${isNum(r.ct) ? fSigned(r.ct, 3, " pp") : "–"}</td>
+    <td class="l">${esc(r.sub)}</td>
+    <td><div class="rowbtns">${watched ? "" : `<button class="icon" type="button" data-ixwatch="${esc(r.sym)}">+ Watch</button>`}</div></td>
+  </tr>`;
+}
+function renderIxTable(M){
+  const { rows, P, EW } = M, find = ($("ixFind").value || "").trim().toUpperCase();
+  const shown = find ? rows.filter(r => r.t.includes(find) || (r.q.description || "").toUpperCase().includes(find)) : rows;
+  $("ixtSub").textContent = `${shown.length} of ${rows.length} · weights ${EW ? "equal" : "cap"} · contribution = ${IXL[P]} return × weight at the start of the period`;
+  document.querySelectorAll("#ixgSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.g === "1") === (UI.ixgroup !== false))));
+  const keys = { tk: r => r.t, nm: r => (r.q.description || "").toLowerCase(), wt: r => r.w, last: r => r.q.close, day: r => QKEYS.day(r.q), pc: r => prevClose(r.q), rg: r => rangeFrac(r.q),
+    w: r => r.ret.w, m: r => r.ret.m, ytd: r => r.ret.ytd, y: r => r.ret.y, ct: r => r.ct, sub: r => r.sub };
+  const byW = (a,b) => (b.w || 0) - (a.w || 0);
+  let html = "";
+  if(UI.ixgroup !== false && !find){
+    const groups = {}; shown.forEach(r => (groups[r.sec] ||= []).push(r));
+    Object.entries(groups).sort((a,b) => b[1].reduce((s,r) => s + r.w, 0) - a[1].reduce((s,r) => s + r.w, 0)).forEach(([g, rs]) => {
+      rs = applySort(rs, "ix", keys, byW);
+      const shut = !(UI.iopen || {})[g];                                // folded until you open a sector
+      const wsum = rs.reduce((a,r) => a + (r.w || 0), 0);
+      const avg = kk => { let a = 0, b = 0; rs.forEach(r => { const v = r.ret[kk]; if(isNum(v) && isNum(r.w)){ const st = r.w / (1 + v); a += st * v; b += st; } }); return b ? pct(a / b * 100) : "–"; };
+      const ct = rs.reduce((a,r) => a + (isNum(r.ct) ? r.ct : 0), 0);
+      html += `<tr class="grp"><td class="l stick" colspan="2" data-ixgrp="${esc(g)}" title="Click to ${shut ? "open" : "fold"} this sector"><span class="box">${shut ? "+" : "−"}</span>${esc(g)}<span class="gn">${rs.length}</span></td>
+        <td>${fN(wsum, 2)}%</td><td></td><td>${avg("d")}</td><td></td><td></td><td>${avg("w")}</td><td>${avg("m")}</td><td>${avg("ytd")}</td><td>${avg("y")}</td><td class="${cls(ct)}">${fSigned(ct, 3, " pp")}</td><td></td><td></td></tr>`;
+      if(!shut) html += rs.map(r => ixRow(r, P)).join("");
+    });
+  } else html = applySort(shown, "ix", keys, byW).map(r => ixRow(r, P)).join("");
+  $("ixBody").innerHTML = html;
+  paintSortHeads();
+}
+// chart: official S&P 500 and S&P 500 Equal Weight, same engine as the portfolio chart
+let ixGeom = null;
+function drawIxChart(){
+  const cv = $("ixChart"), msg = $("ixChartMsg"), R = UI.ixr || "1Y";
+  document.querySelectorAll("#ixRSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === R)));
+  NOW = Date.now();
+  const L = [["SP:SPX", "S&P 500", "#f5c400"], ["SP:SPXEW", "S&P 500 Equal Weight", getComputedStyle(document.documentElement).getPropertyValue("--ix").trim()]];
+  const pts = L.map(([s]) => pricePoints(s));
+  ixGeom = null;
+  if(pts.some(p => !p.length || !p.step)){ msg.hidden = false; msg.textContent = "The equal-weight history comes from the news robot: run the updated news.yml once."; paintLines(cv, [0, 1], []); $("ixLegend").innerHTML = ""; return; }
+  msg.hidden = true;
+  const rk = { "1W":"w", "1M":"m", "YTD":"ytd", "1Y":"y" }[R], rd = SPXD && SPXD.ref && rk ? SPXD.ref[rk] : null;
+  const start = R === "ALL" ? Math.max(...pts.map(p => p[0][0])) : rd ? kts(new Date(Date.parse(rd + "T12:00:00Z") + 864e5).toISOString().slice(0,10)) : rangeStartTs(R);
+  $("ixcSub").textContent = "Price return of both official indices, rebased to 0%" + (rd ? ` from the close of ${new Date(rd + "T12:00:00Z").toLocaleDateString("en-GB",{ weekday:"short", day:"numeric", month:"short", year:"numeric", timeZone:"UTC" })} (same reference as the heatmap)` : "");
+  const T = new Set([start, NOW]); pts.forEach(p => p.forEach(([t]) => { if(t >= start && t <= NOW) T.add(t); }));
+  const grid = [...T].sort((a,b) => a - b);
+  const vals = pts.map(p => { const v0 = interp(p, start); return grid.map(t => (interp(p, t) / v0 - 1) * 100); });
+  const geo = paintLines(cv, grid, [{ vals: vals[1], color: L[1][2], width: 2 }, { vals: vals[0], color: L[0][2], width: 2 }]);
+  ixGeom = { grid, X: geo.X, vals, L };
+  const a = vals[0].at(-1), b = vals[1].at(-1), d = b - a;
+  $("ixLegend").innerHTML = L.map(([s, n, c], i) => `<span><i style="background:${c}"></i>${esc(n)} <b class="num"><span class="${cls(vals[i].at(-1))}">${fSigned(vals[i].at(-1),2,"%")}</span></b></span>`).join("")
+    + `<span>Equal − Cap <b class="num"><span class="${cls(d)}">${fSigned(d,2," pp")}</span></b></span><span class="lnote">Price return (no dividends) · equal weight from Yahoo, updated hourly by the robot</span>`;
+}
+function ixChartHover(ev){
+  const tip = $("ixTip"); if(!ixGeom){ tip.hidden = true; return; }
+  const r = $("ixChart").getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left, { grid, X, vals, L } = ixGeom;
+  let lo = 0, hi = grid.length - 1; while(hi - lo > 1){ const m = (lo + hi) >> 1; if(X(m) < px) lo = m; else hi = m; }
+  const i = Math.abs(X(lo) - px) <= Math.abs(X(hi) - px) ? lo : hi, d = new Date(grid[i]), span = grid.at(-1) - grid[0];
+  tip.innerHTML = d.toLocaleDateString("en-GB",{ ...(span <= 45*864e5 ? { weekday:"short" } : {}), day:"2-digit", month:"short", year:"numeric" }) + (span <= 45*864e5 && (d.getHours() || d.getMinutes()) ? " " + d.toLocaleTimeString("en-GB",{ hour:"2-digit", minute:"2-digit" }) : "")
+    + L.map(([s, n, c], j) => `<br><span style="color:${c}">${esc(n)}</span> ${fSigned(vals[j][i],2,"%")}`).join("") + `<br>Equal − Cap ${fSigned(vals[1][i] - vals[0][i],2," pp")}`;
+  tip.hidden = false; tip.style.left = Math.min(Math.max(4, X(i) + 10), r.width - tip.offsetWidth - 4) + "px"; tip.style.top = "10px";
 }
 
-/* ============================== tabs ============================== */
-const TABS = { real:{ view:"pf", book:"real" }, sim:{ view:"pf", book:"sim" }, lollo:{ view:"pf", book:"lollo" }, wl:{ view:"wl" }, trreal:{ view:"tr", book:"real" }, trsim:{ view:"tr", book:"sim" }, trlollo:{ view:"tr", book:"lollo" } };
+/* ============================== tabs: 1) portfolios & index heatmaps (menu)  2) trades of the chosen portfolio  3) watchlist ============================== */
+function pfSel(){ return UI.pfsel === "spx" ? "spx" : (BOOKS[UI.book] ? UI.book : "real"); }
+function setBook(b){ b = BOOKS[b] ? b : "real"; UI.book = b; if(UI.pfsel !== "spx" || (TABS[UI.tab] || {}).view !== "pf") UI.pfsel = b; showTab(UI.tab); }
+const TABS = { pf:{ view:"pf" }, tr:{ view:"tr" }, wl:{ view:"wl" } };
 function showTab(t){
-  if(t === "pf") t = BOOKS[UI.book] ? UI.book : "real";          // names used by older versions
-  if(t === "tr") t = "tr" + (BOOKS[UI.book] ? UI.book : "real");
-  if(!TABS[t]) t = "real";
-  const T = TABS[t];
-  UI.tab = t; if(T.book) UI.book = T.book; ls.set(LS_UI, UI);
+  // names used by older versions: real / sim / lollo / trreal / trsim / trlollo
+  if(BOOKS[t]){ UI.book = t; UI.pfsel = t; t = "pf"; }
+  else if(/^tr(real|sim|lollo)$/.test(t || "")){ UI.book = t.slice(2); t = "tr"; }
+  if(!TABS[t]) t = "pf";
+  UI.tab = t; ls.set(LS_UI, UI);
+  const sel = pfSel(), B = BOOKS[UI.book] ? UI.book : "real";
+  const view = t === "pf" ? (sel === "spx" ? "ix" : "pf") : t;
   document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
-  ["pf","wl","tr"].forEach(k => $("view-" + k).hidden = k !== T.view);
-  $("tabsNav").style.borderBottomColor = T.book ? BOOKS[T.book].col : "var(--gray-hi)";
+  ["pf","ix","wl","tr"].forEach(k => $("view-" + k).hidden = k !== view);
+  document.querySelector(".kpis").hidden = view === "ix";                // portfolio figures don't belong on the index view
+  $("pfLabel").textContent = sel === "spx" ? "S&P 500 heatmap" : BOOKS[sel].label;
+  $("tab-pf").className = sel === "spx" ? "t-ix" : "t-" + sel;
+  $("tab-tr").className = "t-" + B;
+  document.querySelectorAll("#pfMenu [data-pfs]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.pfs === sel)));
+  $("tabsNav").style.borderBottomColor = view === "ix" ? "var(--ix)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
   render();
+  if(view === "ix") loadIndex();
+}
+function pfMenu(open){ $("pfMenu").hidden = !open; $("tab-pf").setAttribute("aria-expanded", String(open)); }
+function pickPf(v){
+  pfMenu(false);
+  if(v === "spx") UI.pfsel = "spx"; else { UI.pfsel = v; UI.book = v; }
+  showTab("pf");
 }
 
 /* ============================== settings ============================== */
@@ -2504,6 +2856,20 @@ function init(){
     setBenches(c.checked ? [...cur, sym] : cur.filter(x => x !== sym), (c.checked ? "Show " : "Hide ") + "benchmark " + sym); });
   $("benchList").addEventListener("click", e => { const x = e.target.closest("[data-bdel]"); if(x){ e.preventDefault(); removeCustomBench(x.dataset.bdel); } });
   autocomplete($("benchAdd"), $("benchAddSug"), addCustomBench);
+  // S&P 500 heatmap controls
+  const segBind = (id, attr, key, after) => $(id).querySelectorAll("button").forEach(b => b.onclick = () => { UI[key] = attr === "g" ? b.dataset.g === "1" : b.dataset[attr]; ls.set(LS_UI, UI); after(); });
+  segBind("ixWSeg", "w", "ixw", renderIndex); segBind("ixPSeg", "p", "ixp", renderIndex); segBind("ixRSeg", "r", "ixr", drawIxChart); segBind("ixgSeg", "g", "ixgroup", () => renderIxTable(IXM));
+  const hm = $("hmap");
+  hm.addEventListener("mousemove", ixTip); hm.addEventListener("mouseleave", () => $("hmTip").hidden = true);
+  hm.addEventListener("click", e => { const t = e.target.closest(".ht"); if(t){ $("hmTip").hidden = true; openStock(t.dataset.sym); } });
+  $("ixBody").addEventListener("click", e => {
+    const g = e.target.closest("[data-ixgrp]"); if(g){ UI.iopen = UI.iopen || {}; UI.iopen[g.dataset.ixgrp] = !UI.iopen[g.dataset.ixgrp]; ls.set(LS_UI, UI); renderIxTable(IXM); return; }
+    const w = e.target.closest("[data-ixwatch]"); if(w){ const q = IQ[w.dataset.ixwatch] || {}; addWatch({ sym: w.dataset.ixwatch, description: q.description || "", isin: q.isin || "" }).then(() => renderIxTable(IXM)); return; }
+    stockClick(e);
+  });
+  $("ixFind").addEventListener("input", () => IXM && renderIxTable(IXM));
+  const ic = $("ixChart"); ic.addEventListener("mousemove", ixChartHover); ic.addEventListener("touchmove", ixChartHover, { passive:true }); ic.addEventListener("touchstart", ixChartHover, { passive:true }); ic.addEventListener("mouseleave", () => $("ixTip").hidden = true);
+  let rsz = 0; window.addEventListener("resize", () => { clearTimeout(rsz); rsz = setTimeout(() => { if(!$("view-ix").hidden) renderIndex(); }, 150); });
   document.querySelectorAll("#modeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.mm === retMode())); b.onclick = () => { UI.ret = b.dataset.mm; ls.set(LS_UI, UI); document.querySelectorAll("#modeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
@@ -2592,7 +2958,16 @@ function init(){
     const r = e.target.closest("[data-wdel]"); if(r) removeWatch(r.dataset.wdel);
   });
   autocomplete($("wInput"), $("wSug"), addWatch);
-  document.querySelectorAll(".tabs [data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  document.querySelectorAll(".tabs [data-tab]").forEach(b => b.onclick = e => {
+    if(b.dataset.tab === "pf"){                                        // first tab: a tap switches to it, a second tap (or the ▾) opens the menu
+      e.stopPropagation();
+      if(UI.tab === "pf" || e.target.closest(".caret")){ if(UI.tab !== "pf") showTab("pf"); pfMenu($("pfMenu").hidden); return; }
+    }
+    pfMenu(false); showTab(b.dataset.tab);
+  });
+  $("pfMenu").addEventListener("click", e => { const b = e.target.closest("[data-pfs]"); if(b){ e.stopPropagation(); pickPf(b.dataset.pfs); } });
+  document.addEventListener("click", e => { if(!$("pfMenu").hidden && !e.target.closest("#pfMenu")) pfMenu(false); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") pfMenu(false); });
   // double-click (or double-tap) a column title to rank
   let lastTap = { k: "", t: 0 };
   document.querySelectorAll("thead[data-tbl]").forEach(h => h.addEventListener("click", e => {
@@ -2668,7 +3043,7 @@ function init(){
   cb.addEventListener("mouseleave", () => $("tip").hidden = true);
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
-  showTab(UI.tab || "real");
+  showTab(UI.tab || "pf");
   refresh(); schedule();
   setupPwa();
 }
