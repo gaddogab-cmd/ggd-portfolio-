@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: terminal-style stack. KPI strip, chart + sector panel side by side, full-width positions grid. */
-:root{--ix:#2dd4bf;
+:root{--ix:#2dd4bf;--btc:#f7931a;
   --bg:#000;
   --panel:#07090c;
   --line:#23272e;
@@ -99,6 +99,23 @@ canvas{display:block;width:100%;height:100%}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--gray-hi);padding:0 10px 8px;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
 .legend .lnote{color:var(--gray);font-size:11px}
+/* Bitcoin */
+.tabs button.t-bt{border-top:2px solid var(--btc);color:var(--btc)}
+.tabs button.t-bt[aria-selected="true"]{background:var(--btc);border-color:var(--btc);color:#000}
+.btch{flex-wrap:wrap;gap:8px}.btch > div:first-child{margin-right:auto}
+.btbox{height:460px}
+#view-bt .panel + .panel,#view-bt .row2,#view-bt .btabout{margin-top:14px}
+.bt2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.bt2 > .panel{margin-top:0!important}
+table.wtbl.bttbl{min-width:0;width:100%}
+table.wtbl.bttbl td,table.wtbl.bttbl th{white-space:nowrap}
+@media (max-width:900px){.bt2{grid-template-columns:minmax(0,1fr)}.btbox{height:360px}}
+.bttbl{min-width:0;width:100%}
+.btnote{padding:8px 12px 12px;font-size:12.5px;color:var(--gray-hi);line-height:1.5}
+.btnote b{color:var(--fg)}
+.zb{display:inline-block;padding:1px 7px;font:700 11.5px var(--ui);color:#000;border-radius:2px;white-space:nowrap}
+.zb.z0{background:#16a34a;color:#fff}.zb.z1{background:#4ade80}.zb.z2{background:#6b7280;color:#fff}.zb.z3{background:#f87171}.zb.z4{background:#dc2626;color:#fff}
+tr.zon td{background:#101a26!important}
 /* S&P 500 heatmap */
 .ixh{flex-wrap:wrap;gap:8px}
 .ixh > div:first-child{margin-right:auto}
@@ -426,6 +443,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <button type="button" role="tab" class="t-real" id="tab-pf" data-tab="pf" aria-selected="true" aria-haspopup="menu" aria-expanded="false" aria-controls="pfMenu"><span id="pfLabel">Real Portfolio</span> <span class="caret" aria-hidden="true">▾</span></button>
     <button type="button" role="tab" class="t-real" id="tab-tr" data-tab="tr" aria-selected="false">Trades <span id="trCount"></span></button>
     <button type="button" role="tab" class="t-wl" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
+    <button type="button" role="tab" class="t-bt" id="tab-bt" data-tab="bt" aria-selected="false">₿ Bitcoin</button>
   </nav>
   <div class="pfmenu" id="pfMenu" role="menu" hidden>
     <div class="mh">Portfolios</div>
@@ -532,6 +550,36 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
         <tbody id="ixBody"></tbody>
       </table>
     </div>
+  </section>
+  </div>
+
+  <div class="view" id="view-bt" role="tabpanel" hidden>
+  <section class="panel" aria-label="Bitcoin">
+    <div class="ph btch">
+      <div><h2>Bitcoin</h2><div class="sub" id="btSub">Live price: TradingView · model: Naive–Power Law blend (Baquero &amp; Tinoco, 2026)</div></div>
+      <div class="seg" id="btRSeg"><button type="button" data-r="1Y" aria-pressed="false">1Y</button><button type="button" data-r="4Y" aria-pressed="true">4Y</button><button type="button" data-r="ALL" aria-pressed="false">All</button></div>
+    </div>
+    <div class="ixk" id="btKpis"></div>
+    <div class="chartbox btbox"><canvas id="btChart"></canvas><div class="tip" id="btTip" hidden></div><div class="overlay" id="btMsg" hidden></div></div>
+    <div class="legend" id="btLegend"></div>
+  </section>
+
+  <div class="row2 bt2">
+  <section class="panel" aria-label="Model forecast">
+    <div class="ph"><div><h2>Model forecast</h2><div class="sub">NvPL: today's price blended into the power-law trend as the horizon grows</div></div></div>
+    <div class="tblwrap"><table class="wtbl bttbl"><thead><tr><th class="l">Horizon</th><th>Forecast</th><th>vs now</th><th>80% of past outcomes</th><th>Trend weight</th></tr></thead><tbody id="btFc"></tbody></table></div>
+    <div class="btnote" id="btFcNote"></div>
+  </section>
+  <section class="panel" aria-label="Buy and sell zones">
+    <div class="ph"><div><h2>Buy / sell zones</h2><div class="sub" id="btZSub"></div></div></div>
+    <div class="tblwrap"><table class="wtbl bttbl"><thead><tr><th class="l">Zone</th><th>Price today</th><th>Days</th><th>Next 12 months: avg</th><th>median</th><th>% up</th><th>worst</th></tr></thead><tbody id="btZones"></tbody></table></div>
+    <div class="btnote" id="btStrat"></div>
+  </section>
+  </div>
+
+  <section class="panel btabout" aria-label="About the model">
+    <div class="ph"><h2>About the model</h2></div>
+    <div class="btnote" id="btAbout"></div>
   </section>
   </div>
 
@@ -760,7 +808,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.02.29";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.02.30";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1179,6 +1227,7 @@ function render(){
   paintSortHeads();
   drawChart();
   renderIndex();
+  renderBtc();
 }
 
 /* ============================== rendering: table ============================== */
@@ -1817,6 +1866,7 @@ async function refresh(){
     loadNews();
     loadHist();
     if(UI.tab === "pf" && pfSel() === "spx") loadIndex(true);
+    if(UI.tab === "bt") loadBtc();
   }catch(e){
     setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
     render();
@@ -2759,10 +2809,217 @@ function ixChartHover(ev){
   tip.hidden = false; tip.style.left = Math.min(Math.max(4, X(i) + 10), r.width - tip.offsetWidth - 4) + "px"; tip.style.top = "10px";
 }
 
+
+/* ============================== Bitcoin: live price + Naive–Power Law blend (NvPL) ============================== */
+// Model: Baquero & Tinoco, "The Naive–Power Law Blend as a Robust Baseline for Bitcoin Price Forecasting", Zenodo 2026,
+// DOI 10.5281/zenodo.20937229. Same maths as the authors' replication code (eval_common.py, predict_nvpl, NVPL_FIXED_240):
+//   trend:    log10 p = a·log10(day + 240) + b, a and b by least squares on days >= 365 up to today
+//   forecast: log10 p̂(t+Δt) = (1 − w)·log10 p(t) + w·trend(t+Δt),  w = 1 / (1 + e^(−0.015·(Δt − 9·30.44)))
+//   day 1 = 18 Aug 2010, the first positive daily price of Blockchain.com's market-price series (the paper's data source)
+const NVPL = { s: 240, c: 9 * 30.44, alpha: 0.015, start: 365, d0: Date.UTC(2010, 7, 18) };
+const nvplW = dt => 1 / (1 + Math.exp(-NVPL.alpha * (dt - NVPL.c)));
+const BTC_SYM = "CRYPTO:BTCUSD", BTC_EUR = "BITSTAMP:BTCEUR", LS_BTC = "ggd.btc.v1";
+const ZONES = [["Strong buy", "z0"], ["Buy", "z1"], ["Hold", "z2"], ["Sell", "z3"], ["Strong sell", "z4"]];
+const ZONE_COL = ["#16a34a", "#4ade80", "#4b5563", "#f87171", "#dc2626"];
+let BTCH = null, btcAt = 0, BQ = {}, bqAt = 0, BTM = null, btBusy = false;
+async function loadBtc(force){
+  if(btBusy) return; btBusy = true;
+  try{
+    if(!BTCH){ try{ const c = JSON.parse(localStorage.getItem(LS_BTC) || "null"); if(c && c.p && c.p.length > 4000){ BTCH = c; btcAt = c.at || 0; } }catch(e){} }
+    if(force || !BTCH || Date.now() - btcAt > 6 * 3600e3){
+      const r = await fetch("https://api.blockchain.info/charts/market-price?timespan=all&format=json&sampled=false&cors=true", { cache: "no-store" });
+      if(r.ok){
+        const v = ((await r.json()).values || []).filter(x => x.y > 0);
+        const i0 = v.findIndex(x => Math.round((x.x * 1000 - NVPL.d0) / 864e5) >= 0);
+        if(v.length > 4000 && i0 >= 0){
+          // daily series indexed by day number (1 = 18 Aug 2010); gaps keep the previous price
+          const last = Math.round((v[v.length-1].x * 1000 - NVPL.d0) / 864e5) + 1, p = new Array(last).fill(null);
+          v.forEach(x => { const d = Math.round((x.x * 1000 - NVPL.d0) / 864e5) + 1; if(d >= 1) p[d-1] = +x.y.toPrecision(7); });
+          for(let i = 1; i < p.length; i++) if(p[i] == null) p[i] = p[i-1];
+          BTCH = { at: Date.now(), p }; btcAt = Date.now();
+          try{ localStorage.setItem(LS_BTC, JSON.stringify(BTCH)); }catch(e){}
+        }
+      }
+    }
+    if(force || Date.now() - bqAt > Math.max(15, (DB.refresh || 60) / 2) * 1000){ const q = await scan([BTC_SYM, BTC_EUR]); if(q[BTC_SYM]){ BQ = q; bqAt = Date.now(); } }
+  }catch(e){}
+  btBusy = false;
+  if(!$("view-bt").hidden) renderBtc();
+}
+function btcModel(){
+  if(!BTCH || !BTCH.p) return null;
+  const q = BQ[BTC_SYM] || {}, P = BTCH.p.slice();
+  const today = Math.floor((Date.now() - NVPL.d0) / 864e5) + 1;                 // today's day number (UTC calendar)
+  const live = isNum(q.close) && q.close > 0;
+  if(live){ while(P.length < today - 1) P.push(P[P.length-1]); P[today-1] = q.close; } // the days the history has not published yet keep the last close; today = live price
+  const n = P.length, lp = P.map(v => Math.log10(v)), X = new Float64Array(n);
+  for(let i = 0; i < n; i++) X[i] = Math.log10(i + 1 + NVPL.s);
+  // point-in-time least-squares fit at every day (only data up to that day), by running sums
+  const A = new Float64Array(n).fill(NaN), B = new Float64Array(n).fill(NaN), R = new Float64Array(n).fill(NaN);
+  let k = 0, sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for(let i = 0; i < n; i++){
+    if(i + 1 >= NVPL.start){ k++; sx += X[i]; sy += lp[i]; sxx += X[i]*X[i]; sxy += X[i]*lp[i]; }
+    if(k > 30){ const a = (k*sxy - sx*sy) / (k*sxx - sx*sx); A[i] = a; B[i] = (sy - a*sx) / k; R[i] = lp[i] - (A[i]*X[i] + B[i]); }
+  }
+  const ts = i => NVPL.d0 + i * 864e5, dayIdx = ms => Math.round((ms - NVPL.d0) / 864e5);
+  const i2012 = dayIdx(Date.UTC(2012, 0, 1)), i2013 = dayIdx(Date.UTC(2013, 0, 1)), i2016 = dayIdx(Date.UTC(2016, 0, 1));
+  // zones: where today's distance from the trend ranks among all earlier days since 2012 (point in time, no hindsight)
+  // < 10th percentile Strong buy · 10–30th Buy · 30–70th Hold · 70–90th Sell · > 90th Strong sell
+  const zone = new Int8Array(n).fill(-1), rank = new Float64Array(n).fill(NaN), sorted = [];
+  const qv = f => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(f * (sorted.length - 1))))];
+  const ins = v => { let lo = 0, hi = sorted.length; while(lo < hi){ const m = (lo + hi) >> 1; if(sorted[m] < v) lo = m + 1; else hi = m; } sorted.splice(lo, 0, v); };
+  let thr = null;
+  for(let i = i2012; i < n; i++){
+    if(i >= i2013 && sorted.length){
+      let lo = 0, hi = sorted.length; while(lo < hi){ const m = (lo + hi) >> 1; if(sorted[m] < R[i]) lo = m + 1; else hi = m; }
+      rank[i] = lo / sorted.length;
+      zone[i] = rank[i] < .1 ? 0 : rank[i] < .3 ? 1 : rank[i] < .7 ? 2 : rank[i] < .9 ? 3 : 4;
+      if(i === n - 1) thr = [.1, .3, .7, .9].map(qv);
+    }
+    if(i < n - 1 && isNum(R[i])) ins(R[i]);
+  }
+  const now = n - 1, fit = { a: A[now], b: B[now] }, trend = d => fit.a * Math.log10(d + NVPL.s) + fit.b;
+  const fc = dt => { const w = nvplW(dt); return (1 - w) * lp[now] + w * trend(now + 1 + dt); };
+  // how far past forecasts landed from the outcome (point in time, origins weekly since 2014): 10th–90th percentile per horizon
+  const HZ = []; for(let h = 30; h <= 1095; h += 30) HZ.push(h); [91, 182, 365, 730].forEach(h => HZ.includes(h) || HZ.push(h)); HZ.sort((a,b) => a - b);
+  const err = {}; HZ.forEach(h => err[h] = []);
+  for(let i = dayIdx(Date.UTC(2014, 0, 1)); i < n; i += 7){
+    if(!isNum(A[i])) continue;
+    for(const h of HZ){ const j = i + h; if(j >= n - (live ? 1 : 0)) break; const w = nvplW(h); err[h].push(lp[j] - ((1 - w) * lp[i] + w * (A[i] * Math.log10(j + 1 + NVPL.s) + B[i]))); }
+  }
+  const band = {}; HZ.forEach(h => { const e = err[h].sort((a,b) => a - b); band[h] = e.length > 20 ? [e[Math.floor(.1 * (e.length - 1))], e[Math.floor(.9 * (e.length - 1))], e.length] : null; });
+  // uncertainty never shrinks with the horizon (long horizons have fewer past outcomes): keep the widest range seen so far
+  let wl = 0, wh = 0; HZ.forEach(h => { if(!band[h]) return; wl = Math.min(wl, band[h][0]); wh = Math.max(wh, band[h][1]); band[h] = [wl, wh, band[h][2]]; });
+  const bandAt = dt => { if(dt <= 0) return [0, 0]; let lo = HZ[0], hi = HZ[HZ.length-1]; for(const h of HZ){ if(h <= dt && band[h]) lo = h; if(h >= dt && band[h]){ hi = h; break; } }
+    if(!band[lo] && !band[hi]) return null; if(dt <= lo || !band[hi]) return band[lo].slice(0, 2).map(v => v * Math.min(1, dt / lo)); const f = (dt - lo) / ((hi - lo) || 1); return [0, 1].map(j => band[lo][j] + (band[hi][j] - band[lo][j]) * f); };
+  // what happened next in each zone (2016 → a year ago) and simple strategies
+  const zst = ZONES.map(() => ({ f: [], ep: 0 })); let prevZ = -1;
+  for(let i = i2016; i < n; i++){
+    const z = zone[i]; if(z < 0) continue;
+    if(z !== prevZ) zst[z].ep++; prevZ = z;
+    if(i + 365 < n - (live ? 1 : 0)) zst[z].f.push(P[i + 365] / P[i] - 1);
+  }
+  const stat = a => { if(!a.length) return null; const s = a.slice().sort((x,y) => x - y); return { n: a.length, avg: a.reduce((x,y) => x + y, 0) / a.length, med: s[Math.floor((s.length - 1) / 2)], up: a.filter(v => v > 0).length / a.length, worst: s[0] }; };
+  let eqH = 1, eqZ = 1, pkH = 1, pkZ = 1, ddH = 0, ddZ = 0, inv = 1;
+  for(let i = i2016; i < n - 1; i++){
+    if(zone[i] >= 0) inv = zone[i] >= 3 ? 0 : 1;                                   // out of bitcoin in Sell / Strong sell, back in at Hold or better
+    const r = P[i+1] / P[i];
+    eqH *= r; pkH = Math.max(pkH, eqH); ddH = Math.min(ddH, eqH / pkH - 1);
+    eqZ *= inv ? r : 1; pkZ = Math.max(pkZ, eqZ); ddZ = Math.min(ddZ, eqZ / pkZ - 1);
+  }
+  const MULT = [2, 1.5, 1, .5, 0]; let cP = 0, bP = 0, cZ = 0, bZ = 0;
+  for(let y = 2016; ; y++){ let stop = false; for(let m = 0; m < 12; m++){ const i = dayIdx(Date.UTC(y, m, 1)); if(i >= n){ stop = true; break; } if(zone[i] < 0) continue;
+    cP += 100; bP += 100 / P[i]; cZ += 100 * MULT[zone[i]]; bZ += 100 * MULT[zone[i]] / P[i]; } if(stop) break; }
+  const yrs = (n - 1 - i2016) / 365.25;
+  return { P, lp, n, now, ts, live, q, fit, trend, fc, bandAt, band, HZ, R, zone, rank, thr, zst: zst.map((z, i) => ({ ...stat(z.f), ep: z.ep })), A, B,
+    strat: { hold: { x: eqH, cagr: eqH ** (1 / yrs) - 1, dd: ddH }, zone: { x: eqZ, cagr: eqZ ** (1 / yrs) - 1, dd: ddZ }, dca: { cash: cP, x: bP * P[n-1] / cP }, zdca: { cash: cZ, x: bZ * P[n-1] / cZ } } };
+}
+const fUsd = v => !isNum(v) ? "–" : v >= 1e6 ? "$" + fN(v / 1e6, 2) + "M" : "$" + fN(v, v >= 1000 ? 0 : 2);
+function renderBtc(){
+  if($("view-bt").hidden) return;
+  const M = BTM = btcModel();
+  document.querySelectorAll("#btRSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === (UI.btr || "4Y"))));
+  if(!M){ $("btMsg").hidden = false; $("btMsg").textContent = "Loading Bitcoin's daily history (Blockchain.com)…"; $("btKpis").innerHTML = ""; return; }
+  $("btMsg").hidden = true;
+  const { q, now, P, R, zone, rank, thr, trend } = M, px = P[now], tr = 10 ** trend(now + 1), dev = px / tr - 1, z = zone[now];
+  const eur = (BQ[BTC_EUR] || {}).close, upd = isNum(q.close) ? "live" : "last close";
+  const f12 = 10 ** M.fc(365) / px - 1;
+  $("btSub").innerHTML = `Live price: TradingView ${esc(BTC_SYM)} (${upd}) · history: Blockchain.com daily, same series as the paper · model: <a href="https://doi.org/10.5281/zenodo.20937229" target="_blank" rel="noopener">Naive–Power Law blend (Baquero &amp; Tinoco, 2026)</a>`;
+  $("btKpis").innerHTML = `
+    <div><div class="l1">Bitcoin · ${upd}</div><div class="v">${fUsd(px)}</div><div class="s">${isNum(q.change) ? pct(q.change) + " today" : ""}${isNum(eur) ? " · €" + fN(eur, 0) : ""}</div></div>
+    <div><div class="l1">Power-law trend today</div><div class="v">${fUsd(tr)}</div><div class="s">price is <span class="${cls(dev)}">${fSigned(dev * 100, 1, "%")}</span> vs trend</div></div>
+    <div class="on"><div class="l1">Model zone</div><div class="v">${z >= 0 ? `<span class="zb ${ZONES[z][1]}">${ZONES[z][0]}</span>` : "–"}</div><div class="s">${isNum(rank[now]) ? `cheaper than ${fN((1 - rank[now]) * 100, 0)}% of days since 2012` : ""}</div></div>
+    <div><div class="l1">Model forecast · 12 months</div><div class="v">${fUsd(10 ** M.fc(365))}</div><div class="s"><span class="${cls(f12)}">${fSigned(f12 * 100, 1, "%")}</span> · 1 month ${fUsd(10 ** M.fc(30))}</div></div>`;
+  // forecast table
+  const H = [[30, "1 month"], [91, "3 months"], [182, "6 months"], [365, "12 months"], [730, "2 years"], [1095, "3 years"]];
+  $("btFc").innerHTML = H.map(([h, l]) => { const v = 10 ** M.fc(h), b = M.bandAt(h); return `<tr><td class="l">${l} <span class="muted">${new Date(Date.now() + h * 864e5).toLocaleDateString("en-GB",{ month:"short", year:"numeric" })}</span></td>
+    <td>${fUsd(v)}</td><td>${pct((v / px - 1) * 100)}</td><td>${b ? fUsd(v * 10 ** b[0]) + " – " + fUsd(v * 10 ** b[1]) : "–"}</td><td>${fN(nvplW(h) * 100, 0)}%</td></tr>`; }).join("");
+  $("btFcNote").innerHTML = `<b>How to read it:</b> up to ~6 months the model says "about today's price" (the trend weight is small), because short-term moves are mostly noise. Beyond ~9 months it moves to the power-law trend. The 80% range is how far the model's own past forecasts landed from reality (checked at every week since 2014, using only data known at the time).`;
+  // zones
+  const zp = thr ? thr.map(r => 10 ** (trend(now + 1) + r)) : null;
+  const rng = i => !zp ? "–" : i === 0 ? "below " + fUsd(zp[0]) : i === 4 ? "above " + fUsd(zp[3]) : fUsd(zp[i-1]) + " – " + fUsd(zp[i]);
+  $("btZSub").textContent = "Price vs trend, ranked against every day since 2012 (point in time) · outcomes 2016 → a year ago";
+  $("btZones").innerHTML = ZONES.map(([n, c], i) => { const s = M.zst[i] || {}; return `<tr class="${i === z ? "zon" : ""}"><td class="l"><span class="zb ${c}">${n}</span>${i === z ? ' <span class="muted">← now</span>' : ""}</td><td>${rng(i)}</td>
+    <td title="${s.ep || 0} separate periods">${s.n ? fN(s.n, 0) : "–"}</td><td>${s.n ? pct(s.avg * 100, 0) : "–"}</td><td>${s.n ? pct(s.med * 100, 0) : "–"}</td><td>${s.n ? fN(s.up * 100, 0) + "%" : "–"}</td><td>${s.n ? pct(s.worst * 100, 0) : "–"}</td></tr>`; }).join("");
+  const S = M.strat, x = v => "×" + fN(v, v >= 10 ? 0 : 1);
+  $("btStrat").innerHTML = `<b>Backtest since 2016</b> (no hindsight in zones, no fees or taxes):<br>
+    · Hold all along: ${x(S.hold.x)} (${pct(S.hold.cagr * 100, 1)}/yr, worst drop ${pct(S.hold.dd * 100, 0)})<br>
+    · Sell in Sell zones, buy back at Hold or better: ${x(S.zone.x)} (${pct(S.zone.cagr * 100, 1)}/yr, worst drop ${pct(S.zone.dd * 100, 0)})<br>
+    · Monthly buying, same amount: ×${fN(S.dca.x, 2)} on the money put in · zone-weighted (2× Strong buy, 1.5× Buy, 1× Hold, ½× Sell, 0 Strong sell): <b>×${fN(S.zdca.x, 2)}</b><br>
+    <span class="muted">Selling in Sell zones avoided part of the crashes but missed big rallies. Buying more when cheap did better than plain monthly buying.</span>`;
+  $("btAbout").innerHTML = `<b>The model.</b> Bitcoin's price has followed a power law in time (log price rising linearly with log days since 2010). At short horizons today's price is the best guess. The Naive–Power Law blend (NvPL) mixes the two with a sigmoid: weight on the trend ${fN(nvplW(30)*100,0)}% at 1 month, ${fN(nvplW(182)*100,0)}% at 6, ${fN(nvplW(365)*100,0)}% at 12, ${fN(nvplW(730)*100,0)}% at 24. Parameters as published: shift 240 days, centre 9 months, steepness 0.015; trend refitted on all data up to today (now a = ${fN(M.fit.a, 3)}, b = ${fN(M.fit.b, 3)}). Implemented with the same maths as the authors' replication code (Zenodo 10.5281/zenodo.22677944) and checked against it.<br>
+    <b>What the paper found.</b> Tested on five 2-year periods (2016–2026), NvPL beat "price stays the same" at 1–3 months and no more complex model (machine learning, momentum, mean reversion, 18 Bayesian models) reliably beat it. It also found that no model predicted the <i>direction</i> better than "always up" once overlapping forecasts are accounted for.<br>
+    <b>The zones are not from the paper.</b> They are this app's reading of the model: how far the price is from the trend, compared with history. Over 2016–2025 they sorted the next 12 months well, but that is about 4 market cycles, the overlapping years are not independent, and the paper's three structural parameters were chosen on the full history. Use them as a valuation gauge, not as a guarantee. Not financial advice.`;
+  drawBtcChart();
+}
+// log-price chart: history, point-in-time zone strip, power-law trend, NvPL forecast with its 80% range
+let btGeom = null;
+function drawBtcChart(){
+  const M = BTM, cv = $("btChart"); btGeom = null; if(!M) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement), C = n => css.getPropertyValue(n).trim();
+  const R = UI.btr || "4Y", now = M.now, fut = R === "1Y" ? 365 : 1095;
+  const i0 = R === "1Y" ? now - 365 : R === "4Y" ? now - 4 * 365 : 365, i1 = now + fut;
+  const padL = 8, padR = 62, padT = 10, padB = 30, stripH = 6;
+  const pts = [], fcp = [];
+  for(let i = Math.max(0, i0); i <= now; i++) pts.push([i, M.lp[i]]);
+  for(let d = 0; d <= fut; d += fut > 400 ? 7 : 2){ const b = M.bandAt(d) || [0, 0], v = M.fc(d); fcp.push([now + d, v, v + b[0], v + b[1]]); }
+  const trp = []; for(let k = 0; k <= 160; k++){ const i = i0 + (i1 - i0) * k / 160; trp.push([i, M.trend(i + 1)]); }
+  const all = [...pts.map(p => p[1]), ...fcp.flatMap(p => [p[2], p[3]]), ...trp.map(p => p[1])].filter(isNum);
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .04; lo -= pad; hi += pad;
+  const x = i => padL + (i - i0) / (i1 - i0) * (W - padL - padR), y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB - stripH - 4);
+  // y grid: 1, 2, 5 × 10^k
+  g.font = `11px ${C("--num")}`; g.textBaseline = "middle"; g.textAlign = "left";
+  const span = hi - lo, steps = span > 2.2 ? [1] : span > .9 ? [1, 2, 5] : [1, 1.5, 2, 3, 5, 7];
+  for(let e = Math.floor(lo); e <= Math.ceil(hi); e++) for(const m of steps){ const v = Math.log10(m) + e; if(v < lo || v > hi) continue;
+    const yy = Math.round(y(v)) + .5; g.strokeStyle = C("--grid"); g.lineWidth = 1; g.beginPath(); g.moveTo(padL, yy); g.lineTo(W - padR, yy); g.stroke();
+    g.fillStyle = C("--gray"); g.fillText(fUsd(10 ** v), W - padR + 6, yy); }
+  // x labels: years (long views) or months (1Y)
+  g.textBaseline = "alphabetic"; g.textAlign = "center"; let lastX = -99;
+  const t0 = M.ts(i0), t1 = M.ts(i1), d = new Date(t0); d.setUTCDate(1); d.setUTCHours(0,0,0,0);
+  for(; d.getTime() <= t1; d.setUTCMonth(d.getUTCMonth() + 1)){
+    if(R !== "1Y" && d.getUTCMonth() !== 0) continue; if(R === "1Y" && d.getUTCMonth() % 2) continue;
+    const i = Math.round((d.getTime() - NVPL.d0) / 864e5), xx = x(i); if(xx < padL + 12 || xx > W - padR - 12 || xx - lastX < 38) continue;
+    g.fillStyle = C("--gray"); g.fillText(R === "1Y" ? d.toLocaleDateString("en-GB",{ month:"short", year:"2-digit", timeZone:"UTC" }) : String(d.getUTCFullYear()), xx, H - 6); lastX = xx;
+    g.strokeStyle = "#151a21"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke();
+  }
+  // zone strip (point in time)
+  const sy = H - padB - stripH;
+  for(let i = Math.max(0, i0); i <= now; i++){ const z = M.zone[i]; if(z < 0) continue; g.fillStyle = ZONE_COL[z]; g.fillRect(x(i), sy, Math.max(1, x(i + 1) - x(i) + .5), stripH); }
+  // today line
+  g.strokeStyle = "#3a3f48"; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x(now), padT); g.lineTo(x(now), sy - 2); g.stroke(); g.setLineDash([]);
+  // forecast band + path
+  g.fillStyle = "rgba(45,212,191,.13)"; g.beginPath(); fcp.forEach((p, k) => k ? g.lineTo(x(p[0]), y(p[3])) : g.moveTo(x(p[0]), y(p[3]))); [...fcp].reverse().forEach(p => g.lineTo(x(p[0]), y(p[2]))); g.closePath(); g.fill();
+  const path = (arr, col, w, dash) => { g.setLineDash(dash || []); g.strokeStyle = col; g.lineWidth = w; g.lineJoin = "round"; g.beginPath(); arr.forEach((p, k) => k ? g.lineTo(x(p[0]), y(p[1])) : g.moveTo(x(p[0]), y(p[1]))); g.stroke(); g.setLineDash([]); };
+  path(trp, "#2f8bff", 1.5, [6, 4]);
+  path(pts, C("--btc"), 1.6);
+  path(fcp, C("--ix"), 2);
+  g.fillStyle = C("--btc"); g.beginPath(); g.arc(x(now), y(M.lp[now]), 3.5, 0, Math.PI * 2); g.fill();
+  btGeom = { x, i0, i1, W, padL, padR };
+  $("btLegend").innerHTML = `<span><i style="background:var(--btc)"></i>Bitcoin (USD, log scale)</span><span><i style="background:#2f8bff"></i>Power-law trend</span><span><i style="background:var(--ix)"></i>Model forecast, shaded 80% range</span>`
+    + `<span class="lnote">Strip under the chart: zone each day had at the time · ${ZONES.map(([n], i) => `<span style="color:${ZONE_COL[i]}">■</span> ${n}`).join(" ")}</span>`;
+}
+function btHover(ev){
+  const tip = $("btTip"), M = BTM; if(!btGeom || !M){ tip.hidden = true; return; }
+  const r = $("btChart").getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left, { i0, i1, W, padL, padR } = btGeom;
+  const i = Math.round(i0 + (px - padL) / (W - padL - padR) * (i1 - i0)); if(i < Math.max(0, i0) || i > i1){ tip.hidden = true; return; }
+  const dte = new Date(M.ts(i)).toLocaleDateString("en-GB",{ day:"numeric", month:"short", year:"numeric", timeZone:"UTC" }), tr = 10 ** M.trend(i + 1);
+  if(i <= M.now){
+    const p = M.P[i], z = M.zone[i];
+    tip.innerHTML = `${dte}<br><span style="color:var(--btc)">Bitcoin</span> ${fUsd(p)}<br><span style="color:#2f8bff">Trend (today's fit)</span> ${fUsd(tr)} · ${fSigned((p / tr - 1) * 100, 0, "%")}<br>${z >= 0 ? `Zone then: <span class="zb ${ZONES[z][1]}">${ZONES[z][0]}</span>` : ""}`;
+  } else {
+    const dt = i - M.now, v = 10 ** M.fc(dt), b = M.bandAt(dt) || [0, 0];
+    tip.innerHTML = `${dte} · in ${fN(dt / 30.44, 0)} months<br><span style="color:var(--ix)">Forecast</span> ${fUsd(v)} (${pct((v / M.P[M.now] - 1) * 100)})<br>80% range ${fUsd(v * 10 ** b[0])} – ${fUsd(v * 10 ** b[1])}<br><span style="color:#2f8bff">Trend</span> ${fUsd(tr)}`;
+  }
+  tip.hidden = false; tip.style.left = Math.min(Math.max(4, px + 12), r.width - tip.offsetWidth - 4) + "px"; tip.style.top = "10px";
+}
+
 /* ============================== tabs: 1) portfolios & index heatmaps (menu)  2) trades of the chosen portfolio  3) watchlist ============================== */
 function pfSel(){ return UI.pfsel === "spx" ? "spx" : (BOOKS[UI.book] ? UI.book : "real"); }
 function setBook(b){ b = BOOKS[b] ? b : "real"; UI.book = b; if(UI.pfsel !== "spx" || (TABS[UI.tab] || {}).view !== "pf") UI.pfsel = b; showTab(UI.tab); }
-const TABS = { pf:{ view:"pf" }, tr:{ view:"tr" }, wl:{ view:"wl" } };
+const TABS = { pf:{ view:"pf" }, tr:{ view:"tr" }, wl:{ view:"wl" }, bt:{ view:"bt" } };
 function showTab(t){
   // names used by older versions: real / sim / lollo / trreal / trsim / trlollo
   if(BOOKS[t]){ UI.book = t; UI.pfsel = t; t = "pf"; }
@@ -2772,15 +3029,16 @@ function showTab(t){
   const sel = pfSel(), B = BOOKS[UI.book] ? UI.book : "real";
   const view = t === "pf" ? (sel === "spx" ? "ix" : "pf") : t;
   document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
-  ["pf","ix","wl","tr"].forEach(k => $("view-" + k).hidden = k !== view);
-  document.querySelector(".kpis").hidden = view === "ix";                // portfolio figures don't belong on the index view
+  ["pf","ix","wl","tr","bt"].forEach(k => $("view-" + k).hidden = k !== view);
+  document.querySelector(".kpis").hidden = view === "ix" || view === "bt";                // portfolio figures don't belong on the index view
   $("pfLabel").textContent = sel === "spx" ? "S&P 500 heatmap" : BOOKS[sel].label;
   $("tab-pf").className = sel === "spx" ? "t-ix" : "t-" + sel;
   $("tab-tr").className = "t-" + B;
   document.querySelectorAll("#pfMenu [data-pfs]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.pfs === sel)));
-  $("tabsNav").style.borderBottomColor = view === "ix" ? "var(--ix)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
+  $("tabsNav").style.borderBottomColor = view === "ix" ? "var(--ix)" : view === "bt" ? "var(--btc)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
   render();
   if(view === "ix") loadIndex();
+  if(view === "bt") loadBtc();
 }
 function pfMenu(open){ $("pfMenu").hidden = !open; $("tab-pf").setAttribute("aria-expanded", String(open)); }
 function pickPf(v){
@@ -2869,7 +3127,11 @@ function init(){
   });
   $("ixFind").addEventListener("input", () => IXM && renderIxTable(IXM));
   const ic = $("ixChart"); ic.addEventListener("mousemove", ixChartHover); ic.addEventListener("touchmove", ixChartHover, { passive:true }); ic.addEventListener("touchstart", ixChartHover, { passive:true }); ic.addEventListener("mouseleave", () => $("ixTip").hidden = true);
-  let rsz = 0; window.addEventListener("resize", () => { clearTimeout(rsz); rsz = setTimeout(() => { if(!$("view-ix").hidden) renderIndex(); }, 150); });
+  let rsz = 0; window.addEventListener("resize", () => { clearTimeout(rsz); rsz = setTimeout(() => { if(!$("view-ix").hidden) renderIndex(); if(!$("view-bt").hidden) drawBtcChart(); }, 150); });
+  // Bitcoin: range buttons, chart hover, faster live price while the tab is open
+  $("btRSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.btr = b.dataset.r; ls.set(LS_UI, UI); document.querySelectorAll("#btRSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawBtcChart(); });
+  const bc = $("btChart"); bc.addEventListener("mousemove", btHover); bc.addEventListener("touchmove", btHover, { passive:true }); bc.addEventListener("touchstart", btHover, { passive:true }); bc.addEventListener("mouseleave", () => $("btTip").hidden = true);
+  setInterval(() => { if(!document.hidden && UI.tab === "bt") loadBtc(); }, 15000);
   document.querySelectorAll("#modeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.mm === retMode())); b.onclick = () => { UI.ret = b.dataset.mm; ls.set(LS_UI, UI); document.querySelectorAll("#modeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   document.querySelectorAll("#sacSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.m === UI.sac)); b.onclick = () => { UI.sac = b.dataset.m; ls.set(LS_UI, UI); document.querySelectorAll("#sacSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
   $("addBtn").onclick = () => openPos(null);
