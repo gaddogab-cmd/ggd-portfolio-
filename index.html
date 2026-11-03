@@ -99,12 +99,24 @@ canvas{display:block;width:100%;height:100%}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--gray-hi);padding:0 10px 8px;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
 .legend .lnote{color:var(--gray);font-size:11px}
+/* Tools */
+.tabs button.t-tools{margin-left:auto;border-top:2px solid var(--gray-hi)}
+.tabs button.t-tools[aria-selected="true"]{background:var(--gray-hi);border-color:var(--gray-hi);color:#000}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.toolbar .tlab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+.sqh{flex-wrap:wrap;gap:8px}.sqh > div:first-child{margin-right:auto}
+.sqcrit{padding:6px 12px}
+.sqcrit .ck{border:1px solid #333842;padding:1px 6px;font:11px var(--num);color:var(--gray-hi)}
+table.wtbl.sqtbl{min-width:1250px}
+.pb{display:inline-block;min-width:54px;padding:1px 6px;font:700 12px var(--num);text-align:right}
+.pb.h3{background:#19e03a;color:#000}.pb.h2{background:#0d9f26;color:#fff}.pb.h1{background:#1d3b24;color:#c8ffc0}
+.lift{color:var(--gray);font-size:10.5px;margin-left:4px}
 /* Bitcoin */
 .tabs button.t-bt{border-top:2px solid var(--btc);color:var(--btc)}
 .tabs button.t-bt[aria-selected="true"]{background:var(--btc);border-color:var(--btc);color:#000}
 .btch{flex-wrap:wrap;gap:8px}.btch > div:first-child{margin-right:auto}
 .btbox{height:460px}
-#view-bt .panel + .panel,#view-bt .row2,#view-bt .btabout{margin-top:14px}
+#view-bt .panel + .panel,#view-bt .row2,#view-bt .btabout,#view-bt .btodds{margin-top:14px}
 .bt2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
 .bt2 > .panel{margin-top:0!important}
 table.wtbl.bttbl{min-width:0;width:100%}
@@ -446,14 +458,13 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
     <button type="button" role="tab" class="t-real" id="tab-tr" data-tab="tr" aria-selected="false">Trades <span id="trCount"></span></button>
     <button type="button" role="tab" class="t-wl" id="tab-wl" data-tab="wl" aria-selected="false">Watchlist <span id="wCount"></span></button>
     <button type="button" role="tab" class="t-bt" id="tab-bt" data-tab="bt" aria-selected="false">₿ Bitcoin</button>
+    <button type="button" role="tab" class="t-tools" id="tab-tools" data-tab="tools" aria-selected="false">Tools</button>
   </nav>
   <div class="pfmenu" id="pfMenu" role="menu" hidden>
     <div class="mh">Portfolios</div>
     <button type="button" role="menuitemradio" data-pfs="real"><i style="background:var(--orange)"></i>Real Portfolio</button>
     <button type="button" role="menuitemradio" data-pfs="sim"><i style="background:var(--blue)"></i>Simulated Portfolio</button>
     <button type="button" role="menuitemradio" data-pfs="lollo"><i style="background:var(--yellow)"></i>LOLLO</button>
-    <div class="mh">Index heatmaps</div>
-    <button type="button" role="menuitemradio" data-pfs="spx"><i style="background:var(--ix)"></i>S&amp;P 500</button>
   </div>
   </div>
 
@@ -515,6 +526,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
+  <div class="toolbar" id="toolsBar" hidden><span class="tlab">Tools</span><div class="seg" id="toolSeg"><button type="button" data-tool="sq" aria-pressed="true">Squeezer</button><button type="button" data-tool="ix" aria-pressed="false">S&amp;P 500 heatmap</button></div></div>
   <div class="view" id="view-ix" role="tabpanel" hidden>
   <section class="panel" aria-label="S&amp;P 500 heatmap">
     <div class="ph ixh">
@@ -579,9 +591,44 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
+  <section class="panel btodds" aria-label="Short-term odds">
+    <div class="ph btch"><div><h2>Short-term odds</h2><div class="sub">For shorter trades: from each zone, how often Bitcoin hit the target first, or the stop first (every day since 2016, zones as known at the time)</div></div>
+      <div class="seg" id="btHSeg" title="Time allowed"><button type="button" data-h="30" aria-pressed="true">1 month</button><button type="button" data-h="91" aria-pressed="false">3 months</button></div>
+      <div class="seg" id="btTSeg" title="Size of the move"><button type="button" data-t="20" aria-pressed="true">±20%</button><button type="button" data-t="30" aria-pressed="false">±30%</button></div>
+    </div>
+    <div class="tblwrap"><table class="wtbl bttbl"><thead><tr><th class="l">Zone</th><th>Days</th><th id="btOUp">+20% first</th><th id="btODn">−20% first</th><th>Neither</th><th>Up first ÷ down first</th></tr></thead><tbody id="btOdds"></tbody></table></div>
+    <div class="btnote" id="btOddsNote"></div>
+  </section>
+
   <section class="panel btabout" aria-label="About the model">
     <div class="ph"><h2>About the model</h2></div>
     <div class="btnote" id="btAbout"></div>
+  </section>
+  </div>
+
+  <div class="view" id="view-sq" role="tabpanel" hidden>
+  <section class="panel" aria-label="Squeezer">
+    <div class="ph sqh">
+      <div><h2>Squeezer · short-squeeze screen</h2><div class="sub" id="sqSub">Loading…</div></div>
+      <div class="wadd"><input id="sqFind" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Find ticker" aria-label="Find a ticker"></div>
+    </div>
+    <div class="ixk" id="sqKpis"></div>
+    <div class="legend2 sqcrit" id="sqCrit"></div>
+    <div class="tblwrap">
+      <table class="wtbl sqtbl">
+        <thead data-tbl="sq"><tr>
+          <th class="l stick" data-k="tk" data-t="1">Ticker</th><th class="l" data-k="nm" data-t="1">Name</th>
+          <th data-k="p" title="Chance of a +25% move within the next 20 trading days, from the model calibrated on 2024–2026">Breakout prob.</th>
+          <th data-k="last">Last</th><th data-k="day">Day %</th>
+          <th data-k="sif" title="Shares sold short ÷ free float (FINRA short interest)">Short % float</th><th data-k="dtc" title="Short interest ÷ average daily volume">Days to cover</th><th data-k="chg" title="Change in short interest since the previous FINRA report">SI change</th>
+          <th data-k="rs" title="Shares traded through the retail wholesalers (Citadel Securities, Virtu, HRT, Jane Street, G1, Two Sigma) in the latest complete FINRA week ÷ the stock's normal weekly volume (5 × average daily volume). Above 100% = retail traded more than the stock usually trades in total">Retail flow</th><th data-k="rt" title="Retail-wholesaler volume vs the previous 4 weeks">Retail trend</th>
+          <th data-k="cp" title="Near-term call volume ÷ put volume">Call / put</th><th data-k="ov" title="Near-term out-of-the-money call volume × 100 shares ÷ average daily share volume">OTM calls / volume</th><th data-k="og" title="Near-term out-of-the-money call open interest × 100 ÷ float">OTM call OI % float</th>
+          <th data-k="m20">1M</th><th data-k="rv" title="Today's volume ÷ 10-day average (live)">Rel. vol</th>
+        </tr></thead>
+        <tbody id="sqBody"></tbody>
+      </table>
+    </div>
+    <div class="btnote" id="sqNote"></div>
   </section>
   </div>
 
@@ -665,7 +712,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
-  <p class="foot gen">This is Claude's official financial advice - Anthropic</p>
+  <p class="foot gen">Claude generated - Not financial advice</p>
 
 
 </div>
@@ -810,7 +857,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.03.34";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.03.36";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1230,6 +1277,7 @@ function render(){
   drawChart();
   renderIndex();
   renderBtc();
+  renderSqueeze();
 }
 
 /* ============================== rendering: table ============================== */
@@ -1867,7 +1915,8 @@ async function refresh(){
     autoDividends();
     loadNews();
     loadHist();
-    if(UI.tab === "pf" && pfSel() === "spx") loadIndex(true);
+    if(UI.tab === "tools" && toolSel() === "ix") loadIndex(true);
+    if(UI.tab === "tools" && toolSel() === "sq") loadSqueeze();
     if(UI.tab === "bt") loadBtc();
   }catch(e){
     setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
@@ -2443,7 +2492,7 @@ function renderClocks(){
 function renderStock(){
   const sym = stkSym; if(!sym) return;
   $("stkEv").innerHTML = evCard(stkEv);
-  const q = Q[sym] || IQ[sym] || {}, ccy = normCcy(q.currency);
+  const q = Q[sym] || IQ[sym] || SQQ[sym] || {}, ccy = normCcy(q.currency);
   $("stkTitle").innerHTML = `${coFlag(q)}<span class="tk">${esc(tick(sym))}</span> · ${esc(q.description || sym)}`;
   const msQ = q.isin || q.description || tick(sym);
   $("stkTop").innerHTML = `<div><div class="stk-px">${fPx(q.close)} <small>${esc(ccy)}</small> &nbsp;${dayCell(q)}</div><div class="hint">${exFlag(q)}${esc(q.exchange || sym.split(":")[0])}${q.isin ? " · " + esc(q.isin) : ""}${q.sector ? " · " + esc(q.sector) : ""}</div></div>
@@ -2922,8 +2971,19 @@ function btcModel(){
   const MULT = [2, 1.5, 1, .5, 0]; let cP = 0, bP = 0, cZ = 0, bZ = 0;
   for(let y = 2016; ; y++){ let stop = false; for(let m = 0; m < 12; m++){ const i = dayIdx(Date.UTC(y, m, 1)); if(i >= n){ stop = true; break; } if(zone[i] < 0) continue;
     cP += 100; bP += 100 / P[i]; cZ += 100 * MULT[zone[i]]; bZ += 100 * MULT[zone[i]] / P[i]; } if(stop) break; }
+  // short-term odds: target +t or stop −t, whichever comes first within h days, from each zone (and all days)
+  const odds = {};
+  for(const h of [30, 91]) for(const t of [20, 30]){
+    const up = 1 + t / 100, dn = 1 - t / 100, acc = Array.from({ length: 6 }, () => ({ n: 0, u: 0, d: 0 }));
+    for(let i = i2016; i + h < n - (live ? 1 : 0); i++){
+      const z = zone[i]; if(z < 0) continue;
+      let r = 0; for(let j = i + 1; j <= i + h; j++){ const v = P[j] / P[i]; if(v >= up){ r = 1; break; } if(v <= dn){ r = -1; break; } }
+      for(const a of [acc[z], acc[5]]){ a.n++; if(r > 0) a.u++; else if(r < 0) a.d++; }
+    }
+    odds[h + "_" + t] = acc;
+  }
   const yrs = (n - 1 - i2016) / 365.25;
-  return { P, lp, n, now, ts, live, q, fit, trend, fc, bandAt, band, HZ, R, zone, rank, thr, zst: zst.map((z, i) => ({ ...stat(z.f), ep: z.ep })), A, B,
+  return { P, lp, n, now, ts, live, q, fit, trend, fc, bandAt, band, HZ, R, zone, rank, thr, odds, zst: zst.map((z, i) => ({ ...stat(z.f), ep: z.ep })), A, B,
     strat: { hold: { x: eqH, cagr: eqH ** (1 / yrs) - 1, dd: ddH }, zone: { x: eqZ, cagr: eqZ ** (1 / yrs) - 1, dd: ddZ }, dca: { cash: cP, x: bP * P[n-1] / cP }, zdca: { cash: cZ, x: bZ * P[n-1] / cZ } } };
 }
 const fUsd = v => !isNum(v) ? "–" : v >= 1e6 ? "$" + fN(v / 1e6, 2) + "M" : "$" + fN(v, v >= 1000 ? 0 : 2);
@@ -2959,10 +3019,24 @@ function renderBtc(){
     · Sell in Sell zones, buy back at Hold or better: ${x(S.zone.x)} (${pct(S.zone.cagr * 100, 1)}/yr, worst drop ${pct(S.zone.dd * 100, 0)})<br>
     · Monthly buying, same amount: ×${fN(S.dca.x, 2)} on the money put in · zone-weighted (2× Strong buy, 1.5× Buy, 1× Hold, ½× Sell, 0 Strong sell): <b>×${fN(S.zdca.x, 2)}</b><br>
     <span class="muted">Selling in Sell zones avoided part of the crashes but missed big rallies. Buying more when cheap did better than plain monthly buying.</span>`;
+  renderBtcOdds();
   $("btAbout").innerHTML = `<b>The model.</b> Bitcoin's price has followed a power law in time (log price rising linearly with log days since 2010). At short horizons today's price is the best guess. The Naive–Power Law blend (NvPL) mixes the two with a sigmoid: weight on the trend ${fN(nvplW(30)*100,0)}% at 1 month, ${fN(nvplW(182)*100,0)}% at 6, ${fN(nvplW(365)*100,0)}% at 12, ${fN(nvplW(730)*100,0)}% at 24. Parameters as published: shift 240 days, centre 9 months, steepness 0.015; trend refitted on all data up to today (now a = ${fN(M.fit.a, 3)}, b = ${fN(M.fit.b, 3)}). Implemented with the same maths as the authors' replication code (Zenodo 10.5281/zenodo.22677944) and checked against it.<br>
     <b>What the paper found.</b> Tested on five 2-year periods (2016–2026), NvPL beat "price stays the same" at 1–3 months and no more complex model (machine learning, momentum, mean reversion, 18 Bayesian models) reliably beat it. It also found that no model predicted the <i>direction</i> better than "always up" once overlapping forecasts are accounted for.<br>
     <b>The zones are not from the paper.</b> They are this app's reading of the model: how far the price is from the trend, compared with history. Over 2016–2025 they sorted the next 12 months well, but that is about 4 market cycles, the overlapping years are not independent, and the paper's three structural parameters were chosen on the full history. Use them as a valuation gauge, not as a guarantee. Not financial advice.`;
   drawBtcChart();
+}
+function renderBtcOdds(){
+  const M = BTM; if(!M || !M.odds) return;
+  const h = UI.bth === 91 ? 91 : 30, t = UI.btt === 30 ? 30 : 20, A = M.odds[h + "_" + t], z = M.zone[M.now];
+  document.querySelectorAll("#btHSeg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.h === h)));
+  document.querySelectorAll("#btTSeg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.t === t)));
+  $("btOUp").textContent = `+${t}% first`; $("btODn").textContent = `−${t}% first`;
+  const row = (name, a, cur) => { if(!a.n) return ""; const u = a.u / a.n, d = a.d / a.n;
+    return `<tr class="${cur ? "zon" : ""}"><td class="l">${name}${cur ? ' <span class="muted">← now</span>' : ""}</td><td>${fN(a.n, 0)}</td><td class="pos">${fN(u * 100, 0)}%</td><td class="neg">${fN(d * 100, 0)}%</td><td>${fN((1 - u - d) * 100, 0)}%</td><td>${a.d ? "×" + fN(a.u / a.d, 1) : "–"}</td></tr>`; };
+  $("btOdds").innerHTML = ZONES.map(([n, c], i) => row(`<span class="zb ${c}">${n}</span>`, A[i], i === z)).join("") + row("All days", A[5], false);
+  const cur = z >= 0 ? A[z] : null;
+  $("btOddsNote").innerHTML = (cur && cur.n ? `<b>Now (${ZONES[z][0]}):</b> within ${h === 30 ? "1 month" : "3 months"}, +${t}% came first ${fN(cur.u / cur.n * 100, 0)}% of the time and −${t}% first ${fN(cur.d / cur.n * 100, 0)}%. ` : "")
+    + `The zones are about value, not timing: over a few weeks the cheap zones rarely produce big jumps but also rarely crash, while the expensive zones swing hard both ways. Few cycles behind these numbers (the Strong buy row is a single episode). Not financial advice.`;
 }
 // log-price chart: history, point-in-time zone strip, power-law trend, NvPL forecast with its 80% range
 let btGeom = null;
@@ -3029,36 +3103,97 @@ function btHover(ev){
 }
 
 
-/* ============================== tabs: 1) portfolios & index heatmaps (menu)  2) trades of the chosen portfolio  3) watchlist ============================== */
-function pfSel(){ return UI.pfsel === "spx" ? "spx" : (BOOKS[UI.book] ? UI.book : "real"); }
-function setBook(b){ b = BOOKS[b] ? b : "real"; UI.book = b; if(UI.pfsel !== "spx" || (TABS[UI.tab] || {}).view !== "pf") UI.pfsel = b; showTab(UI.tab); }
-const TABS = { pf:{ view:"pf" }, tr:{ view:"tr" }, wl:{ view:"wl" }, bt:{ view:"bt" } };
+
+/* ============================== Squeezer: short-squeeze screen ============================== */
+// squeeze.json is built once a day by the news robot (after the US close):
+//   short interest: FINRA consolidated short interest (official, twice a month)
+//   retail flow in stocks: FINRA weekly off-exchange volume of the retail wholesalers (Citadel Securities, Virtu, HRT, Jane Street, G1, Two Sigma)
+//   retail flow in options: near-term option volume and open interest (Yahoo), out-of-the-money calls in particular
+//   breakout probability: logistic model calibrated on 2024–2026 (a +25% move within 20 trading days), tested on the last 12 months
+let SQ = null, sqAt = 0, SQQ = {}, sqqAt = 0, sqBusy = false;
+async function loadSqueeze(force){
+  if(sqBusy) return; sqBusy = true;
+  try{
+    if(SYNC && (force || !SQ || Date.now() - sqAt > 30*60e3)){
+      sqAt = Date.now();
+      const r = await fetchT(`${ghUrlFor("squeeze.json")}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: { ...ghHeaders(), Accept: "application/vnd.github.raw+json" }, cache: "no-store" }, 15000);
+      if(r.status === 404) SQ = { missing: true }; else if(r.ok) SQ = JSON.parse(await r.text());
+    }
+    if(SQ && SQ.list && SQ.list.length && (force || Date.now() - sqqAt > Math.max(30, DB.refresh || 60) * 900)){
+      const q = await scan(SQ.list.map(x => x.s), [...COLS, "relative_volume_10d_calc"]); if(Object.keys(q).length){ SQQ = q; sqqAt = Date.now(); }
+    }
+  }catch(e){}
+  sqBusy = false;
+  if(!$("view-sq").hidden) renderSqueeze();
+}
+function renderSqueeze(){
+  if($("view-sq").hidden) return;
+  const body = $("sqBody");
+  if(!SYNC){ $("sqSub").textContent = "Squeezer reads squeeze.json from your data repo: turn on sync in Settings."; body.innerHTML = ""; return; }
+  if(!SQ){ $("sqSub").textContent = "Loading…"; body.innerHTML = ""; return; }
+  if(SQ.missing){ $("sqSub").innerHTML = "No squeeze.json yet: run the updated news robot (news.yml) once. It builds the list after each US close."; body.innerHTML = ""; $("sqKpis").innerHTML = ""; return; }
+  const M = SQ.model || {}, d = s => s ? new Date(s + "T12:00:00Z").toLocaleDateString("en-GB",{ day:"numeric", month:"short", timeZone:"UTC" }) : "–";
+  $("sqSub").innerHTML = `Short interest: FINRA, settled ${d(SQ.siDate)} (public ${d(SQ.siPub)}) · retail stock flow: FINRA weekly, weeks to ${d(SQ.retailWeekT1)} (large caps) / ${d(SQ.retailWeek)} (small caps) · options: ${d(SQ.optDay)} · ${fN(SQ.universe || 0, 0)} US stocks over $100M scanned · updated ${SQ.updated ? new Date(SQ.updated).toLocaleString("en-GB",{ day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) : "–"}`;
+  const L = SQ.list || [];
+  $("sqKpis").innerHTML = `
+    <div><div class="l1">Stocks matching</div><div class="v">${L.length}</div><div class="s">of ${fN(SQ.shorted || 0, 0)} with notable short interest</div></div>
+    <div><div class="l1">Breakout</div><div class="v">+${fN((M.jump || .25) * 100, 0)}%</div><div class="s">within ${M.horizon || 20} trading days (≈ 1 month)</div></div>
+    <div><div class="l1">Base rate</div><div class="v">${fN((M.base || 0) * 100, 1)}%</div><div class="s">of shorted stocks broke out, 2024–2026</div></div>
+    <div class="on"><div class="l1">Model check (last 12 months, unseen)</div><div class="v">${isNum(M.hitTop) ? fN(M.hitTop * 100, 0) + "%" : "–"}</div><div class="s">hit rate of stocks it would have listed${isNum(M.auc) ? ` · ranking accuracy (AUC) ${fN(M.auc, 2)}` : ""}</div></div>`;
+  $("sqCrit").innerHTML = `<span>Listed when:</span> ${(SQ.criteria || []).map(c => `<span class="ck">${esc(c)}</span>`).join(" ")}`;
+  const find = ($("sqFind").value || "").trim().toUpperCase();
+  const rows = L.filter(x => !find || x.t.includes(find) || (x.n || "").toUpperCase().includes(find)).map(x => ({ ...x, q: SQQ[x.s] || {} }));
+  const keys = { tk: r => r.t, nm: r => (r.n || "").toLowerCase(), p: r => r.p, last: r => r.q.close, day: r => QKEYS.day(r.q), sif: r => r.sif, dtc: r => r.dtc, chg: r => r.chg,
+    rs: r => r.rs, rt: r => r.rt, cp: r => r.o && r.o.cp, ov: r => r.o && r.o.ov, og: r => r.o && r.o.og, m20: r => r.m20, rv: r => r.q.relative_volume_10d_calc };
+  const base = M.base || .1, tier = p => p >= base * 3 ? "h3" : p >= base * 2 ? "h2" : "h1";
+  const f = (v, dg, suf) => isNum(v) ? fN(v, dg) + (suf || "") : "–";
+  body.innerHTML = applySort(rows, "sq", keys, (a,b) => b.p - a.p).map(r => { const q = r.q, o = r.o || {};
+    return `<tr data-sym="${esc(r.s)}">
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(r.t)}</span></td>
+      <td class="l nm" title="${esc(r.n || "")}">${esc(r.n || "–")}</td>
+      <td><span class="pb ${tier(r.p)}">${fN(r.p * 100, 0)}%</span><span class="lift">×${fN(r.p / base, 1)}</span></td>
+      <td>${fPx(isNum(q.close) ? q.close : r.px)}</td><td>${q.close != null ? dayCell(q) : "–"}</td>
+      <td>${f(r.sif * 100, 1, "%")}</td><td>${f(r.dtc, 1)}</td><td class="${cls(r.chg)}">${isNum(r.chg) ? fSigned(r.chg, 1, "%") : "–"}</td>
+      <td>${f(r.rs * 100, 1, "%")}</td><td class="${cls(isNum(r.rt) ? r.rt - 1 : NaN)}">${!isNum(r.rt) ? "–" : r.rt > 1000 ? '<span title="No retail-wholesaler volume in the 4 weeks before">new</span>' : r.rt > 20 ? "&gt;×20" : "×" + fN(r.rt, 2)}</td>
+      <td>${f(o.cp, 2)}</td><td>${f(o.ov * 100, 0, "%")}</td><td>${f(o.og * 100, 1, "%")}</td>
+      <td>${isNum(r.m20) ? pct(r.m20 * 100, 0) : "–"}</td><td>${f(q.relative_volume_10d_calc, 2)}</td></tr>`; }).join("")
+    || `<tr><td class="l" colspan="15"><span class="muted">${L.length ? "No ticker matches your search." : "No stock meets all the criteria today."}</span></td></tr>`;
+  paintSortHeads();
+  $("sqNote").innerHTML = `<b>How it works.</b> Every US stock over $100M with notable short interest gets a probability of rising 25% within the next 20 trading days, from a logistic model fitted on ${fN(M.n || 0, 0)} past cases (Jul 2024 – Oct 2026): short % of float, days to cover, change in short interest, retail-wholesaler share of volume and its trend, 1-week and 1-month momentum, and dollar volume. It is tested on the last 12 months, which the fit never saw. Options flow (call/put, out-of-the-money calls) is shown as a live check but has no free history, so it is not part of the probability. Short interest is published by FINRA about 8 business days after its date and retail-wholesaler volume 3–5 weeks after the week; the model only uses what was public at each date.<br>
+    <b>Limits.</b> Even the top names miss most of the time; squeezes cluster in small, volatile stocks that also crash; the float figures are today's; companies that delisted are not in the history. Not financial advice.`;
+}
+
+/* ============================== tabs: portfolios (menu) · trades · watchlist · Bitcoin · Tools (Squeezer, S&P 500 heatmap) ============================== */
+function pfSel(){ return BOOKS[UI.book] ? UI.book : "real"; }
+function setBook(b){ b = BOOKS[b] ? b : "real"; UI.book = b; UI.pfsel = b; showTab(UI.tab === "tools" ? "pf" : UI.tab); }
+const TABS = { pf:{ view:"pf" }, tr:{ view:"tr" }, wl:{ view:"wl" }, bt:{ view:"bt" }, tools:{ view:"tools" } };
+function toolSel(){ return UI.tool === "ix" ? "ix" : "sq"; }
 function showTab(t){
-  // names used by older versions: real / sim / lollo / trreal / trsim / trlollo
+  // names used by older versions: real / sim / lollo / trreal / trsim / trlollo, and the S&P 500 heatmap that used to sit in the portfolio menu
   if(BOOKS[t]){ UI.book = t; UI.pfsel = t; t = "pf"; }
   else if(/^tr(real|sim|lollo)$/.test(t || "")){ UI.book = t.slice(2); t = "tr"; }
+  if(UI.pfsel === "spx"){ UI.pfsel = pfSel(); if(t === "pf"){ t = "tools"; UI.tool = "ix"; } }
   if(!TABS[t]) t = "pf";
   UI.tab = t; ls.set(LS_UI, UI);
-  const sel = pfSel(), B = BOOKS[UI.book] ? UI.book : "real";
-  const view = t === "pf" ? (sel === "spx" ? "ix" : "pf") : t;
+  const sel = pfSel(), B = sel;
+  const view = t === "tools" ? toolSel() : t;
   document.querySelectorAll(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
-  ["pf","ix","wl","tr","bt"].forEach(k => $("view-" + k).hidden = k !== view);
-  document.querySelector(".kpis").hidden = view === "ix" || view === "bt";                // portfolio figures don't belong on the index view
-  $("pfLabel").textContent = sel === "spx" ? "S&P 500 heatmap" : BOOKS[sel].label;
-  $("tab-pf").className = sel === "spx" ? "t-ix" : "t-" + sel;
+  ["pf","ix","sq","wl","tr","bt"].forEach(k => $("view-" + k).hidden = k !== view);
+  $("toolsBar").hidden = t !== "tools";
+  document.querySelectorAll("#toolSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tool === toolSel())));
+  document.querySelector(".kpis").hidden = t === "tools" || view === "bt";                 // portfolio figures don't belong on the tools
+  $("pfLabel").textContent = BOOKS[sel].label;
+  $("tab-pf").className = "t-" + sel;
   $("tab-tr").className = "t-" + B;
   document.querySelectorAll("#pfMenu [data-pfs]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.pfs === sel)));
-  $("tabsNav").style.borderBottomColor = view === "ix" ? "var(--ix)" : view === "bt" ? "var(--btc)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
+  $("tabsNav").style.borderBottomColor = t === "tools" ? "var(--gray-hi)" : view === "bt" ? "var(--btc)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
   render();
   if(view === "ix") loadIndex();
+  if(view === "sq") loadSqueeze();
   if(view === "bt") loadBtc();
 }
 function pfMenu(open){ $("pfMenu").hidden = !open; $("tab-pf").setAttribute("aria-expanded", String(open)); }
-function pickPf(v){
-  pfMenu(false);
-  if(v === "spx") UI.pfsel = "spx"; else { UI.pfsel = v; UI.book = v; }
-  showTab("pf");
-}
+function pickPf(v){ pfMenu(false); UI.pfsel = v; UI.book = v; showTab("pf"); }
 
 /* ============================== settings ============================== */
 function openSettings(){
@@ -3129,6 +3264,9 @@ function init(){
   autocomplete($("benchAdd"), $("benchAddSug"), addCustomBench);
   // S&P 500 heatmap controls
   const segBind = (id, attr, key, after) => $(id).querySelectorAll("button").forEach(b => b.onclick = () => { UI[key] = attr === "g" ? b.dataset.g === "1" : b.dataset[attr]; ls.set(LS_UI, UI); after(); });
+  $("toolSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.tool = b.dataset.tool; ls.set(LS_UI, UI); showTab("tools"); });
+  $("sqFind").addEventListener("input", renderSqueeze);
+  $("sqBody").addEventListener("click", e => { const tr = e.target.closest("tr[data-sym]"); if(tr && e.target.closest("td.stick, td.nm")){ const s = tr.dataset.sym; if(!Q[s] && SQQ[s]) Q[s] = SQQ[s]; openStock(s); } });
   segBind("ixWSeg", "w", "ixw", renderIndex); segBind("ixPSeg", "p", "ixp", renderIndex); segBind("ixRSeg", "r", "ixr", drawIxChart); segBind("ixgSeg", "g", "ixgroup", () => renderIxTable(IXM));
   const hm = $("hmap");
   hm.addEventListener("mousemove", ixTip); hm.addEventListener("mouseleave", () => $("hmTip").hidden = true);
@@ -3143,6 +3281,8 @@ function init(){
   let rsz = 0; window.addEventListener("resize", () => { clearTimeout(rsz); rsz = setTimeout(() => { if(!$("view-ix").hidden) renderIndex(); if(!$("view-bt").hidden) drawBtcChart(); }, 150); });
   // Bitcoin: range buttons, chart hover, faster live price while the tab is open
   $("btRSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.btr = b.dataset.r; ls.set(LS_UI, UI); document.querySelectorAll("#btRSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); drawBtcChart(); });
+  $("btHSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.bth = +b.dataset.h; ls.set(LS_UI, UI); renderBtcOdds(); });
+  $("btTSeg").querySelectorAll("button").forEach(b => b.onclick = () => { UI.btt = +b.dataset.t; ls.set(LS_UI, UI); renderBtcOdds(); });
   const bc = $("btChart"); bc.addEventListener("mousemove", btHover); bc.addEventListener("touchmove", btHover, { passive:true }); bc.addEventListener("touchstart", btHover, { passive:true }); bc.addEventListener("mouseleave", () => $("btTip").hidden = true);
   setInterval(() => { if(!document.hidden && UI.tab === "bt") loadBtc(); }, 15000);
   document.querySelectorAll("#modeSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.mm === retMode())); b.onclick = () => { UI.ret = b.dataset.mm; ls.set(LS_UI, UI); document.querySelectorAll("#modeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }; });
