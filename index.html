@@ -11,31 +11,37 @@
 <title>GGD Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito+Sans:wght@600;700&display=swap">
 <style>
 /* Layout: terminal-style stack. KPI strip, chart + sector panel side by side, full-width positions grid. */
-:root{--ix:#2dd4bf;--btc:#f7931a;
-  --bg:#000;
-  --panel:#07090c;
-  --line:#23272e;
-  --grid:#15181d;
-  --gray:#8b9099;
-  --gray-hi:#c9ccd2;
-  --head:#3b3e44;
-  --head-fg:#f1f1f1;
-  --fg:#e9eaec;
-  --yellow:#f5c400;
-  --orange:#fb8b1e;
-  --orange-hi:#ffa647;
-  --olive:#2a2810;
-  --blue:#2f8bff;
-  --blue-soft:#3aa0ff;
-  --green:#19e03a;
-  --green-dim:#0d9f26;
-  --red:#ff2b2b;
-  --red-dim:#a91616;
-  --ui:"IBM Plex Sans Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
-  --num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+:root{
+  /* Terminal mode: black canvas, amber data, white labels. Colour = meaning only:
+     green #338736 up · red #E51503 down/error · orange #F05143 live dot · yellow #FFCD1E warning */
+  --amber:#FFA028;
+  --ix:#FFFFFF;--btc:#FFA028;
+  --bg:#000000;
+  --panel:#000000;
+  --line:#3C3C3C;
+  --grid:#1C1C1C;
+  --gray:#999999;
+  --gray-hi:#CCCCCC;
+  --head:#1C1C1C;
+  --head-fg:#FFFFFF;
+  --fg:#FFFFFF;
+  --yellow:#FFCD1E;
+  --orange:#FFA028;
+  --orange-hi:#FFA028;
+  --olive:#1C1C1C;
+  --blue:#FFA028;
+  --blue-soft:#CCCCCC;
+  --green:#338736;
+  --green-dim:#338736;
+  --red:#E51503;
+  --red-dim:#E51503;
+  --live:#F05143;
+  --ui:"Neue Haas Grotesk Text","Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --num:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --kick:"Avenir Next","Nunito Sans","Inter",sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -99,6 +105,13 @@ canvas{display:block;width:100%;height:100%}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--gray-hi);padding:0 10px 8px;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
 .legend .lnote{color:var(--gray);font-size:11px}
+/* Claude's notes */
+.advice{margin-top:14px}
+.advgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:6px 24px;padding:6px 12px 12px}
+@media (max-width:900px){.advgrid{grid-template-columns:minmax(0,1fr)}}
+.advgrid h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin:6px 0 4px}
+.advgrid ul{margin:0;padding-left:18px;font-size:13px;line-height:1.55;color:var(--gray-hi)}
+.advgrid li{margin:3px 0}.advgrid b{color:var(--fg)}
 /* Bitcoin */
 .tabs button.t-bt{border-top:2px solid var(--btc);color:var(--btc)}
 .tabs button.t-bt[aria-selected="true"]{background:var(--btc);border-color:var(--btc);color:#000}
@@ -409,6 +422,123 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .foot{font-size:11px;color:var(--gray);line-height:1.5}
 .foot b{color:var(--gray-hi);font-weight:500}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ======================= Terminal style (applied last) ======================= */
+*,*::before,*::after{box-shadow:none!important;text-shadow:none!important;border-radius:0!important}
+input,select,textarea{border-radius:4px!important}
+body{font:500 14px/1.5 var(--ui);letter-spacing:.2px;font-variant-numeric:tabular-nums}
+.num,td,.v,.kv,.sac-val,.sac-total,.stk-px{font-variant-numeric:tabular-nums}
+.pos{color:#338736!important}.neg{color:#E51503!important}
+/* top bar */
+.top{border-bottom:1px solid var(--line)}
+.brand{color:var(--amber);font:700 20px/1.2 var(--ui);letter-spacing:0}
+.brand small{color:#999999;font:600 12px var(--kick);letter-spacing:.06em}
+.status{color:#999999;font-size:12px}
+.dot{border-radius:50%!important}
+.dot.live{background:var(--live)}.dot.err{background:#E51503}.dot.busy{background:#FFCD1E}
+/* buttons: 0 radius, 30px */
+.btn{background:#000;border:1px solid #545454;color:#FFFFFF;min-height:30px;padding:6px 10px;font:500 14px/1 var(--ui);letter-spacing:.2px}
+.btn:hover{background:#3C3C3C;border-color:#545454}
+.btn.primary{background:#FFFFFF;border-color:#FFFFFF;color:#000;font-weight:700}
+.btn.primary:hover{background:#CCCCCC;border-color:#CCCCCC}
+.btn.danger{border-color:#E51503;color:#E51503}
+.btn.sm{min-height:24px;padding:3px 8px;font-size:12px}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible,.tabs button:focus-visible,.act:focus-visible,.icon:focus-visible{outline:1px solid #FFFFFF;outline-offset:1px}
+.seg{border:1px solid #545454;background:#000}
+.seg button{background:#000;color:#CCCCCC;border:0;border-right:1px solid #545454;font:500 12px var(--ui)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:#3C3C3C;color:#FFFFFF}
+.seg button[aria-pressed="true"]{background:#FFFFFF;color:#000}
+.act{background:#FFFFFF;color:#000;border:1px solid #FFFFFF}
+.act:hover{background:#CCCCCC}
+.icon{color:#CCCCCC}.icon:hover{color:#FFFFFF}
+input,select,textarea{background:#000;border:1px solid #CCCCCC;color:#FFFFFF}
+input:focus,select:focus,textarea:focus{border-color:#FFFFFF;outline:none}
+/* tabs: no book colours, the selected tab is white */
+.tabs{border-bottom:1px solid #FFFFFF!important}
+.tabs button,.tabs button.t-real,.tabs button.t-sim,.tabs button.t-lollo,.tabs button.t-wl,.tabs button.t-ix,.tabs button.t-bt{background:#000;border:1px solid #3C3C3C;border-bottom:0;color:#CCCCCC;font:700 14px var(--ui)}
+.tabs button:hover{color:#FFFFFF;background:#1C1C1C}
+.tabs button[aria-selected="true"]{background:#FFFFFF!important;border-color:#FFFFFF!important;color:#000!important}
+.pfmenu,.bpop{background:#000;border:1px solid #545454}
+.pfmenu .mh,.bgrp{font:600 12px var(--kick);text-transform:uppercase;color:#999999;letter-spacing:.04em}
+.pfmenu button i{display:none}
+.pfmenu button[aria-checked="true"]{color:var(--amber)}
+.pfmenu button:hover,.bopt:hover{background:#1C1C1C}
+body.sim .kpis,body.lollo .kpis{outline:0}
+.bk-real,.bk-sim,.bk-lollo{color:#FFFFFF}
+/* KPI strip and panels: 1px rules, amber figures, white kicker labels */
+.kpis,.ixk{background:#3C3C3C;border:1px solid #3C3C3C}
+.kpi,.ixk > div{background:#000}
+.kpi .lab,.ixk .l1{font:600 12px var(--kick);text-transform:uppercase;letter-spacing:.04em;color:#FFFFFF}
+.kpi .val,.ixk .v{color:var(--amber);font-family:var(--num);letter-spacing:-.3px}
+.kpi .sub,.ixk .s{color:#999999;font-size:12px}
+.ixk .on{box-shadow:none;border-top:2px solid #FFFFFF;padding-top:6px}
+.panel{background:#000;border:1px solid #3C3C3C}
+.ph{border-bottom:1px solid #3C3C3C}
+.ph h2,.ph h3{font:700 16px/1.2 var(--ui);color:#FFFFFF;letter-spacing:0}
+.sub,.lnote,.hint{color:#999999;font-size:12px}
+/* tables: dark header bar, 1px row rules, amber numbers, white names */
+table th{background:#1C1C1C!important;color:#FFFFFF;font:600 12px var(--kick);text-transform:uppercase;letter-spacing:.03em;border-color:#3C3C3C}
+table td{color:var(--amber);font-family:var(--num);border-bottom:1px solid #1C1C1C}
+table td.l,table td.nm,table td.l *:not(.pos):not(.neg):not(.tag):not(.zb):not(.k){color:#FFFFFF;font-family:var(--ui)}
+table td .muted{color:#999999!important}
+tr:hover td{background:#0D0D0D}
+tr.total td{background:#1C1C1C!important;color:#FFFFFF;font-weight:700}
+tr.grp td{background:#000!important;color:#FFFFFF;border-top:1px solid #3C3C3C}
+tr.grp td.stick{background:#000!important}
+tr.grp:hover td{background:#1C1C1C!important}
+tr.grp .box{border-color:#999999}
+.tk{color:var(--amber);font-family:var(--num);font-weight:700}
+.tag{border:1px solid #545454;color:#CCCCCC;background:#000}
+.tag.held{border-color:#FFFFFF;color:#FFFFFF}
+.dayx{color:#999999}
+/* category keys (calendar, trades): greys only, colour is reserved for up/down */
+.k-earn,.k-buy{background:#FFFFFF;color:#000}
+.k-ex,.k-sell{background:#CCCCCC;color:#000}
+.k-pay,.k-free{background:#999999;color:#000}
+.k-rel{background:#545454;color:#FFFFFF}
+.k-other{background:#1C1C1C;color:#FFFFFF;outline:1px solid #545454}
+.lgf{border:1px solid #545454;color:#CCCCCC}
+/* bars: flat green / red, no gradients */
+.sac-bar.p{background:#338736;border:0}
+.sac-bar.n{background:#E51503;border:0}
+.sac-zero{background:#999999}
+.sac-title{font:700 16px var(--ui)}
+.sac-total{color:var(--amber)}
+/* extended-hours marker: plain, no glow */
+.ext{color:#FFCD1E;border-color:#FFCD1E}
+.btn.ebtn[aria-pressed="true"]{border-color:#FFCD1E;color:#FFFFFF}
+/* market clocks: live dot */
+.clocks .mk,.mkt .mk{border-radius:50%!important;background:#3C3C3C}
+.clocks .mk.open,.mkt .mk.open{background:var(--live)}
+.mkt .mk.pre{background:#000;outline:1px solid var(--live)}
+.clocks b,.mkt b{color:var(--amber);font-family:var(--num)}
+/* tooltips, dialogs */
+.tip{background:#000;border:1px solid #FFFFFF;color:#FFFFFF;font:12px/1.4 var(--num)}
+dialog{background:#000;border:1px solid #FFFFFF;color:#FFFFFF}
+dialog::backdrop{background:rgba(0,0,0,.8)}
+.dlg-h{background:#1C1C1C}
+/* heatmap */
+.hmap{background:#000}
+.hsec{border-color:#000}
+.hsec > b{background:#1C1C1C;color:#FFFFFF;font:600 10px var(--kick);text-transform:uppercase}
+.ht{border-color:#000}
+.ht b{font-family:var(--ui)}
+/* Bitcoin zones: up tint / down tint, strong = solid */
+.zb.z0{background:#338736;color:#FFFFFF}.zb.z1{background:#D1EDC0;color:#000}.zb.z2{background:#3C3C3C;color:#FFFFFF}.zb.z3{background:#FFCDCA;color:#000}.zb.z4{background:#E51503;color:#FFFFFF}
+tr.zon td{background:#1C1C1C!important}
+/* event labels in the Today list: neutral, not green / blue */
+.lb-earn,.lb-ex,.lb-pay,.lb-rel,.lb-other{color:#FFFFFF!important}
+.lb-earn{color:var(--amber)!important}
+.ev{border-bottom:1px solid #1C1C1C}
+/* event card: one neutral rule, no category colours */
+.evcard,.evcard.k2-ex,.evcard.k2-pay,.evcard.k2-rel,.evcard.k2-other{background:#000;border:1px solid #3C3C3C;border-left:3px solid #FFFFFF}
+.evc{border-radius:0}
+/* Claude's notes */
+.advgrid h3{font:600 12px var(--kick);text-transform:uppercase;letter-spacing:.04em;color:#FFFFFF}
+.advgrid ul{color:#CCCCCC}
+a{color:#FFFFFF;text-decoration:underline}
+.legend{color:#CCCCCC}
 </style>
 </head>
 <body>
@@ -663,9 +793,18 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
   </section>
   </div>
 
-  <p class="foot">
-    <b>Data:</b> TradingView scanner, refreshed automatically (most exchanges are 15 min delayed on TradingView's free feed). <b>Open Px</b> = today's opening price (<i>closed</i> before that market opens). <b>Purchase Px</b> = your average price per share over all buys (free shares count at 0). Click ▸ next to a ticker for every transaction. <b>Close Px</b> = previous session close. <b>Day %</b> = the stock's move today; before its market opens (e.g. US stocks in the European morning) it shows <i>closed</i> and counts 0 in your Day figure. The <b>Ext. hours</b> switch adds pre-market and after-hours moves, marked with a green <b>E</b>; they never change your totals. Double-click any column title to rank by it (again to reverse, a third time to reset). <b>Bench %</b> = benchmark move since your open date. <b>Header 1 Week / 1 Month</b> = your portfolio's own return over that full period (see Performance chart for the two methods); if you have held it for less, it shows "–" and the return since opening underneath. <b>Realized P&amp;L</b> = gains and losses from shares you sold + dividends. Dividends are booked automatically on their payment date when you held the shares before the ex-date (gross amount from TradingView, marked AUTO in the Dividends table of the Trades tab). Click a ticker or name to open its news, releases and earnings. <b>Unrealized P&amp;L</b> = what would go into your P&amp;L if you sold every open position at today's price. The per-stock <b>1W/1M/YTD/1Y/10Y</b> columns are the stock's own moves; in the total row they are your portfolio's, shown only once it is older than the period. <b>IPO Px</b> = first available split-adjusted close on TradingView, used for <b>Since IPO</b>. When a stock listed after the start of a period, those cells merge into one box showing its <b>IPO date</b>. <b>Performance chart</b>: <b>On capital</b> (default) = your gain in euros so far (price moves, sales, dividends) ÷ the most money you had invested in the period, so the line has the shape of your P&amp;L and, with no sales, ends at your P&amp;L %; each benchmark is bought with the same money on the same dates and sold in the same proportions. <b>TWR</b> = time-weighted return, the standard for fund managers: it ignores how much money was in, so a small early buy that did well can make it look much higher than your P&amp;L. Both also drive the header 1 Week / 1 Month and the total row. Pick one or more benchmarks in <b>Benchmarks ▾</b> (your choice syncs to every device); lines use daily closes, plus hourly prices for the last month, saved by the news robot; each line is in its own currency, like your positions. The header 1 Week / 1 Month compare with the first benchmark you picked. Sector attribution = weight × (position return − its benchmark return), in percentage points, using TradingView sectors.
-  </p>
+  <section class="panel advice" aria-label="Claude's notes">
+    <div class="ph"><div><h2>Claude's notes</h2><div class="sub">General information, not personal financial advice: I'm not a licensed financial advisor, and I don't know your full situation (income, debts, goals, taxes).</div></div></div>
+    <div class="advgrid"><div><h3 id="advTitle">Your portfolio right now</h3><ul id="advLive"></ul></div>
+    <div><h3>Principles worth keeping in mind</h3><ul>
+      <li><b>Decide before you buy:</b> why you own it, what would make you sell, and how big it may get. Write it down somewhere you'll reread it.</li>
+      <li><b>Size by what you can afford to lose, not by conviction.</b> Single stocks can fall 50–80% and stay there; a common rule of thumb keeps any one stock under about 5–10% of what you invest.</li>
+      <li><b>Most stock pickers trail a broad index after costs over long periods.</b> A low-cost index core (e.g. MSCI World or S&amp;P 500) with smaller satellite bets is the usual way to combine both.</li>
+      <li><b>Time in the market beats timing it.</b> Missing a few of the best days costs a lot; in this app's Bitcoin backtest, selling in "Sell" zones turned ×180 into ×55. Buying more when prices are low worked better than selling.</li>
+      <li><b>Keep money you'll need within about 3 years, and an emergency fund, out of volatile assets.</b></li>
+      <li><b>Fees, spreads and taxes compound.</b> Fewer trades usually means more left for you.</li>
+    </ul></div></div>
+  </section>
 </div>
 
 <!-- Add / edit position -->
@@ -808,7 +947,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.02.30";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.03.32";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -826,7 +965,10 @@ const BENCH_PRESETS = [
   ["INDEX:FTSEMIB","FTSE MIB","FTSE MIB index","Europe"],
   ["XETR:DAX","DAX","DAX index","Europe"],
   ["XETR:DFEN","Defense","VanEck Defense UCITS ETF (DFEN, EUR)","Sector"]];
-const BENCH_COLORS = ["#f5c400","#fb8b1e","#d66bff","#22d3ee","#ff6b9d","#a3e635","#c9ccd2","#ef4444","#38bdf8","#fde68a","#14b8a6","#e879f9","#94a3b8","#facc15"];
+// benchmark lines: white and greys only, told apart by dash pattern (colour is reserved for up / down)
+const BENCH_STYLES = [["#FFFFFF",[]],["#999999",[]],["#FFFFFF",[6,3]],["#999999",[6,3]],["#CCCCCC",[2,3]],["#767676",[]],["#CCCCCC",[8,3,2,3]],["#767676",[6,3]],["#FFFFFF",[2,3]],["#999999",[2,3]],["#E5E7EB",[8,3,2,3]],["#545454",[]],["#E5E7EB",[]],["#767676",[2,3]]];
+const BENCH_COLORS = BENCH_STYLES.map(x => x[0]);
+function swatch(color, dash){ return `background:none;height:0;border-top:2px ${dash && dash.length ? (dash[0] <= 2 ? "dotted" : "dashed") : "solid"} ${color}`; }
 const COLS = ["name","description","exchange","currency","open","close","change",
   "Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.YTD","Perf.Y","Perf.10Y","Perf.All",
   "price_52_week_high","price_52_week_low","sector","type","ipo_offer_date","time","current_session","premarket_change","postmarket_change","country","country_code_fund","market","isin",
@@ -1117,9 +1259,9 @@ function weighted(rows, key){
 }
 function rid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 /* ---------- three books: Real, Simulated and LOLLO, each with its own positions, sales and history ---------- */
-const BOOKS = { real: { pos:"positions", closed:"closed", label:"Real Portfolio", short:"Real", tag:"REAL", col:"var(--orange)" },
-  sim: { pos:"simPositions", closed:"simClosed", label:"Simulated Portfolio", short:"Sim", tag:"SIMULATED", col:"var(--blue)" },
-  lollo: { pos:"lolloPositions", closed:"lolloClosed", label:"LOLLO", short:"LOLLO", tag:"LOLLO", col:"var(--yellow)" } };
+const BOOKS = { real: { pos:"positions", closed:"closed", label:"Real Portfolio", short:"Real", tag:"REAL", col:"#FFFFFF" },
+  sim: { pos:"simPositions", closed:"simClosed", label:"Simulated Portfolio", short:"Sim", tag:"SIMULATED", col:"#FFFFFF" },
+  lollo: { pos:"lolloPositions", closed:"lolloClosed", label:"LOLLO", short:"LOLLO", tag:"LOLLO", col:"#FFFFFF" } };
 const BOOK_IDS = Object.keys(BOOKS);
 function bk(b){ return BOOKS[b || UI.book] || BOOKS.real; }
 function openPositions(b){ return DB[bk(b).pos] || []; }
@@ -1220,6 +1362,7 @@ function render(){
   $("kU").innerHTML = rows.length ? `<span class="${cls(unreal)}">${fSigned(unreal,2," "+base)}</span>` : "–";
   $("kUb").innerHTML = rows.length ? `${pct(cost ? unreal/cost*100 : NaN)} <span class="muted">if you sold everything now · total P&amp;L</span> <span class="${cls(totalPnl)}">${fSigned(totalPnl,2)}</span>` : `<span class="muted">no open positions</span>`;
   renderTable(rows, tot, PF, rows.length ? dayPct : NaN);
+  renderAdvice(rows, tot);
   renderSector(rows, tot);
   renderWatch();
   renderTrades();
@@ -1343,7 +1486,7 @@ function avgOf(rows, f){ const v = rows.map(f).filter(isNum); return v.length ? 
 function watchRow({ w, q }){
   const held = openPositions("real").some(p => p.sym === w.sym), simHeld = openPositions("sim").some(p => p.sym === w.sym), lolloHeld = openPositions("lollo").some(p => p.sym === w.sym);
   return `<tr data-sym="${esc(w.sym)}">
-      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}${lolloHeld ? '<span class="tag" style="border-color:var(--yellow);color:var(--yellow)">LOLLO</span>' : ''}</td>
+      <td class="l stick">${coFlag(q)}<span class="tk">${esc(tick(w.sym))}</span>${held ? '<span class="tag held">HELD</span>' : ''}${simHeld ? '<span class="tag">SIM</span>' : ''}${lolloHeld ? '<span class="tag">LOLLO</span>' : ''}</td>
       <td class="l nm" title="${esc((q.description || w.name || "") + (w.isin ? " · " + w.isin : ""))}">${esc(q.description || w.name || "–")}</td>
       <td class="l">${exFlag(q)}${esc(q.exchange || w.sym.split(":")[0])}</td>
       <td>${fPx(q.close)} <span class="muted">${esc(normCcy(q.currency))}</span></td><td>${dayCell(q)}</td><td>${fPx(prevClose(q))}</td>
@@ -1622,12 +1765,13 @@ function benchOptions(){ return [...BENCH_PRESETS.map(([sym, short, full, grp]) 
 function chartBenches(){ const sel = Array.isArray(DB.chartBench) ? DB.chartBench : [SPX]; return sel.filter(Boolean); }
 function benchName(sym){ const o = benchOptions().find(x => x.sym === sym); return o ? o.short : tick(sym); }
 function benchColor(sym){ const i = benchOptions().findIndex(x => x.sym === sym); return BENCH_COLORS[(i < 0 ? 0 : i) % BENCH_COLORS.length]; }
+function benchDash(sym){ const i = benchOptions().findIndex(x => x.sym === sym); return BENCH_STYLES[(i < 0 ? 0 : i) % BENCH_STYLES.length][1]; }
 function bookName(long){ const B = BOOKS[UI.book] ? UI.book : "real"; return B === "real" ? (long ? "GGD Portfolio" : "GGD") : BOOKS[B].label; }
 function renderLegend(s){
   const last = a => a && a.length ? a[a.length-1] : NaN;
   const v = a => s ? ` <b class="num"><span class="${cls(last(a))}">${fSigned(last(a),2,"%")}</span></b>` : "";
-  let h = `<span><i style="background:var(--blue)"></i><span id="lgName">${esc(bookName(true))}</span>${v(s && s.P)}</span>`;
-  chartBenches().forEach(b => { h += `<span><i style="background:${benchColor(b)}"></i>${esc(benchName(b))}${v(s && s.Bs[b])}</span>`; });
+  let h = `<span><i style="${swatch("var(--amber)", [])}"></i><span id="lgName">${esc(bookName(true))}</span>${v(s && s.P)}</span>`;
+  chartBenches().forEach(b => { h += `<span><i style="${swatch(benchColor(b), benchDash(b))}"></i>${esc(benchName(b))}${v(s && s.Bs[b])}</span>`; });
   const noHist = [...chartBenches().filter(b => Q[b] && !histFor(b)).map(benchName), ...(s ? chartRough : [])];
   if(HIST && HIST.missing) h += `<span class="lnote">Dashed lines are rough: price history needs the news robot (news.yml)</span>`;
   else if(noHist.length) h += `<span class="lnote">Dashed = rough history for ${esc([...new Set(noHist)].join(", "))} until the robot's next run</span>`;
@@ -1640,7 +1784,7 @@ function renderBenchPicker(){
   for(const o of benchOptions()){
     if(o.grp !== grp){ grp = o.grp; h += `<div class="bgrp">${esc(grp)}</div>`; }
     const q = Q[o.sym], ytd = q ? q["Perf.YTD"] : NaN;
-    h += `<label class="bopt" title="${esc(o.full + " · " + o.sym)}"><input type="checkbox" data-bsym="${esc(o.sym)}"${sel.has(o.sym) ? " checked" : ""}><span class="sw" style="background:${benchColor(o.sym)}"></span>`
+    h += `<label class="bopt" title="${esc(o.full + " · " + o.sym)}"><input type="checkbox" data-bsym="${esc(o.sym)}"${sel.has(o.sym) ? " checked" : ""}><span class="sw" style="${swatch(benchColor(o.sym), benchDash(o.sym))}"></span>`
       + `<span class="bn">${esc(o.short)}<small>${esc(tick(o.sym))}</small></span>`
       + (o.custom ? `<button class="bx" type="button" data-bdel="${esc(o.sym)}" aria-label="Remove ${esc(o.short)}">✕</button>` : `<span class="br" title="Year to date">${isNum(ytd) ? pct(ytd,1) : ""}</span>`) + `</label>`;
   }
@@ -1689,7 +1833,7 @@ function paintLines(cv, grid, lines){
   g.font = `11px ${C("--num")}`; g.textBaseline = "middle";
   for(let v = lo; v <= hi + step/2; v += step){
     const yy = Math.round(y(v)) + .5;
-    g.strokeStyle = Math.abs(v) < 1e-9 ? "#4a4f58" : C("--grid"); g.lineWidth = 1;
+    g.strokeStyle = Math.abs(v) < 1e-9 ? "#545454" : C("--grid"); g.lineWidth = 1;
     g.beginPath(); g.moveTo(padL, yy); g.lineTo(W - padR, yy); g.stroke();
     g.fillStyle = C("--gray"); g.textAlign = "left"; g.fillText(fSigned(Math.abs(v)<1e-9?0:v, step<1?1:0, "%"), W - padR + 6, yy);
   }
@@ -1705,22 +1849,18 @@ function paintLines(cv, grid, lines){
   for(let i = 0; i < N; i++){
     if(i > 0 && key(grid[i]) === key(grid[i-1])) continue;
     const xx = X(i);
-    if(span <= 10*864e5 && i > 0){ g.strokeStyle = "#1a1f27"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke(); }
+    if(span <= 10*864e5 && i > 0){ g.strokeStyle = "#1C1C1C"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke(); }
     const txt = fmt(grid[i]), tw = g.measureText(txt).width;
     if(xx - lastX < Math.max(minGap, tw + 14) || xx > W - padR - tw / 2) continue;
     g.textAlign = xx < padL + tw / 2 ? "left" : "center";
     g.fillText(txt, xx, H - 6); lastX = xx;
   }
   const line = (arr, color, fill, width, dashed) => {
-    g.setLineDash(dashed ? [5, 4] : []);
+    g.setLineDash(Array.isArray(dashed) ? dashed : dashed ? [5, 4] : []);
     g.beginPath(); let started = false;
     arr.forEach((v,i) => { if(!isNum(v)) return; const xx = X(i), yy = y(v); started ? g.lineTo(xx,yy) : (g.moveTo(xx,yy), started = true); });
     g.strokeStyle = color; g.lineWidth = width || 2; g.lineJoin = "round"; g.stroke(); g.setLineDash([]);
-    if(fill){
-      g.lineTo(X(N-1), y(0)); g.lineTo(X(0), y(0)); g.closePath();
-      const gr = g.createLinearGradient(0, padT, 0, H - padB); gr.addColorStop(0, "rgba(47,139,255,.22)"); gr.addColorStop(1, "rgba(47,139,255,0)");
-      g.fillStyle = gr; g.fill();
-    }
+    // no area fill: flat lines only
     const li = arr.length - 1; if(isNum(arr[li])){ g.fillStyle = color; g.beginPath(); g.arc(X(N-1), y(arr[li]), 3.5, 0, Math.PI*2); g.fill(); }
   };
   lines.forEach(l => line(l.vals, l.color, l.fill, l.width, l.dashed));
@@ -1745,7 +1885,7 @@ function drawChart(){
   const rough = sym => !pricePoints(sym).step;
   const roughPos = allPos().filter(p => Q[p.sym] && rough(p.sym)).map(p => tick(p.sym));
   const css = getComputedStyle(document.documentElement);
-  const geo = paintLines(cv, s.grid, [...[...bl].reverse().map(b => ({ vals: s.Bs[b], color: benchColor(b), width: 1.5, dashed: rough(b) })),
+  const geo = paintLines(cv, s.grid, [...[...bl].reverse().map(b => ({ vals: s.Bs[b], color: benchColor(b), width: 1.5, dashed: rough(b) ? [2, 2] : benchDash(b) })),
     { vals: s.P, color: css.getPropertyValue("--blue").trim(), fill: true, width: 2, dashed: roughPos.length > 0 }]);
   chartRough = roughPos;
   renderLegend(s);
@@ -1766,7 +1906,7 @@ function chartHover(ev){
   const d = new Date(s.grid[best]);
   const span = s.grid[s.grid.length-1] - s.grid[0], intraday = d.getHours() || d.getMinutes();
   const when = d.toLocaleDateString("en-GB",{ ...(span <= 45*864e5 ? { weekday:"short" } : {}), day:"2-digit", month:"short", year:"numeric" }) + (span <= 45*864e5 && intraday ? " " + d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : "");
-  tip.innerHTML = `${when}<br><span style="color:var(--blue)">${esc(bookName(false))}</span> ${fSigned(s.P[best],2,"%")}` + bl.map(b => `<br><span style="color:${benchColor(b)}">${esc(benchName(b))}</span> ${fSigned(s.Bs[b][best],2,"%")}`).join("");
+  tip.innerHTML = `${when}<br><span style="color:var(--amber)">${esc(bookName(false))}</span> ${fSigned(s.P[best],2,"%")}` + bl.map(b => `<br><span style="color:${benchColor(b)}">${esc(benchName(b))}</span> ${fSigned(s.Bs[b][best],2,"%")}`).join("");
   tip.hidden = false;
   const tx = Math.min(Math.max(4, X(best) + 10), r.width - tip.offsetWidth - 4);
   tip.style.left = tx + "px"; tip.style.top = "10px";
@@ -2673,15 +2813,15 @@ function squarify(items, x, y, w, h){
   if(row.length) lay(row);
   return out;
 }
-const HM_STOPS = [[-1,[246,53,56]],[-.66,[191,64,69]],[-.33,[139,68,78]],[0,[65,69,84]],[.33,[53,118,78]],[.66,[47,158,79]],[1,[48,204,90]]];
+const HM_STOPS = [[-1,[229,21,3]],[0,[60,60,60]],[1,[51,135,54]]];
 function hmColor(r, max){
-  if(!isNum(r)) return "#24272e";
+  if(!isNum(r)) return "#1C1C1C";
   const x = Math.max(-1, Math.min(1, r * 100 / max));
   for(let i = 1; i < HM_STOPS.length; i++) if(x <= HM_STOPS[i][0]){
     const [a, ca] = HM_STOPS[i-1], [b, cb] = HM_STOPS[i], f = (x - a) / (b - a);
     return `rgb(${ca.map((c,j) => Math.round(c + (cb[j] - c) * f)).join(",")})`;
   }
-  return "rgb(48,204,90)";
+  return "rgb(51,135,54)";
 }
 let IXM = null;
 function renderIndex(){
@@ -2782,7 +2922,7 @@ function drawIxChart(){
   const cv = $("ixChart"), msg = $("ixChartMsg"), R = UI.ixr || "1Y";
   document.querySelectorAll("#ixRSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === R)));
   NOW = Date.now();
-  const L = [["SP:SPX", "S&P 500", "#f5c400"], ["SP:SPXEW", "S&P 500 Equal Weight", getComputedStyle(document.documentElement).getPropertyValue("--ix").trim()]];
+  const L = [["SP:SPX", "S&P 500", "#FFA028"], ["SP:SPXEW", "S&P 500 Equal Weight", "#FFFFFF"]];
   const pts = L.map(([s]) => pricePoints(s));
   ixGeom = null;
   if(pts.some(p => !p.length || !p.step)){ msg.hidden = false; msg.textContent = "The equal-weight history comes from the news robot: run the updated news.yml once."; paintLines(cv, [0, 1], []); $("ixLegend").innerHTML = ""; return; }
@@ -2796,7 +2936,7 @@ function drawIxChart(){
   const geo = paintLines(cv, grid, [{ vals: vals[1], color: L[1][2], width: 2 }, { vals: vals[0], color: L[0][2], width: 2 }]);
   ixGeom = { grid, X: geo.X, vals, L };
   const a = vals[0].at(-1), b = vals[1].at(-1), d = b - a;
-  $("ixLegend").innerHTML = L.map(([s, n, c], i) => `<span><i style="background:${c}"></i>${esc(n)} <b class="num"><span class="${cls(vals[i].at(-1))}">${fSigned(vals[i].at(-1),2,"%")}</span></b></span>`).join("")
+  $("ixLegend").innerHTML = L.map(([s, n, c], i) => `<span><i style="${swatch(c, [])}"></i>${esc(n)} <b class="num"><span class="${cls(vals[i].at(-1))}">${fSigned(vals[i].at(-1),2,"%")}</span></b></span>`).join("")
     + `<span>Equal − Cap <b class="num"><span class="${cls(d)}">${fSigned(d,2," pp")}</span></b></span><span class="lnote">Price return (no dividends) · equal weight from Yahoo, updated hourly by the robot</span>`;
 }
 function ixChartHover(ev){
@@ -2820,26 +2960,36 @@ const NVPL = { s: 240, c: 9 * 30.44, alpha: 0.015, start: 365, d0: Date.UTC(2010
 const nvplW = dt => 1 / (1 + Math.exp(-NVPL.alpha * (dt - NVPL.c)));
 const BTC_SYM = "CRYPTO:BTCUSD", BTC_EUR = "BITSTAMP:BTCEUR", LS_BTC = "ggd.btc.v1";
 const ZONES = [["Strong buy", "z0"], ["Buy", "z1"], ["Hold", "z2"], ["Sell", "z3"], ["Strong sell", "z4"]];
-const ZONE_COL = ["#16a34a", "#4ade80", "#4b5563", "#f87171", "#dc2626"];
+const ZONE_COL = ["#338736", "#D1EDC0", "#3C3C3C", "#FFCDCA", "#E51503"];
 let BTCH = null, btcAt = 0, BQ = {}, bqAt = 0, BTM = null, btBusy = false;
+// fetch with a time limit, so a blocked site can never leave the page waiting
+async function fetchT(url, opt, ms){ const c = new AbortController(), t = setTimeout(() => c.abort(), ms || 12000); try{ return await fetch(url, { ...(opt || {}), signal: c.signal }); } finally { clearTimeout(t); } }
+let btErr = "";
 async function loadBtc(force){
   if(btBusy) return; btBusy = true;
   try{
     if(!BTCH){ try{ const c = JSON.parse(localStorage.getItem(LS_BTC) || "null"); if(c && c.p && c.p.length > 4000){ BTCH = c; btcAt = c.at || 0; } }catch(e){} }
-    if(force || !BTCH || Date.now() - btcAt > 6 * 3600e3){
-      const r = await fetch("https://api.blockchain.info/charts/market-price?timespan=all&format=json&sampled=false&cors=true", { cache: "no-store" });
-      if(r.ok){
-        const v = ((await r.json()).values || []).filter(x => x.y > 0);
-        const i0 = v.findIndex(x => Math.round((x.x * 1000 - NVPL.d0) / 864e5) >= 0);
-        if(v.length > 4000 && i0 >= 0){
-          // daily series indexed by day number (1 = 18 Aug 2010); gaps keep the previous price
-          const last = Math.round((v[v.length-1].x * 1000 - NVPL.d0) / 864e5) + 1, p = new Array(last).fill(null);
-          v.forEach(x => { const d = Math.round((x.x * 1000 - NVPL.d0) / 864e5) + 1; if(d >= 1) p[d-1] = +x.y.toPrecision(7); });
-          for(let i = 1; i < p.length; i++) if(p[i] == null) p[i] = p[i-1];
-          BTCH = { at: Date.now(), p }; btcAt = Date.now();
-          try{ localStorage.setItem(LS_BTC, JSON.stringify(BTCH)); }catch(e){}
-        }
+    if(force || !BTCH || Date.now() - btcAt > 3 * 3600e3){
+      let got = null, why = [];
+      // 1) btc.json saved by the news robot in your data repo (works on networks that block Blockchain.com)
+      if(SYNC){
+        try{
+          const r = await fetchT(`${ghUrlFor("btc.json")}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: { ...ghHeaders(), Accept: "application/vnd.github.raw+json" }, cache: "no-store" });
+          if(r.ok){ const j = JSON.parse(await r.text()); if(j.p && j.p.length > 4000) got = j.p; } else why.push(r.status === 404 ? "btc.json not in your data repo yet" : "GitHub " + r.status);
+        }catch(e){ why.push("GitHub unreachable"); }
+      } else why.push("sync is off");
+      // 2) straight from Blockchain.com
+      if(!got){
+        try{
+          const r = await fetchT("https://api.blockchain.info/charts/market-price?timespan=all&format=json&sampled=false&cors=true", { cache: "no-store" }, 10000);
+          if(r.ok){
+            const v = ((await r.json()).values || []).filter(x => x.y > 0), day = x => Math.round((x * 1000 - NVPL.d0) / 864e5) + 1;
+            if(v.length > 4000){ const p = new Array(day(v[v.length-1].x)).fill(null); v.forEach(x => { const d = day(x.x); if(d >= 1) p[d-1] = +x.y.toPrecision(7); }); for(let i = 1; i < p.length; i++) if(p[i] == null) p[i] = p[i-1]; got = p; }
+          } else why.push("Blockchain.com " + r.status);
+        }catch(e){ why.push("Blockchain.com blocked or unreachable"); }
       }
+      if(got){ BTCH = { at: Date.now(), p: got }; btcAt = Date.now(); btErr = ""; try{ localStorage.setItem(LS_BTC, JSON.stringify(BTCH)); }catch(e){} }
+      else { btErr = why.join(" · "); btcAt = Date.now() - 3 * 3600e3 + 5 * 60e3; }       // try again in 5 minutes
     }
     if(force || Date.now() - bqAt > Math.max(15, (DB.refresh || 60) / 2) * 1000){ const q = await scan([BTC_SYM, BTC_EUR]); if(q[BTC_SYM]){ BQ = q; bqAt = Date.now(); } }
   }catch(e){}
@@ -2919,12 +3069,12 @@ function renderBtc(){
   if($("view-bt").hidden) return;
   const M = BTM = btcModel();
   document.querySelectorAll("#btRSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === (UI.btr || "4Y"))));
-  if(!M){ $("btMsg").hidden = false; $("btMsg").textContent = "Loading Bitcoin's daily history (Blockchain.com)…"; $("btKpis").innerHTML = ""; return; }
+  if(!M){ $("btMsg").hidden = false; $("btMsg").textContent = btErr ? `Bitcoin's price history could not be loaded (${btErr}). Run the updated news robot (news.yml) once: it saves btc.json in your data repo.` : "Loading Bitcoin's daily history…"; $("btKpis").innerHTML = ""; return; }
   $("btMsg").hidden = true;
   const { q, now, P, R, zone, rank, thr, trend } = M, px = P[now], tr = 10 ** trend(now + 1), dev = px / tr - 1, z = zone[now];
   const eur = (BQ[BTC_EUR] || {}).close, upd = isNum(q.close) ? "live" : "last close";
   const f12 = 10 ** M.fc(365) / px - 1;
-  $("btSub").innerHTML = `Live price: TradingView ${esc(BTC_SYM)} (${upd}) · history: Blockchain.com daily, same series as the paper · model: <a href="https://doi.org/10.5281/zenodo.20937229" target="_blank" rel="noopener">Naive–Power Law blend (Baquero &amp; Tinoco, 2026)</a>`;
+  $("btSub").innerHTML = `Live price: TradingView ${esc(BTC_SYM)} (${upd}) · history: Blockchain.com daily (via the news robot), same series as the paper · model: <a href="https://doi.org/10.5281/zenodo.20937229" target="_blank" rel="noopener">Naive–Power Law blend (Baquero &amp; Tinoco, 2026)</a>`;
   $("btKpis").innerHTML = `
     <div><div class="l1">Bitcoin · ${upd}</div><div class="v">${fUsd(px)}</div><div class="s">${isNum(q.change) ? pct(q.change) + " today" : ""}${isNum(eur) ? " · €" + fN(eur, 0) : ""}</div></div>
     <div><div class="l1">Power-law trend today</div><div class="v">${fUsd(tr)}</div><div class="s">price is <span class="${cls(dev)}">${fSigned(dev * 100, 1, "%")}</span> vs trend</div></div>
@@ -2983,22 +3133,22 @@ function drawBtcChart(){
     if(R !== "1Y" && d.getUTCMonth() !== 0) continue; if(R === "1Y" && d.getUTCMonth() % 2) continue;
     const i = Math.round((d.getTime() - NVPL.d0) / 864e5), xx = x(i); if(xx < padL + 12 || xx > W - padR - 12 || xx - lastX < 38) continue;
     g.fillStyle = C("--gray"); g.fillText(R === "1Y" ? d.toLocaleDateString("en-GB",{ month:"short", year:"2-digit", timeZone:"UTC" }) : String(d.getUTCFullYear()), xx, H - 6); lastX = xx;
-    g.strokeStyle = "#151a21"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke();
+    g.strokeStyle = "#1C1C1C"; g.beginPath(); g.moveTo(Math.round(xx) + .5, padT); g.lineTo(Math.round(xx) + .5, H - padB); g.stroke();
   }
   // zone strip (point in time)
   const sy = H - padB - stripH;
   for(let i = Math.max(0, i0); i <= now; i++){ const z = M.zone[i]; if(z < 0) continue; g.fillStyle = ZONE_COL[z]; g.fillRect(x(i), sy, Math.max(1, x(i + 1) - x(i) + .5), stripH); }
   // today line
-  g.strokeStyle = "#3a3f48"; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x(now), padT); g.lineTo(x(now), sy - 2); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = "#545454"; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x(now), padT); g.lineTo(x(now), sy - 2); g.stroke(); g.setLineDash([]);
   // forecast band + path
-  g.fillStyle = "rgba(45,212,191,.13)"; g.beginPath(); fcp.forEach((p, k) => k ? g.lineTo(x(p[0]), y(p[3])) : g.moveTo(x(p[0]), y(p[3]))); [...fcp].reverse().forEach(p => g.lineTo(x(p[0]), y(p[2]))); g.closePath(); g.fill();
+  g.fillStyle = "rgba(255,255,255,.08)"; g.beginPath(); fcp.forEach((p, k) => k ? g.lineTo(x(p[0]), y(p[3])) : g.moveTo(x(p[0]), y(p[3]))); [...fcp].reverse().forEach(p => g.lineTo(x(p[0]), y(p[2]))); g.closePath(); g.fill();
   const path = (arr, col, w, dash) => { g.setLineDash(dash || []); g.strokeStyle = col; g.lineWidth = w; g.lineJoin = "round"; g.beginPath(); arr.forEach((p, k) => k ? g.lineTo(x(p[0]), y(p[1])) : g.moveTo(x(p[0]), y(p[1]))); g.stroke(); g.setLineDash([]); };
-  path(trp, "#2f8bff", 1.5, [6, 4]);
+  path(trp, "#999999", 1.5, [6, 4]);
   path(pts, C("--btc"), 1.6);
   path(fcp, C("--ix"), 2);
   g.fillStyle = C("--btc"); g.beginPath(); g.arc(x(now), y(M.lp[now]), 3.5, 0, Math.PI * 2); g.fill();
   btGeom = { x, i0, i1, W, padL, padR };
-  $("btLegend").innerHTML = `<span><i style="background:var(--btc)"></i>Bitcoin (USD, log scale)</span><span><i style="background:#2f8bff"></i>Power-law trend</span><span><i style="background:var(--ix)"></i>Model forecast, shaded 80% range</span>`
+  $("btLegend").innerHTML = `<span><i style="${swatch("#FFA028", [])}"></i>Bitcoin (USD, log scale)</span><span><i style="${swatch("#999999", [6,4])}"></i>Power-law trend</span><span><i style="${swatch("#FFFFFF", [])}"></i>Model forecast, shaded 80% range</span>`
     + `<span class="lnote">Strip under the chart: zone each day had at the time · ${ZONES.map(([n], i) => `<span style="color:${ZONE_COL[i]}">■</span> ${n}`).join(" ")}</span>`;
 }
 function btHover(ev){
@@ -3008,12 +3158,33 @@ function btHover(ev){
   const dte = new Date(M.ts(i)).toLocaleDateString("en-GB",{ day:"numeric", month:"short", year:"numeric", timeZone:"UTC" }), tr = 10 ** M.trend(i + 1);
   if(i <= M.now){
     const p = M.P[i], z = M.zone[i];
-    tip.innerHTML = `${dte}<br><span style="color:var(--btc)">Bitcoin</span> ${fUsd(p)}<br><span style="color:#2f8bff">Trend (today's fit)</span> ${fUsd(tr)} · ${fSigned((p / tr - 1) * 100, 0, "%")}<br>${z >= 0 ? `Zone then: <span class="zb ${ZONES[z][1]}">${ZONES[z][0]}</span>` : ""}`;
+    tip.innerHTML = `${dte}<br><span style="color:var(--btc)">Bitcoin</span> ${fUsd(p)}<br><span style="color:#999999">Trend (today's fit)</span> ${fUsd(tr)} · ${fSigned((p / tr - 1) * 100, 0, "%")}<br>${z >= 0 ? `Zone then: <span class="zb ${ZONES[z][1]}">${ZONES[z][0]}</span>` : ""}`;
   } else {
     const dt = i - M.now, v = 10 ** M.fc(dt), b = M.bandAt(dt) || [0, 0];
-    tip.innerHTML = `${dte} · in ${fN(dt / 30.44, 0)} months<br><span style="color:var(--ix)">Forecast</span> ${fUsd(v)} (${pct((v / M.P[M.now] - 1) * 100)})<br>80% range ${fUsd(v * 10 ** b[0])} – ${fUsd(v * 10 ** b[1])}<br><span style="color:#2f8bff">Trend</span> ${fUsd(tr)}`;
+    tip.innerHTML = `${dte} · in ${fN(dt / 30.44, 0)} months<br><span style="color:var(--ix)">Forecast</span> ${fUsd(v)} (${pct((v / M.P[M.now] - 1) * 100)})<br>80% range ${fUsd(v * 10 ** b[0])} – ${fUsd(v * 10 ** b[1])}<br><span style="color:#999999">Trend</span> ${fUsd(tr)}`;
   }
   tip.hidden = false; tip.style.left = Math.min(Math.max(4, px + 12), r.width - tip.offsetWidth - 4) + "px"; tip.style.top = "10px";
+}
+
+
+/* ============================== Claude's notes: plain facts about the chosen portfolio ============================== */
+function renderAdvice(rows, tot){
+  const B = BOOKS[UI.book] ? UI.book : "real", li = [];
+  $("advTitle").textContent = `${BOOKS[B].label} right now`;
+  const pos = rows.filter(r => isNum(r.c.valueBase) && r.c.valueBase > 0).sort((a,b) => b.c.valueBase - a.c.valueBase);
+  if(!pos.length || !tot){ $("advLive").innerHTML = "<li>No open positions in this portfolio yet.</li>"; return; }
+  const w = r => r.c.valueBase / tot * 100, top = pos[0], top3 = pos.slice(0, 3).reduce((a,r) => a + w(r), 0);
+  li.push(`<b>${pos.length} position${pos.length === 1 ? "" : "s"}.</b> Largest: ${esc(tick(top.p.sym))} at <b>${fN(w(top), 1)}%</b>${pos.length > 3 ? `; the top 3 make up ${fN(top3, 0)}%` : ""}.${w(top) > 10 ? " That is above the usual 5–10% guide for one stock: fine if deliberate, but a bad quarter there moves your whole result." : ""}`);
+  const sec = {}; pos.forEach(r => { const k = secOf(r.c.q || Q[r.p.sym] || {}); sec[k] = (sec[k] || 0) + w(r); });
+  const s1 = Object.entries(sec).sort((a,b) => b[1] - a[1])[0];
+  if(s1) li.push(`<b>Largest sector:</b> ${esc(s1[0])} at ${fN(s1[1], 0)}%${Object.keys(sec).length > 1 ? ` (${Object.keys(sec).length} sectors in total)` : " (everything is in one sector)"}.${s1[1] > 40 ? " Stocks in one sector tend to fall together." : ""}`);
+  const base = majorCcy(DB.base), fx = pos.filter(r => majorCcy(r.c.iccy || r.p.ccy) !== base).reduce((a,r) => a + w(r), 0);
+  if(fx > 0.5) li.push(`<b>${fN(fx, 0)}% is priced in other currencies.</b> Exchange-rate moves change your return in ${esc(base)} even when the stocks don't move.`);
+  const loss = pos.filter(r => isNum(r.c.gainPct) && r.c.gainPct < -25);
+  if(loss.length) li.push(`<b>Down more than 25% from your average price:</b> ${loss.map(r => `${esc(tick(r.p.sym))} (${fSigned(r.c.gainPct, 0, "%")})`).join(", ")}. Worth rechecking whether the reason you bought still holds, rather than the price you paid.`);
+  const pf = buildSeries("ALL"), b1 = pf && pf.bsym;
+  if(pf && b1 && isNum(pf.P.at(-1)) && isNum(pf.B.at(-1))){ const d = pf.P.at(-1) - pf.B.at(-1); li.push(`<b>Since your first buy</b> you are ${d >= 0 ? "ahead of" : "behind"} ${esc(benchName(b1))} by ${fN(Math.abs(d), 1)} points (same money, same dates).`); }
+  $("advLive").innerHTML = li.map(x => `<li>${x}</li>`).join("");
 }
 
 /* ============================== tabs: 1) portfolios & index heatmaps (menu)  2) trades of the chosen portfolio  3) watchlist ============================== */
@@ -3035,7 +3206,7 @@ function showTab(t){
   $("tab-pf").className = sel === "spx" ? "t-ix" : "t-" + sel;
   $("tab-tr").className = "t-" + B;
   document.querySelectorAll("#pfMenu [data-pfs]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.pfs === sel)));
-  $("tabsNav").style.borderBottomColor = view === "ix" ? "var(--ix)" : view === "bt" ? "var(--btc)" : view === "wl" ? "var(--gray-hi)" : BOOKS[B].col;
+  $("tabsNav").style.borderBottomColor = "#FFFFFF";
   render();
   if(view === "ix") loadIndex();
   if(view === "bt") loadBtc();
