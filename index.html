@@ -422,11 +422,114 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .foot b{color:var(--gray-hi);font-weight:500}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
+/* ============ Simple mode (phones): clean lists in the style of Investing.com ============ */
+.mbar{display:none}
+#simple{display:none}
+.mswitch{position:relative;display:grid;grid-template-columns:1fr 1fr;height:44px;width:100%;max-width:440px;padding:3px;border-radius:999px;background:#15181d;border:1px solid #333842;touch-action:manipulation;flex:none}
+.mswitch .thumb{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--orange);box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .22s ease}
+.mswitch[data-m="detail"] .thumb{transform:translateX(100%)}
+.mswitch button{position:relative;z-index:1;border:0;background:none;padding:0;font-weight:700;font-size:16px;letter-spacing:.02em;color:var(--gray-hi);cursor:pointer;border-radius:999px}
+.mswitch button[aria-pressed="true"]{color:#000}
+.mswitch button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (max-width:760px){
+  .mbar{display:flex;justify-content:center}
+  html.smode,html.smode body{background:#f1f2f4}
+  html.smode .wrap{display:none}
+  html.smode #simple{display:flex}
+}
+#simple{--s-bg:#f1f2f4;--s-card:#fff;--s-fg:#16181d;--s-mute:#6c717b;--s-line:#e7e9ec;--s-up:#0f9d4f;--s-dn:#e2333c;--s-fl:#9097a1;--s-acc:#fb8b1e;--s-nav:#26282c;
+  flex-direction:column;min-height:100vh;min-height:100dvh;background:var(--s-bg);color:var(--s-fg);color-scheme:light;
+  font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+#simple .num{font-family:inherit;font-variant-numeric:tabular-nums}
+#simple .pos{color:var(--s-up)} #simple .neg{color:var(--s-dn)} #simple .flat,#simple .muted{color:var(--s-mute)}
+#simple img.flag{box-shadow:0 0 0 1px rgba(0,0,0,.14);margin-right:6px;flex:none}
+.stop{position:sticky;top:0;z-index:20;background:var(--s-card);box-shadow:0 1px 0 var(--s-line)}
+.sh{display:flex;align-items:center;gap:8px;padding:10px 10px 8px 16px}
+.slogo{font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--s-fg)}
+.slogo i{font-style:normal;color:var(--s-acc)}
+.sh .dot{margin-right:auto}
+.sh .mswitch{width:172px;height:40px;background:#eceef1;border-color:#dde0e4}
+.sh .mswitch button{font-size:15px;color:#555b65}
+.sh .mswitch button[aria-pressed="true"]{color:#111}
+@media (max-width:374px){.sh .mswitch{width:146px}.slogo{font-size:19px}}
+.sic{width:38px;height:38px;flex:none;display:grid;place-items:center;border:0;background:none;color:var(--s-fg);border-radius:50%;cursor:pointer;padding:0}
+.sic svg{width:23px;height:23px}
+.sic:active{background:#eef0f2}
+.sic.spin svg{animation:sspin .9s linear infinite}
+@keyframes sspin{to{transform:rotate(360deg)}}
+.supd{border:0;background:var(--s-acc);color:#000;font-weight:700;font-size:12px;padding:6px 10px;border-radius:999px;cursor:pointer;flex:none}
+.ssub{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6px}
+.ssub::-webkit-scrollbar{display:none}
+.ssub button{flex:none;border:0;background:none;padding:10px 12px 8px;font-size:15px;color:var(--s-mute);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.ssub button[aria-selected="true"]{color:var(--s-fg);font-weight:700;border-bottom-color:var(--s-acc)}
+.sbody{display:flex;flex-direction:column;gap:10px;padding:10px 0 4px}
+.scard,.slist,.sempty{background:var(--s-card);border-top:1px solid var(--s-line);border-bottom:1px solid var(--s-line)}
+.scard{padding:14px 16px}
+.ss-l{font-size:12px;color:var(--s-mute);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.ss-v{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.ss-d{font-size:15px;font-weight:600;margin-top:1px;font-variant-numeric:tabular-nums}
+.ss-d span{color:var(--s-mute);font-weight:400}
+.ss-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--s-line)}
+.ss-g span{display:block;font-size:12px;color:var(--s-mute)}
+.ss-g b{display:block;font-size:16px;font-variant-numeric:tabular-nums;margin-top:2px;white-space:nowrap}
+.ss-g i{display:block;font-style:normal;font-size:12px;color:var(--s-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shd{display:flex;align-items:center;gap:6px;padding:9px 12px 9px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--s-line)}
+.shd .n{color:var(--s-mute);font-weight:500}
+.stg{margin-left:auto;display:flex;background:#eef0f2;border-radius:8px;padding:2px}
+.stg button{border:0;background:none;font-size:13px;font-weight:600;color:var(--s-mute);padding:5px 11px;border-radius:6px;cursor:pointer}
+.stg button[aria-pressed="true"]{background:#fff;color:var(--s-fg);box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto 80px;align-items:center;gap:12px;width:100%;padding:11px 12px 11px 16px;border:0;border-bottom:1px solid var(--s-line);background:none;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.srow:last-child{border-bottom:0}
+.srow:active,.scal:active,.snews:active{background:#f5f6f7}
+.sr-n,.sr-p{display:flex;flex-direction:column;min-width:0}
+.sr-n b{font-size:16px;font-weight:700;display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.sr-n small,.sr-p small{font-size:13px;color:var(--s-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.sr-p{text-align:right}
+.sr-p b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{justify-self:end;width:80px;text-align:center;padding:6px 4px;border-radius:6px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;color:#fff;background:var(--s-fl);white-space:nowrap}
+.pill.up{background:var(--s-up)} .pill.dn{background:var(--s-dn)}
+.stag{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--s-acc);border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:6px;line-height:15px}
+.sband{background:#e3e5e8;color:#3d4149;font-size:13px;font-weight:700;text-align:center;padding:5px 10px}
+.scal{display:grid;grid-template-columns:48px 78px minmax(0,1fr);gap:10px;align-items:start;width:100%;padding:11px 14px 11px 16px;border:0;border-bottom:1px solid var(--s-line);background:var(--s-card);text-align:left;color:inherit;font:inherit;cursor:pointer}
+.scal:last-child{border-bottom:0}
+.c-t{font-size:15px;font-variant-numeric:tabular-nums;padding-top:1px}
+.c-t.ad{font-size:12px;color:var(--s-mute);padding-top:3px;line-height:1.2}
+.c-k{display:flex;align-items:center;font-weight:700;font-size:14.5px;min-width:0;overflow:hidden;white-space:nowrap;padding-top:1px}
+.c-e{display:flex;flex-direction:column;min-width:0}
+.c-e b{font-weight:600;font-size:15px}
+.c-e small{font-size:13px;color:var(--s-mute);margin-top:2px}
+.c-e small b{font-size:13px;font-weight:700}
+.snews{display:flex;flex-direction:column;gap:5px;padding:12px 16px;border-bottom:1px solid var(--s-line);color:inherit;text-decoration:none}
+.snews:last-child{border-bottom:0}
+.sn-t{font-size:15.5px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sn-m{font-size:12.5px;color:var(--s-mute);display:flex;align-items:center;flex-wrap:wrap;gap:0 5px}
+.sn-m b{color:var(--s-fg)} .sn-m em{font-style:normal;color:var(--s-acc);font-weight:700}
+.sempty{padding:36px 24px;text-align:center;color:var(--s-mute);font-size:15px}
+.sfoot{text-align:center;font-size:11.5px;color:var(--s-mute);margin:6px 16px 4px}
+.snav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--s-nav);padding-bottom:env(safe-area-inset-bottom,0px)}
+.snav button{border:0;background:none;color:#9da1a8;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:11.5px;cursor:pointer;position:relative}
+.snav button svg{width:24px;height:24px}
+.snav button[aria-current="page"]{color:#fff}
+.snav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--s-acc)}
+.bt-h{display:flex;align-items:center;gap:10px}
+.bt-ic{width:38px;height:38px;border-radius:50%;background:var(--btc);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px;flex:none}
+.bt-h b{font-size:17px}
+.bt-h small{display:block;color:var(--s-mute);font-size:12.5px}
+.bt-h .pill{margin-left:auto}
+.spark{display:block;width:100%;height:96px;margin-top:10px}
+.spark-l{display:flex;justify-content:space-between;font-size:12px;color:var(--s-mute);margin-top:2px}
+.zbig{display:inline-block;color:#fff;font-weight:800;font-size:22px;padding:8px 18px;border-radius:10px;margin:8px 0 8px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--s-line);font-size:14.5px}
+.kv span{color:var(--s-mute)} .kv b{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.snote{font-size:12.5px;color:var(--s-mute);margin-top:8px;line-height:1.45}
+
 .foot.gen{margin:6px 0 0;font-size:11px;color:var(--gray);text-align:center;letter-spacing:.04em}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="mbar"><div class="mswitch" data-m="detail" role="group" aria-label="Layout"><span class="thumb"></span><button type="button" data-mode="simple" aria-pressed="false">Simple</button><button type="button" data-mode="detail" aria-pressed="true">Detail</button></div></div>
 
   <header class="top">
     <div class="brand">GGD Portfolio<small id="baseLbl">EUR</small></div>
@@ -717,6 +820,22 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 
 </div>
 
+<!-- Simple mode (phones): clean lists in the style of Investing.com -->
+<div id="simple">
+  <div class="stop">
+    <header class="sh">
+      <span class="slogo">GGD<i>.</i></span><span class="dot" id="smDot"></span>
+      <div class="mswitch" data-m="simple" role="group" aria-label="Layout"><span class="thumb"></span><button type="button" data-mode="simple" aria-pressed="true">Simple</button><button type="button" data-mode="detail" aria-pressed="false">Detail</button></div>
+      <button type="button" class="supd" id="smUpd" hidden>Update</button>
+      <button type="button" class="sic" id="smAdd" aria-label="Add a position"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button type="button" class="sic" id="smRefresh" aria-label="Refresh prices"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.5h-4.5"/></svg></button>
+    </header>
+    <nav class="ssub" id="smSub" role="tablist" aria-label="Filter"></nav>
+  </div>
+  <main class="sbody" id="smBody"></main>
+  <nav class="snav" id="smNav" aria-label="Sections"><button type="button" data-st="pf"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 12.5h18"/></svg><span>Portfolio</span></button><button type="button" data-st="mk"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18M6 16.5v-4M10 16.5V8.5M14 16.5v-6M18 16.5V5"/></svg><span>Markets</span></button><button type="button" data-st="nw"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8.5h10M7 12h10M7 15.5h6"/></svg><span>News</span></button><button type="button" data-st="cal"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg><span>Calendar</span></button><button type="button" data-st="bt"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 7.6h3.4a2.1 2.1 0 0 1 0 4.2H9.8h3.9a2.2 2.2 0 0 1 0 4.4H9.8V7.6M11.3 6v1.6M11.3 16.2v1.7"/></svg><span>Crypto</span></button></nav>
+</div>
+
 <!-- Add / edit position -->
 <dialog id="posDlg">
   <form method="dialog" id="posForm" novalidate>
@@ -857,7 +976,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.03.36";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.10.37";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1248,6 +1367,7 @@ function render(){
   const hasHist = allPos().length > 0;
   // portfolio's own time-weighted returns, never older than the first open date
   const PF = {}; ["1W","1M","YTD","1Y","ALL"].forEach(r => { const sr = buildSeries(r); PF[r] = sr && sr.grid.length > 1 ? { p: sr.P.at(-1), b: sr.B.at(-1), bsym: sr.bsym, start: sr.startTs, clipped: sr.clipped } : null; });
+  LASTPF = PF;
   $("kVal").textContent = rows.length ? fMoney(tot, base) : "–";
   $("kCost").textContent = rows.length ? "cost " + fMoney(cost, base) : hasHist ? "no open positions" : "no positions";
   const dayPct = tot - day ? day / (tot - day) * 100 : NaN;
@@ -1882,7 +2002,8 @@ async function pull(){
 }
 
 /* ============================== refresh loop ============================== */
-function setStatus(kind, txt){ $("dot").className = "dot " + (kind || ""); $("statusTxt").textContent = txt; }
+function setStatus(kind, txt){ $("dot").className = "dot " + (kind || ""); $("statusTxt").textContent = txt;
+  const d = $("smDot"); if(d){ d.className = "dot " + (kind || ""); d.title = txt; } const r = $("smRefresh"); if(r) r.classList.toggle("spin", kind === "busy"); }
 async function refresh(){
   if(busy) return; busy = true; setStatus("busy", "Updating…");
   try{
@@ -1917,7 +2038,7 @@ async function refresh(){
     loadHist();
     if(UI.tab === "tools" && toolSel() === "ix") loadIndex(true);
     if(UI.tab === "tools" && toolSel() === "sq") loadSqueeze();
-    if(UI.tab === "bt") loadBtc();
+    if(UI.tab === "bt" || (smOn() && UI.stab === "bt")) loadBtc();
   }catch(e){
     setStatus("err", (e.message || "Update failed") + (lastOk ? ` · last ok ${lastOk.toLocaleTimeString("en-GB")}` : ""));
     render();
@@ -2373,6 +2494,7 @@ function renderEvents(){
   $("evToday").innerHTML = (DB.watch || []).length || openAll().length ? rows.join("") : `<div class="empty" style="padding:8px 0;text-align:left">Add stocks to your watchlist to see their events.</div>`;
   $("newsNote").textContent = !SYNC ? "Releases need sync turned on." : NEWS && NEWS.missing ? "Releases: set up the news robot (guide Step 6)." : NEWS && NEWS.updated ? `News updated ${tzTime(NEWS.updated)}` : "";
   renderCalendar();
+  renderSimple();
 }
 // filters: click E / X / P / R under the calendar to hide or show that kind
 function evOn(kind){ return (UI.evf || {})[kind] !== false; }
@@ -2906,6 +3028,7 @@ async function loadBtc(force){
   }catch(e){}
   btBusy = false;
   if(!$("view-bt").hidden) renderBtc();
+  if(smOn() && UI.stab === "bt") renderSimple();
 }
 function btcModel(){
   if(!BTCH || !BTCH.p) return null;
@@ -3195,6 +3318,175 @@ function showTab(t){
 function pfMenu(open){ $("pfMenu").hidden = !open; $("tab-pf").setAttribute("aria-expanded", String(open)); }
 function pickPf(v){ pfMenu(false); UI.pfsel = v; UI.book = v; showTab("pf"); }
 
+/* ============================== Simple mode (phones): clean lists in the style of Investing.com ============================== */
+// a big Simple / Detail switch on phones; the choice is kept per device. Detail is the full app, unchanged.
+const SM_MQ = window.matchMedia("(max-width:760px)");
+let LASTPF = {}, SMEV = [], SMBT = null, smWas = false;
+function smOn(){ return UI.mode !== "detail" && SM_MQ.matches; }
+function setMode(m){ UI.mode = m === "detail" ? "detail" : "simple"; ls.set(LS_UI, UI); applyMode(true); }
+function applyMode(user){
+  const simple = UI.mode !== "detail", m = simple ? "simple" : "detail";
+  document.documentElement.classList.toggle("smode", simple);
+  document.querySelectorAll(".mswitch").forEach(s => { s.dataset.m = m; s.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m))); });
+  const on = smOn(), tc = document.querySelector('meta[name="theme-color"]'); if(tc) tc.content = on ? "#ffffff" : "#000000";
+  if(on){ renderSimple(); if(user) window.scrollTo(0, 0); if(UI.stab === "bt") loadBtc(); }
+  else if(smWas){ showTab(UI.tab || "pf"); if(user) window.scrollTo(0, 0); }   // charts were drawn while hidden: draw them again
+  smWas = on;
+}
+const SM_CUR = { EUR:"€", USD:"$", GBP:"£", JPY:"¥" };
+function smMoney(x, d = 2){ if(!isNum(x)) return "–"; const c = SM_CUR[DB.base]; const v = Math.abs(x).toLocaleString("en-US",{ minimumFractionDigits:d, maximumFractionDigits:d }); return (x < 0 ? "-" : "") + (c ? c + v : v + " " + DB.base); }
+function smSigned(x, d = 2){ return !isNum(x) ? "–" : (x > 0 ? "+" : x < 0 ? "-" : "") + smMoney(Math.abs(x), d); }
+function smPill(x, d = 2){ const c = !isNum(x) ? "" : x > 0.00001 ? " up" : x < -0.00001 ? " dn" : ""; return `<span class="pill${c}">${isNum(x) ? fSigned(x, d, "%") : "–"}</span>`; }
+function smEmpty(t){ return `<div class="sempty">${t}</div>`; }
+function smAgo(ts){ const m = Math.round((Date.now() - ts) / 60e3); return m < 1 ? "now" : m < 60 ? m + "m ago" : m < 24*60 ? Math.round(m / 60) + "h ago" : fDate(ts); }
+function smRow(sym, q, top, sub, px, pxSub, chg){
+  return `<button type="button" class="srow" data-sym="${esc(sym)}"><span class="sr-n"><b>${top}</b><small>${sub}</small></span><span class="sr-p"><b>${px}</b><small>${pxSub}</small></span>${smPill(chg)}</button>`;
+}
+function smSubs(t){
+  if(t === "pf") return [BOOK_IDS.map(b => [b, b === "sim" ? "Simulated" : BOOKS[b].short]), pfSel()];
+  if(t === "mk") return [[["wl","Watchlist"],["ix","Indices"]], UI.smk === "ix" ? "ix" : "wl"];
+  if(t === "nw") return [[["all","All"],["held","Holdings"],["wl","Watchlist"]], ["held","wl"].includes(UI.snf) ? UI.snf : "all"];
+  if(t === "cal") return [[["y","Yesterday"],["t","Today"],["tm","Tomorrow"],["w","This week"],["nw","Next week"]], ["y","tm","w","nw"].includes(UI.scal) ? UI.scal : "t"];
+  return [[], ""];
+}
+function renderSimple(){
+  if(!smOn() || !$("smBody")) return;
+  const t = ["pf","mk","nw","cal","bt"].includes(UI.stab) ? UI.stab : "pf";
+  document.querySelectorAll("#smNav [data-st]").forEach(b => b.setAttribute("aria-current", b.dataset.st === t ? "page" : "false"));
+  $("smAdd").hidden = t !== "pf"; $("smUpd").hidden = $("updBtn").hidden;
+  const [subs, sel] = smSubs(t);
+  $("smSub").hidden = !subs.length;
+  $("smSub").innerHTML = subs.map(([k, l]) => `<button type="button" role="tab" data-sub="${k}" aria-selected="${k === sel}">${l}</button>`).join("");
+  SMEV = [];
+  $("smBody").innerHTML = ({ pf: smPortfolio, mk: smMarkets, nw: smNews, cal: smCalendar, bt: smCrypto })[t]() + `<p class="sfoot">Claude generated - Not financial advice</p>`;
+  const a = $("smSub").querySelector('[aria-selected="true"]'); if(a && a.scrollIntoView && $("smSub").scrollWidth > $("smSub").clientWidth) a.scrollIntoView({ block:"nearest", inline:"center" });
+  if(t === "bt") smSpark();
+}
+function smPortfolio(){
+  const b = pfSel(), rows = openPositions(b).map(p => ({ p, c: calc(p) })).sort((x, y) => (y.c.valueBase || 0) - (x.c.valueBase || 0));
+  const sum = f => rows.reduce((a, r) => a + (isNum(r.c[f]) ? r.c[f] : 0), 0);
+  const tot = sum("valueBase"), cost = sum("costBase"), day = sum("dayBase"), unreal = tot - cost;
+  const dayPct = tot - day ? day / (tot - day) * 100 : NaN;
+  const realized = allSales(b).reduce((a, { p, s }) => { const v = saleBase(s, p); return a + (isNum(v) ? v : 0); }, 0) + allDivs(b).reduce((a, { p, d }) => { const v = divBase(d, p); return a + (isNum(v) ? v : 0); }, 0);
+  const has = allPos(b).length > 0, m1 = LASTPF && LASTPF["1M"], m1ok = m1 && !m1.clipped && isNum(m1.p);
+  const live = $("statusTxt").textContent.split(" · ").slice(0, 2).join(" · ");
+  let h = `<section class="scard"><div class="ss-l">${esc(BOOKS[b].label)} · value</div>
+    <div class="ss-v">${rows.length ? smMoney(tot) : "–"}</div>
+    <div class="ss-d ${cls(day)}">${rows.length ? `${smSigned(day)} (${fSigned(dayPct, 2, "%")})` : ""} <span>${rows.length ? "today" : "no open positions"}</span></div>
+    <div class="ss-g"><div><span>Unrealized P&amp;L</span><b class="${cls(unreal)}">${rows.length ? smSigned(unreal, 0) : "–"}</b><i>${rows.length && cost ? fSigned(unreal / cost * 100, 1, "%") + " on cost" : ""}</i></div>
+      <div><span>Realized P&amp;L</span><b class="${cls(realized)}">${has ? smSigned(realized, 0) : "–"}</b><i>sales + dividends</i></div>
+      <div><span>1 month</span><b class="${cls(m1ok ? m1.p : NaN)}">${m1ok ? fSigned(m1.p, 1, "%") : "–"}</b><i>${m1ok && isNum(m1.b) ? esc(benchName(m1.bsym)) + " " + fSigned(m1.b, 1, "%") : m1 && m1.clipped ? "held under a month" : ""}</i></div></div></section>`;
+  if(!rows.length) return h + smEmpty(`No open positions in ${esc(BOOKS[b].label)}.<br>Tap + to add one.`);
+  const pl = UI.spill === "pl";
+  h += `<section class="slist"><div class="shd">Positions <span class="n">${rows.length}</span><span class="stg" role="group" aria-label="Show"><button type="button" data-spill="d" aria-pressed="${!pl}">Today</button><button type="button" data-spill="pl" aria-pressed="${pl}">Total P&amp;L</button></span></div>`;
+  h += rows.map(({ p, c }) => smRow(p.sym, c.q, `${coFlag(c.q)}${esc(tick(p.sym))}`, esc(shortName(c.q, p.sym) || p.name || ""),
+    fPx(c.q.close), pl ? `<span class="${cls(c.gainPct)}">${smSigned(toBase(c.gain, p.ccy), 0)}</span>` : smMoney(c.valueBase, 0), pl ? c.gainPct : c.dayPct)).join("");
+  return h + `</section><div class="sfoot">${esc(live)}</div>`;
+}
+function smMarkets(){
+  if(UI.smk === "ix"){
+    const IX = ["SP:SPX","NASDAQ:NDX","SP:SPXEW","TVC:RUT","EURONEXT:IWDA","STOXX:SX5E","STOXX:SXXP","XETR:DAX","INDEX:FTSEMIB"];
+    const rows = IX.map(sym => ({ sym, q: Q[sym], o: BENCH_PRESETS.find(x => x[0] === sym) })).filter(r => r.q);
+    return rows.length ? `<section class="slist">${rows.map(({ sym, q, o }) => smRow(sym, q, esc(o ? o[1] : tick(sym)), esc(o ? (o[3] === "US" ? "United States" : o[3]) : ""), fPx(q.close), "", dayChg(q))).join("")}</section>` : smEmpty("Loading indices…");
+  }
+  const list = DB.watch || [];
+  if(!list.length) return smEmpty("Your watchlist is empty.<br>Add stocks in Detail → Watchlist.");
+  const held = new Set(openAll().map(p => p.sym));
+  return `<section class="slist"><div class="shd">Watchlist <span class="n">${list.length}</span></div>${list.map(w => { const q = Q[w.sym] || {};
+    return smRow(w.sym, q, `${coFlag(q)}${esc(tick(w.sym))}${held.has(w.sym) ? '<span class="stag">HELD</span>' : ""}`, esc(shortName(q, w.sym) || w.name || ""), fPx(q.close), esc(normCcy(q.currency)) + (q.exchange ? " · " + esc(q.exchange) : ""), dayChg(q)); }).join("")}</section>`;
+}
+function smNews(){
+  if(!SYNC) return smEmpty("News needs sync.<br>Switch to Detail → Settings to connect.");
+  if(!NEWS){ loadNews(); return smEmpty("Loading news…"); }
+  if(NEWS.missing) return smEmpty("News needs the news robot (news.yml) in your data repo.");
+  const f = ["held","wl"].includes(UI.snf) ? UI.snf : "all", seen = new Set(), items = [];
+  for(const [sym, o] of evSymbols()){
+    if(f === "wl" && !o.watch) continue; if(f === "held" && !BOOK_IDS.some(b => o[b])) continue;
+    newsFor(sym).forEach(n => { const k = n.url || n.t; if(seen.has(k)) return; seen.add(k); items.push({ ...n, sym }); });
+  }
+  items.sort((a, b) => b.at - a.at);
+  if(!items.length) return smEmpty(f === "wl" ? "No recent news for your watchlist." : f === "held" ? "No recent news for your holdings." : "No recent news.");
+  return `<section class="slist">${items.slice(0, 60).map(n => `<a class="snews" href="${esc(n.url)}" target="_blank" rel="noopener"><span class="sn-t">${esc(n.t)}</span><span class="sn-m">${coFlag(Q[n.sym])}<b>${esc(tick(n.sym))}</b> · ${esc(n.src || "")} · ${smAgo(n.at * 1000)}${WIRES.has(n.pid) ? " · <em>Press release</em>" : ""}</span></a>`).join("")}</section>`
+    + (NEWS.updated ? `<div class="sfoot">News updated ${tzTime(NEWS.updated)} ${tzName()}</div>` : "");
+}
+function smCalendar(){
+  const v = smSubs("cal")[1], tk = tzKey(Date.now());
+  const mon = shift(tk, { d: -((new Date(kts(tk)).getDay() + 6) % 7) });
+  const [from, to] = v === "y" ? [shift(tk,{d:-1}), shift(tk,{d:-1})] : v === "tm" ? [shift(tk,{d:1}), shift(tk,{d:1})] : v === "w" ? [mon, shift(mon,{d:6})] : v === "nw" ? [shift(mon,{d:7}), shift(mon,{d:13})] : [tk, tk];
+  const list = EV.filter(e => e.kind !== "rel" && e.key >= from && e.key <= to).sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : (a.timed ? a.ts : 0) - (b.timed ? b.ts : 0));
+  const when = { y:"yesterday", t:"today", tm:"tomorrow", w:"this week", nw:"next week" }[v];
+  if(!list.length) return smEmpty(`No earnings or dividends ${when} for your stocks.`);
+  const days = {}; list.forEach(e => (days[e.key] ||= []).push(e));
+  const row = e => {
+    const i = SMEV.push(e) - 1, q = Q[e.sym] || e.q || {}, ccy = e.ccy || normCcy(q.currency);
+    let d = "";
+    if(e.kind === "earn" && e.past) d = `Act: <b class="${cls(e.epsS)}">${fN(e.epsA, 2)}</b> | Cons: ${fN(e.eps, 2)}${isNum(e.revA) ? ` | Rev: <b class="${cls(e.revS)}">${fBig(e.revA)}</b>` : ""}`;
+    else if(e.kind === "earn") d = `EPS est: ${fN(e.eps, 2)} | Rev est: ${fBig(e.rev)}${e.tc === 1 ? " · after close" : e.tc === -1 ? " · before open" : ""}${e.unsure ? " · date not confirmed" : ""}`;
+    else if(e.kind === "ex" || e.kind === "pay") d = `${fN(e.amt, 3)} ${esc(ccy)} per share${e.kind === "ex" && e.payKey ? " · paid " + keyLabel(e.payKey, { day:"2-digit", month:"short" }) : ""}`;
+    else d = esc(e.orig || e.txt || "");
+    const held = BOOK_IDS.some(b => e.f && e.f[b]);
+    return `<button type="button" class="scal" data-smev="${i}"><span class="c-t${e.timed ? "" : " ad"}">${e.timed ? tzTime(e.ts) : "All<br>day"}</span><span class="c-k">${coFlag(q)}${esc(tick(e.sym))}</span><span class="c-e"><b>${esc(shortName(q, e.sym))} · ${esc(evLabel({ ...e, n: 1 }))}${held ? '<span class="stag">HELD</span>' : ""}</b><small>${d}</small></span></button>`;
+  };
+  return Object.keys(days).sort().map(k => `<section class="slist"><div class="sband">${keyLabel(k, { weekday:"long", day:"numeric", month:"long" })}${k === tk ? " · Today" : ""}</div>${days[k].map(row).join("")}</section>`).join("")
+    + `<div class="sfoot">Times in ${tzName()} · tap a row for details</div>`;
+}
+function smCrypto(){
+  if(!BTCH || !BTCH.p){ loadBtc(); return smEmpty(btErr ? `Bitcoin's history could not be loaded (${esc(btErr)}).` : "Loading Bitcoin…"); }
+  const q0 = BQ[BTC_SYM] || {}, key = BTCH.p.length + "|" + q0.close;
+  if(!SMBT || SMBT.key !== key) SMBT = { key, M: btcModel() };
+  const M = SMBT.M; if(!M) return smEmpty("Loading Bitcoin…");
+  const { q, now, P, zone, rank, trend } = M, px = P[now], tr = 10 ** trend(now + 1), dev = px / tr - 1, z = zone[now];
+  const eur = (BQ[BTC_EUR] || {}).close, y1 = now >= 365 ? px / P[now - 365] - 1 : NaN;
+  const fc = h => { const v = 10 ** M.fc(h); return `<div class="kv"><span>${h === 30 ? "1 month" : h === 91 ? "3 months" : "12 months"}</span><b>${fUsd(v)} <span class="${cls(v / px - 1)}">${fSigned((v / px - 1) * 100, 1, "%")}</span></b></div>`; };
+  const odds = (h, t) => { const A = M.odds && M.odds[h + "_" + t], a = A && z >= 0 ? A[z] : null; return a && a.n ? `<div class="kv"><span>+${t}% before −${t}%, within ${h === 30 ? "1 month" : "3 months"}</span><b><span class="pos">${fN(a.u / a.n * 100, 0)}%</span> vs <span class="neg">${fN(a.d / a.n * 100, 0)}%</span></b></div>` : ""; };
+  return `<section class="scard"><div class="bt-h"><span class="bt-ic">₿</span><div><b>Bitcoin</b><small>BTC / USD · ${isNum(q.close) ? "live" : "last close"}</small></div>${smPill(q.change)}</div>
+      <div class="ss-v" style="margin-top:8px">${fUsd(px)}</div><div class="ss-d"><span>${isNum(eur) ? "€" + fN(eur, 0) : ""}</span></div>
+      <canvas class="spark" id="smSpark" aria-label="Bitcoin price, last 12 months"></canvas><div class="spark-l"><span>12 months ago</span><span class="${cls(y1)}">${fSigned(y1 * 100, 1, "%")} in 12 months</span></div></section>
+    <section class="scard"><div class="ss-l">Model signal · NvPL power law</div>
+      ${z >= 0 ? `<div class="zbig" style="background:${["#15803d","#22a55a","#6b7280","#e0565b","#b91c1c"][z]}">${ZONES[z][0]}</div>` : "<div class=\"ss-v\">–</div>"}
+      <div class="kv"><span>Price vs long-term trend</span><b class="${cls(dev)}">${fSigned(dev * 100, 1, "%")}</b></div>
+      <div class="kv"><span>Trend price today</span><b>${fUsd(tr)}</b></div>
+      ${isNum(rank[now]) ? `<div class="kv"><span>Cheaper than</span><b>${fN((1 - rank[now]) * 100, 0)}% of days since 2012</b></div>` : ""}</section>
+    <section class="scard"><div class="ss-l">Model forecast</div>${fc(30)}${fc(91)}${fc(365)}</section>
+    <section class="scard"><div class="ss-l">Short-term odds in this zone (since 2016)</div>${odds(30, 20)}${odds(91, 30)}
+      <div class="snote">How often the price hit the gain before the loss, starting from days in the same zone. Few market cycles behind these numbers. Full chart, zones and backtest: Detail → ₿ Bitcoin.</div></section>`;
+}
+function smSpark(){
+  const cv = $("smSpark"), M = SMBT && SMBT.M; if(!cv || !M) return;
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; if(!r.width) return;
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  const c = cv.getContext("2d"); c.scale(dpr, dpr);
+  const pts = M.P.slice(Math.max(0, M.now - 365), M.now + 1), lo = Math.min(...pts), hi = Math.max(...pts), W = r.width, H = r.height - 4;
+  const X = i => i / (pts.length - 1) * W, Y = v => 2 + (hi - v) / ((hi - lo) || 1) * (H - 2);
+  const up = pts[pts.length - 1] >= pts[0], col = up ? "#0f9d4f" : "#e2333c";
+  c.beginPath(); pts.forEach((v, i) => i ? c.lineTo(X(i), Y(v)) : c.moveTo(X(i), Y(v)));
+  c.strokeStyle = col; c.lineWidth = 2; c.lineJoin = "round"; c.stroke();
+  c.lineTo(W, H + 4); c.lineTo(0, H + 4); c.closePath();
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, up ? "rgba(15,157,79,.18)" : "rgba(226,51,60,.18)"); g.addColorStop(1, "rgba(255,255,255,0)");
+  c.fillStyle = g; c.fill();
+}
+function initSimple(){
+  document.querySelectorAll(".mswitch button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  $("smNav").onclick = e => { const b = e.target.closest("[data-st]"); if(!b) return;
+    UI.stab = b.dataset.st; ls.set(LS_UI, UI); renderSimple(); window.scrollTo(0, 0);
+    if(UI.stab === "bt") loadBtc(); if(UI.stab === "nw") loadNews(); };
+  $("smSub").onclick = e => { const b = e.target.closest("[data-sub]"); if(!b) return; const v = b.dataset.sub, t = UI.stab;
+    if(t === "mk") UI.smk = v; else if(t === "nw") UI.snf = v; else if(t === "cal") UI.scal = v;
+    else if(BOOKS[v]){ UI.book = v; UI.pfsel = v; ls.set(LS_UI, UI); render(); return; }
+    ls.set(LS_UI, UI); renderSimple(); };
+  $("smBody").onclick = e => {
+    const tg = e.target.closest("[data-spill]"); if(tg){ UI.spill = tg.dataset.spill; ls.set(LS_UI, UI); renderSimple(); return; }
+    const ev = e.target.closest("[data-smev]"); if(ev){ const x = SMEV[+ev.dataset.smev]; if(x) openStock(x.sym, x); return; }
+    const r = e.target.closest("[data-sym]"); if(r) openStock(r.dataset.sym); };
+  $("smAdd").onclick = () => openPos(null);
+  $("smRefresh").onclick = () => { refresh(); if(UI.stab === "bt") loadBtc(true); };
+  $("smUpd").onclick = () => $("updBtn").click();
+  const mq = () => applyMode(false);
+  if(SM_MQ.addEventListener) SM_MQ.addEventListener("change", mq); else if(SM_MQ.addListener) SM_MQ.addListener(mq);
+  let st; window.addEventListener("resize", () => { clearTimeout(st); st = setTimeout(() => { if(smOn() && UI.stab === "bt") smSpark(); }, 150); });
+  applyMode(false);
+}
+
 /* ============================== settings ============================== */
 function openSettings(){
   $("sBase").value = DB.base; $("sRefresh").value = DB.refresh || 60;
@@ -3459,6 +3751,7 @@ function init(){
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawChart, 120); });
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
   showTab(UI.tab || "pf");
+  initSimple();
   refresh(); schedule();
   setupPwa();
 }
