@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="GGD">
 <meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
 <title>GGD Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -452,7 +455,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .sh .mswitch{width:172px;height:40px;background:#eceef1;border-color:#dde0e4}
 .sh .mswitch button{font-size:15px;color:#555b65}
 .sh .mswitch button[aria-pressed="true"]{color:#111}
-@media (max-width:374px){.sh .mswitch{width:146px}.slogo{font-size:19px}}
+@media (max-width:389px){.sh .mswitch{width:146px}.slogo{font-size:19px}.sh{gap:6px;padding-left:12px}}
 .sic{width:38px;height:38px;flex:none;display:grid;place-items:center;border:0;background:none;color:var(--s-fg);border-radius:50%;cursor:pointer;padding:0}
 .sic svg{width:23px;height:23px}
 .sic:active{background:#eef0f2}
@@ -529,6 +532,21 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .ssort select{appearance:none;-webkit-appearance:none;border:1px solid var(--s-line);background:#f6f7f8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236c717b' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 9px center;border-radius:8px;padding:6px 26px 6px 10px;font:600 13.5px/1.2 inherit;font-family:inherit;color:var(--s-fg);max-width:170px}
 .snote{font-size:12.5px;color:var(--s-mute);margin-top:8px;line-height:1.45}
 
+.sadd{display:block;width:100%;border:0;border-top:1px solid var(--s-line);background:none;color:var(--s-acc);font:inherit;font-weight:700;font-size:15px;padding:13px 16px;text-align:left;cursor:pointer}
+.sic.bell.on{color:var(--s-acc)}
+.sic.bell.on svg{fill:currentColor;fill-opacity:.18}
+/* notifications dialog */
+.ntf-st{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;background:#12161c;border:1px solid var(--line);padding:10px 12px}
+.ntf-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--gray);margin-top:5px}
+.ntf-dot.on{background:#19e03a;box-shadow:0 0 0 3px rgba(25,224,58,.18)}
+.ntf-dot.warn{background:var(--orange)}
+.ntf-h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);border-top:1px solid var(--line);padding-top:12px;margin-top:2px}
+.ntf-r{display:flex;gap:10px;align-items:center;font-size:14px;line-height:1.35;flex-wrap:wrap}
+.ntf-r.sub{padding-left:28px;font-size:13px;color:var(--gray-hi)}
+.ntf-r input[type=checkbox],.ntf-c input{width:18px;height:18px;accent-color:var(--orange);flex:none;margin:0}
+.ntf-n{width:62px;padding:5px 6px;font:inherit;text-align:center}
+.ntf-c{display:inline-flex;gap:7px;align-items:center;margin-right:16px;font-size:14px}
+#ntfInfo{font-size:12px;color:var(--gray)}
 .foot.gen{margin:6px 0 0;font-size:11px;color:var(--gray);text-align:center;letter-spacing:.04em}
 </style>
 </head>
@@ -832,7 +850,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <span class="slogo">GGD<i>.</i></span><span class="dot" id="smDot"></span>
       <div class="mswitch" data-m="simple" role="group" aria-label="Layout"><span class="thumb"></span><button type="button" data-mode="simple" aria-pressed="true">Simple</button><button type="button" data-mode="detail" aria-pressed="false">Detail</button></div>
       <button type="button" class="supd" id="smUpd" hidden>Update</button>
-      <button type="button" class="sic" id="smAdd" aria-label="Add a position"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button type="button" class="sic bell" id="ntfBell" aria-label="Notifications"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg></button>
       <button type="button" class="sic" id="smRefresh" aria-label="Refresh prices"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.5h-4.5"/></svg></button>
     </header>
     <nav class="ssub" id="smSub" role="tablist" aria-label="Filter"></nav>
@@ -964,11 +982,40 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <label class="f">Branch<input id="sBranch" autocomplete="off" spellcheck="false" placeholder="main"></label>
       <label class="f full">Fine-grained token<input id="sToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></label>
       <label class="f full">Sync code<textarea id="sCode" spellcheck="false" placeholder="Paste a code generated on your other device"></textarea></label>
-      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm" type="button" id="importEvBtn">Import events</button><button class="btn sm" type="button" id="reloadBtn">Reload app</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
+      <div class="full actions"><button class="btn sm" type="button" id="copyCode">Copy sync code</button><button class="btn sm" type="button" id="applyCode">Apply pasted code</button><button class="btn sm" type="button" id="exportBtn">Export JSON</button><button class="btn sm" type="button" id="importBtn">Import JSON</button><button class="btn sm" type="button" id="importEvBtn">Import events</button><button class="btn sm" type="button" id="ntfOpen">Notifications…</button><button class="btn sm" type="button" id="reloadBtn">Reload app</button><button class="btn sm danger" type="button" id="unlinkBtn">Turn off sync</button></div>
       <input type="file" id="importFile" accept="application/json,.json" hidden><input type="file" id="importEvFile" accept="application/json,.json" hidden>
       <div class="full msg" id="setMsg"></div>
     </div>
     <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Save &amp; connect</button></div></div>
+  </form>
+</dialog>
+
+<!-- notifications -->
+<dialog id="ntfDlg">
+  <form method="dialog" id="ntfForm" novalidate>
+    <div class="dlg-h"><h3>Notifications</h3><button class="icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="dlg-b">
+      <div class="full ntf-st" id="ntfState"></div>
+      <div class="full actions"><button class="btn primary" type="button" id="ntfOn" hidden>Turn on for this device</button><button class="btn" type="button" id="ntfTest" hidden>Send a test</button><button class="btn danger" type="button" id="ntfOff" hidden>Turn off for this device</button></div>
+      <div class="full" id="ntfInfo"></div>
+      <div class="full ntf-h">Notify me when</div>
+      <label class="full ntf-r"><input type="checkbox" id="nMove"> A stock I hold moves more than <input id="nMovePct" type="number" min="0.5" max="50" step="0.5" inputmode="decimal" class="ntf-n" aria-label="Percent"> % in a day</label>
+      <label class="full ntf-r sub"><input type="checkbox" id="nMoveWatch"> Watchlist stocks too</label>
+      <label class="full ntf-r"><input type="checkbox" id="nEarnPre"> The day before a company I hold reports earnings</label>
+      <label class="full ntf-r"><input type="checkbox" id="nEarnRes"> Its earnings are out (beat or miss)</label>
+      <label class="full ntf-r"><input type="checkbox" id="nRel"> A company I hold publishes a press release</label>
+      <label class="full ntf-r sub"><input type="checkbox" id="nRelWatch"> Watchlist companies too</label>
+      <label class="full ntf-r"><input type="checkbox" id="nNews"> Any news headline about my holdings (can be many a day)</label>
+      <label class="full ntf-r"><input type="checkbox" id="nBtc"> The Bitcoin model changes zone (Buy, Hold, Sell…)</label>
+      <label class="full ntf-r"><input type="checkbox" id="nSq"> New stocks join the Squeezer list</label>
+      <div class="full ntf-h">"Stocks I hold" means open positions in</div>
+      <div class="full" id="nBooks"></div>
+      <div class="full ntf-h">Quiet hours</div>
+      <label class="full ntf-r"><input type="checkbox" id="nQuiet"> No alerts from <input id="nQFrom" type="number" min="0" max="23" inputmode="numeric" class="ntf-n" aria-label="From hour">:00 to <input id="nQTo" type="number" min="0" max="23" inputmode="numeric" class="ntf-n" aria-label="To hour">:00</label>
+      <div class="full hint">Alerts found during quiet hours wait until they end. The news robot checks once an hour, so an alert can come up to an hour after the move or the news. These settings apply to every device with notifications on.</div>
+      <div class="full msg" id="ntfMsg"></div>
+    </div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-close>Close</button><button class="btn primary" type="submit">Save settings</button></div></div>
   </form>
 </dialog>
 
@@ -982,7 +1029,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.12.38";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.13.39";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -3359,7 +3406,7 @@ function renderSimple(){
   if(!smOn() || !$("smBody")) return;
   const t = ["pf","mk","nw","cal","bt"].includes(UI.stab) ? UI.stab : "pf";
   document.querySelectorAll("#smNav [data-st]").forEach(b => b.setAttribute("aria-current", b.dataset.st === t ? "page" : "false"));
-  $("smAdd").hidden = t !== "pf"; $("smUpd").hidden = $("updBtn").hidden;
+  $("smUpd").hidden = $("updBtn").hidden;
   const [subs, sel] = smSubs(t);
   $("smSub").hidden = !subs.length;
   $("smSub").innerHTML = subs.map(([k, l]) => `<button type="button" role="tab" data-sub="${k}" aria-selected="${k === sel}">${l}</button>`).join("");
@@ -3407,14 +3454,14 @@ function smPortfolio(){
     <div class="ss-g"><div><span>Unrealized P&amp;L</span><b class="${cls(unreal)}">${rows.length ? smSigned(unreal, 0) : "–"}</b><i>${rows.length && cost ? fSigned(unreal / cost * 100, 1, "%") + " on cost" : ""}</i></div>
       <div><span>Realized P&amp;L</span><b class="${cls(realized)}">${has ? smSigned(realized, 0) : "–"}</b><i>sales + dividends</i></div>
       <div><span>${bLab}</span><b class="${cls(bVal)}">${fSigned(bVal, 1, "%")}</b><i>${bSub}</i></div></div></section>`;
-  if(!rows.length) return h + smEmpty(`No open positions in ${esc(BOOKS[b].label)}.<br>Tap + to add one.`);
+  if(!rows.length) return h + `<section class="slist">${smEmpty(`No open positions in ${esc(BOOKS[b].label)}.`)}<button type="button" class="sadd" data-add>+ Add position</button></section>`;
   const pl = k === "pl", how = ["best","worst","name"].includes(UI.ssortP) ? UI.ssortP : "val";
   const perf = r => pl ? r.c.gainPct : smPerf(r.c.q, k);
   smSort(rows, how, perf, r => tick(r.p.sym), r => r.c.valueBase);
   h += `<section class="slist"><div class="shd">Positions <span class="n">${rows.length}</span>${smSortSel("pf", how)}</div>`;
   h += rows.map(r => { const { p, c } = r; return smRow(p.sym, c.q, `${coFlag(c.q)}${esc(tick(p.sym))}`, esc(shortName(c.q, p.sym) || p.name || ""),
     fPx(c.q.close), pl ? `<span class="${cls(c.gainPct)}">${smSigned(toBase(c.gain, p.ccy), 0)}</span>` : smMoney(c.valueBase, 0), perf(r)); }).join("");
-  return h + `</section><div class="sfoot">${pl ? "Total P&amp;L of each position since you bought it" : `Stock price change ${SM_PLONG[k]}`} · ${esc(live)}</div>`;
+  return h + `<button type="button" class="sadd" data-add>+ Add position</button></section><div class="sfoot">${pl ? "Total P&amp;L of each position since you bought it" : `Stock price change ${SM_PLONG[k]}`} · ${esc(live)}</div>`;
 }
 function smMarkets(){
   const k = smPerKey("mk"), how = ["best","worst","name"].includes(UI.ssortM) ? UI.ssortM : "mine";
@@ -3512,17 +3559,164 @@ function initSimple(){
     else if(BOOKS[v]){ UI.book = v; UI.pfsel = v; ls.set(LS_UI, UI); render(); return; }
     ls.set(LS_UI, UI); renderSimple(); };
   $("smBody").onclick = e => {
+    if(e.target.closest("[data-add]")) return openPos(null);
     const ev = e.target.closest("[data-smev]"); if(ev){ const x = SMEV[+ev.dataset.smev]; if(x) openStock(x.sym, x); return; }
     const r = e.target.closest("[data-sym]"); if(r) openStock(r.dataset.sym); };
   $("smPer").onclick = e => { const b = e.target.closest("[data-per]"); if(!b) return; UI[UI.stab === "mk" ? "sperM" : "sperP"] = b.dataset.per; ls.set(LS_UI, UI); renderSimple(); };
   $("smBody").onchange = e => { const sel = e.target.closest("[data-sort]"); if(!sel) return; UI[sel.dataset.sort === "mk" ? "ssortM" : "ssortP"] = sel.value; ls.set(LS_UI, UI); renderSimple(); };
-  $("smAdd").onclick = () => openPos(null);
   $("smRefresh").onclick = () => { refresh(); if(UI.stab === "bt") loadBtc(true); };
   $("smUpd").onclick = () => $("updBtn").click();
   const mq = () => applyMode(false);
   if(SM_MQ.addEventListener) SM_MQ.addEventListener("change", mq); else if(SM_MQ.addListener) SM_MQ.addListener(mq);
   let st; window.addEventListener("resize", () => { clearTimeout(st); st = setTimeout(() => { if(smOn() && UI.stab === "bt") smSpark(); }, 150); });
   applyMode(false);
+}
+
+/* ============================== notifications (Web Push, sent by the news robot) ============================== */
+// This device subscribes with the browser's push service; the subscription, the settings and the signing keys live in
+// notify.json in the private data repo. The news robot checks every hour (and right after notify.json changes) and sends.
+let NTF = null, ntfSha = null, ntfReg = null, ntfVap = null, ntfLast = null;
+const NTF_DEF = { move:true, movePct:4, moveWatch:false, books:{ real:true }, earnPre:true, earnRes:true, rel:true, relWatch:false, news:false, btc:true, sq:true, quiet:true, qFrom:22, qTo:8 };
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64uBytes = s => { const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+const ntfSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const ntfIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const ntfStandalone = () => navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+function ntfDevName(){ const u = navigator.userAgent; return (/iPhone/.test(u) ? "iPhone" : /iPad/.test(u) || ntfIOS() ? "iPad" : /Android/.test(u) ? "Android phone" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "Windows PC" : "Device") + " · added " + new Date().toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" }); }
+async function ntfGet(path){
+  const r = await fetchT(`${ghUrlFor(path)}?ref=${encodeURIComponent(SYNC.branch)}&_=${Date.now()}`, { headers: ghHeaders(), cache: "no-store" });
+  if(r.status === 404) return { data: null, sha: null };
+  if(!r.ok) throw new Error(r.status === 401 ? "GitHub token rejected (401)" : "GitHub HTTP " + r.status);
+  const j = await r.json(); return { data: JSON.parse(b64d(j.content)), sha: j.sha };
+}
+async function ntfLoad(){
+  const [a, b] = await Promise.all([ntfGet("notify.json"), ntfGet("notify-state.json").catch(() => ({ data: null }))]);
+  NTF = a.data || { v: 1, subs: [], rules: { ...NTF_DEF } }; ntfSha = a.sha; ntfLast = b.data;
+  NTF.rules = { ...NTF_DEF, ...(NTF.rules || {}) }; NTF.subs ||= [];
+}
+// read, change, write notify.json (re-read and retry once if another device saved in between)
+async function ntfSave(change, msg){
+  for(let i = 0; i < 2; i++){
+    const cur = await ntfGet("notify.json"), N = cur.data || { v: 1, subs: [], rules: { ...NTF_DEF } };
+    N.subs ||= []; N.rules = { ...NTF_DEF, ...(N.rules || {}) };
+    change(N);
+    const body = { message: msg || "Notification settings", content: b64e(JSON.stringify(N, null, 1)), branch: SYNC.branch };
+    if(cur.sha) body.sha = cur.sha;
+    const r = await fetch(ghUrlFor("notify.json"), { method: "PUT", headers: { ...ghHeaders(), "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if(r.status === 409 || r.status === 422) continue;
+    if(!r.ok) throw new Error("GitHub save failed (HTTP " + r.status + ")");
+    NTF = N; ntfSha = (await r.json()).content.sha; return N;
+  }
+  throw new Error("Another device was saving at the same time. Try again.");
+}
+async function ntfMakeVapid(){
+  const k = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  return { pub: b64u(await crypto.subtle.exportKey("raw", k.publicKey)), priv: (await crypto.subtle.exportKey("jwk", k.privateKey)).d };
+}
+async function ntfSub(){ try{ return ntfReg ? await ntfReg.pushManager.getSubscription() : null; }catch(e){ return null; } }
+// what this device can do right now
+async function ntfDevice(){
+  if(!SYNC) return { k: "nosync", t: "Turn on sync first (Settings). The alerts are sent by the news robot in your data repo." };
+  if(ntfIOS() && !ntfStandalone()) return { k: "home", t: "On iPhone, notifications only work in the app opened from its <b>Home Screen icon</b>. If you added the icon before this update, delete it and add it again (Share → Add to Home Screen), then paste your sync code once." };
+  if(!ntfSupported()) return { k: "nosupport", t: "This browser can't receive notifications. On iPhone you need iOS 16.4 or newer." };
+  if(Notification.permission === "denied") return { k: "denied", t: "Notifications are blocked for this app. iPhone: Settings → Notifications → GGD → Allow Notifications. Mac: System Settings → Notifications." };
+  if(!ntfReg) return { k: "nosw", t: "The notification helper file (push-sw.js) was not found next to index.html. Upload it to your website repo." };
+  const sub = await ntfSub(), on = !!(sub && NTF && NTF.subs.some(s => s.endpoint === sub.endpoint));
+  const dead = on && ntfLast && ntfLast.dead && ntfLast.dead[sub.endpoint];
+  if(dead) return { k: "dead", t: "This device's subscription expired. Turn it off and on again." };
+  return on ? { k: "on", t: "<b>On</b> for this device." } : { k: "off", t: "Off for this device." };
+}
+function ntfFill(){
+  const R = NTF ? NTF.rules : NTF_DEF, set = (id, v) => { const e = $(id); if(e.type === "checkbox") e.checked = !!v; else e.value = v; };
+  set("nMove", R.move); set("nMovePct", R.movePct); set("nMoveWatch", R.moveWatch); set("nEarnPre", R.earnPre); set("nEarnRes", R.earnRes);
+  set("nRel", R.rel); set("nRelWatch", R.relWatch); set("nNews", R.news); set("nBtc", R.btc); set("nSq", R.sq); set("nQuiet", R.quiet); set("nQFrom", R.qFrom); set("nQTo", R.qTo);
+  $("nBooks").innerHTML = BOOK_IDS.map(b => `<label class="ntf-c"><input type="checkbox" data-nb="${b}"${R.books && R.books[b] ? " checked" : ""}> ${esc(BOOKS[b].label)}</label>`).join("");
+}
+function ntfRead(){
+  const n = (id, lo, hi, d) => { const v = parseFloat($(id).value); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; }, c = id => $(id).checked;
+  const books = {}; $("nBooks").querySelectorAll("[data-nb]").forEach(e => books[e.dataset.nb] = e.checked);
+  return { move: c("nMove"), movePct: n("nMovePct", 0.5, 50, 4), moveWatch: c("nMoveWatch"), books, earnPre: c("nEarnPre"), earnRes: c("nEarnRes"),
+    rel: c("nRel"), relWatch: c("nRelWatch"), news: c("nNews"), btc: c("nBtc"), sq: c("nSq"), quiet: c("nQuiet"), qFrom: Math.round(n("nQFrom", 0, 23, 22)), qTo: Math.round(n("nQTo", 0, 23, 8)),
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Rome" };
+}
+async function ntfStatus(){
+  const d = await ntfDevice(), on = d.k === "on" || d.k === "dead", canOn = ["off", "dead"].includes(d.k);
+  $("ntfState").innerHTML = `<span class="ntf-dot ${d.k === "on" ? "on" : canOn ? "" : "warn"}"></span><span>${d.t}</span>`;
+  $("ntfOn").hidden = !canOn || d.k === "dead"; $("ntfOff").hidden = !on; $("ntfTest").hidden = d.k !== "on";
+  const others = NTF ? NTF.subs.length - (on ? 1 : 0) : 0, L = ntfLast && ntfLast.last;
+  $("ntfInfo").textContent = (others > 0 ? `${others} other device${others > 1 ? "s" : ""} also get${others > 1 ? "" : "s"} these alerts. ` : "")
+    + (L && L.at ? `Robot last checked ${fDate(L.at)} ${tzTime(L.at)}${L.sent ? `, sent ${L.sent} alert${L.sent > 1 ? "s" : ""}` : ""}${L.quiet ? " (quiet hours)" : ""}.` : NTF && NTF.subs.length ? "The robot has not checked yet." : "");
+  $("ntfBell") && $("ntfBell").classList.toggle("on", d.k === "on");
+}
+async function openNtf(){
+  $("ntfMsg").textContent = ""; $("ntfMsg").className = "full msg"; ntfFill(); $("ntfDlg").showModal();
+  $("ntfState").innerHTML = '<span class="ntf-dot warn"></span><span>Checking…</span>'; $("ntfOn").hidden = $("ntfOff").hidden = $("ntfTest").hidden = true;
+  try{
+    if(ntfSupported() && !(ntfIOS() && !ntfStandalone())) ntfReg = await navigator.serviceWorker.register("push-sw.js").catch(() => null);
+    if(SYNC){ await ntfLoad(); ntfFill(); if(!NTF.vapid && !ntfVap && window.crypto && crypto.subtle) ntfVap = await ntfMakeVapid(); }
+  }catch(e){ $("ntfMsg").textContent = e.message; $("ntfMsg").className = "full msg neg"; }
+  ntfStatus();
+}
+function ntfSay(t, bad){ $("ntfMsg").textContent = t; $("ntfMsg").className = "full msg" + (bad ? " neg" : " pos"); }
+async function ntfTurnOn(){
+  try{
+    if(!ntfReg) throw new Error("Notification helper not ready.");
+    // ask straight from the tap (iPhone requires it), before anything else
+    const perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+    if(perm !== "granted"){ ntfStatus(); return ntfSay("Permission not given, so this device can't get alerts.", true); }
+    const vap = (NTF && NTF.vapid) || ntfVap;
+    let sub = await ntfSub();
+    if(sub && (!sub.options.applicationServerKey || b64u(sub.options.applicationServerKey) !== vap.pub)){ await sub.unsubscribe(); sub = null; }
+    if(!sub) sub = await ntfReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(vap.pub) });
+    const j = sub.toJSON();
+    ntfSay("Saving…");
+    await ntfSave(N => {
+      if(!N.vapid) N.vapid = vap;
+      if(N.vapid.pub !== vap.pub) throw new Error("Another device set up notifications at the same time. Close this and try again.");
+      N.subs = N.subs.filter(s => s.endpoint !== j.endpoint); N.subs.push({ endpoint: j.endpoint, keys: j.keys, dev: ntfDevName(), at: Date.now() });
+      N.rules = ntfRead();
+    }, "Notifications on for " + ntfDevName());
+    ntfSay("Done. A confirmation notification arrives in a minute or two.");
+  }catch(e){ ntfSay(e.message || String(e), true); }
+  ntfStatus();
+}
+async function ntfTurnOff(){
+  try{
+    const sub = await ntfSub(), ep = sub && sub.endpoint;
+    if(sub) await sub.unsubscribe().catch(() => {});
+    if(ep) await ntfSave(N => { N.subs = N.subs.filter(s => s.endpoint !== ep); }, "Notifications off for one device");
+    ntfSay("Notifications are off for this device.");
+  }catch(e){ ntfSay(e.message || String(e), true); }
+  ntfStatus();
+}
+async function ntfTest(){
+  try{
+    try{ if(ntfReg && Notification.permission === "granted") await ntfReg.showNotification("GGD", { body: "This device can show notifications. A test from the robot follows in a minute or two.", tag: "ggd-local-test" }); }catch(e){}
+    await ntfSave(N => { N.testAt = Date.now(); N.rules = ntfRead(); }, "Notification test");
+    ntfSay("Test sent to the robot. It arrives on every device with notifications on, in a minute or two.");
+  }catch(e){ ntfSay(e.message || String(e), true); }
+}
+async function ntfSubmit(e){
+  e.preventDefault();
+  if(!SYNC) return ntfSay("Turn on sync first.", true);
+  try{ ntfSay("Saving…"); await ntfSave(N => { N.rules = ntfRead(); }, "Notification settings"); ntfSay("Saved."); setTimeout(() => $("ntfDlg").close(), 600); }
+  catch(err){ ntfSay(err.message || String(err), true); }
+}
+// a tapped notification opens the app on the right page (#stk=SYMBOL, #bt, #sq) or the article
+function ntfGo(url){
+  let u; try{ u = new URL(url, location.href); }catch(e){ return; }
+  if(u.origin !== location.origin || u.pathname !== location.pathname){ window.open(u.href, "_blank", "noopener"); return; }
+  const h = u.hash || ""; if(!h) return;
+  if(h.startsWith("#stk=")){ const s = decodeURIComponent(h.slice(5)); let n = 0; const go = () => (Q[s] || n++ > 30) ? openStock(s) : setTimeout(go, 400); go(); }
+  else if(h === "#bt"){ if(smOn()){ UI.stab = "bt"; ls.set(LS_UI, UI); renderSimple(); loadBtc(); } else showTab("bt"); }
+  else if(h === "#sq"){ UI.tool = "sq"; if(smOn()) setMode("detail"); showTab("tools"); }
+}
+function initNtf(){
+  $("ntfForm").onsubmit = ntfSubmit; $("ntfOn").onclick = ntfTurnOn; $("ntfOff").onclick = ntfTurnOff; $("ntfTest").onclick = ntfTest;
+  $("ntfBell").onclick = openNtf; $("ntfOpen").onclick = () => { $("setDlg").close(); openNtf(); };
+  try{ navigator.serviceWorker && navigator.serviceWorker.addEventListener("message", e => { if(e.data && e.data.ggdOpen) ntfGo(e.data.ggdOpen); }); }catch(e){}
+  const hash = () => { if(!location.hash || location.hash.length < 3) return; const h = location.hash; history.replaceState(null, "", location.pathname + location.search); ntfGo(location.pathname + h); };
+  window.addEventListener("hashchange", hash); setTimeout(hash, 300);
 }
 
 /* ============================== settings ============================== */
@@ -3790,13 +3984,16 @@ function init(){
   document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
   showTab(UI.tab || "pf");
   initSimple();
+  initNtf();
   refresh(); schedule();
   setupPwa();
 }
 /* ============================== no app install ==============================
    Plain web page only. If an earlier version installed a service worker on this device, remove it and its saved files. */
 function setupPwa(){
-  try{ navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {}); }catch(e){}
+  // the only worker kept is push-sw.js (notifications only, it never caches the app); older caching workers are removed
+  try{ navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => { const w = r.active || r.waiting || r.installing; if(!w || !/\/push-sw\.js(\?|$)/.test(w.scriptURL)) r.unregister(); })).catch(() => {}); }catch(e){}
+  try{ if(window.Notification && Notification.permission === "granted") navigator.serviceWorker?.register("push-sw.js").then(r => { ntfReg = r; r.update(); }).catch(() => {}); }catch(e){}
   try{ window.caches?.keys().then(ks => ks.filter(k => k.startsWith("ggd-")).forEach(k => caches.delete(k))).catch(() => {}); }catch(e){}
 }
 init();
