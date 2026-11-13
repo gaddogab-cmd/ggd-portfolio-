@@ -522,6 +522,11 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 .zbig{display:inline-block;color:#fff;font-weight:800;font-size:22px;padding:8px 18px;border-radius:10px;margin:8px 0 8px}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--s-line);font-size:14.5px}
 .kv span{color:var(--s-mute)} .kv b{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.sper{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;margin:8px 12px 9px;padding:3px;background:#eef0f2;border-radius:9px}
+.sper button{border:0;background:none;padding:6px 0;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--s-mute);cursor:pointer;font-variant-numeric:tabular-nums}
+.sper button[aria-pressed="true"]{background:#fff;color:var(--s-fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.ssort{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--s-mute)}
+.ssort select{appearance:none;-webkit-appearance:none;border:1px solid var(--s-line);background:#f6f7f8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236c717b' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 9px center;border-radius:8px;padding:6px 26px 6px 10px;font:600 13.5px/1.2 inherit;font-family:inherit;color:var(--s-fg);max-width:170px}
 .snote{font-size:12.5px;color:var(--s-mute);margin-top:8px;line-height:1.45}
 
 .foot.gen{margin:6px 0 0;font-size:11px;color:var(--gray);text-align:center;letter-spacing:.04em}
@@ -831,6 +836,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
       <button type="button" class="sic" id="smRefresh" aria-label="Refresh prices"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.5h-4.5"/></svg></button>
     </header>
     <nav class="ssub" id="smSub" role="tablist" aria-label="Filter"></nav>
+    <div class="sper" id="smPer" role="group" aria-label="Period" hidden></div>
   </div>
   <main class="sbody" id="smBody"></main>
   <nav class="snav" id="smNav" aria-label="Sections"><button type="button" data-st="pf"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 12.5h18"/></svg><span>Portfolio</span></button><button type="button" data-st="mk"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18M6 16.5v-4M10 16.5V8.5M14 16.5v-6M18 16.5V5"/></svg><span>Markets</span></button><button type="button" data-st="nw"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8.5h10M7 12h10M7 15.5h6"/></svg><span>News</span></button><button type="button" data-st="cal"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg><span>Calendar</span></button><button type="button" data-st="bt"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 7.6h3.4a2.1 2.1 0 0 1 0 4.2H9.8h3.9a2.2 2.2 0 0 1 0 4.4H9.8V7.6M11.3 6v1.6M11.3 16.2v1.7"/></svg><span>Crypto</span></button></nav>
@@ -976,7 +982,7 @@ div.f input{background:#000;border:1px solid #333842;padding:7px 8px;font-family
 <script>
 "use strict";
 /* ============================== constants ============================== */
-const APP_VERSION = "2026.11.10.37";   // shown in the status line; devices compare it to spot an outdated copy
+const APP_VERSION = "2026.11.12.38";   // shown in the status line; devices compare it to spot an outdated copy
 function verNum(v){ return String(v || "0").split(".").reduce((a,x) => a * 1000 + (parseInt(x) || 0), 0); }
 const SCAN_URL = "https://scanner.tradingview.com/global/scan";
 const SPX = "SP:SPX";
@@ -1366,7 +1372,7 @@ function render(){
   const spx = Q[SPX] || {};
   const hasHist = allPos().length > 0;
   // portfolio's own time-weighted returns, never older than the first open date
-  const PF = {}; ["1W","1M","YTD","1Y","ALL"].forEach(r => { const sr = buildSeries(r); PF[r] = sr && sr.grid.length > 1 ? { p: sr.P.at(-1), b: sr.B.at(-1), bsym: sr.bsym, start: sr.startTs, clipped: sr.clipped } : null; });
+  const PF = {}; ["1W","1M","3M","YTD","1Y","ALL"].forEach(r => { const sr = buildSeries(r); PF[r] = sr && sr.grid.length > 1 ? { p: sr.P.at(-1), b: sr.B.at(-1), bsym: sr.bsym, start: sr.startTs, clipped: sr.clipped } : null; });
   LASTPF = PF;
   $("kVal").textContent = rows.length ? fMoney(tot, base) : "–";
   $("kCost").textContent = rows.length ? "cost " + fMoney(cost, base) : hasHist ? "no open positions" : "no positions";
@@ -3357,43 +3363,74 @@ function renderSimple(){
   const [subs, sel] = smSubs(t);
   $("smSub").hidden = !subs.length;
   $("smSub").innerHTML = subs.map(([k, l]) => `<button type="button" role="tab" data-sub="${k}" aria-selected="${k === sel}">${l}</button>`).join("");
+  const pk = t === "pf" || t === "mk" ? smPerKey(t) : "";
+  $("smPer").hidden = !pk;
+  $("smPer").innerHTML = pk ? SM_PER.concat(t === "pf" ? [["pl","Total"]] : []).map(([k, l]) => `<button type="button" data-per="${k}" aria-pressed="${k === pk}">${l}</button>`).join("") : "";
   SMEV = [];
   $("smBody").innerHTML = ({ pf: smPortfolio, mk: smMarkets, nw: smNews, cal: smCalendar, bt: smCrypto })[t]() + `<p class="sfoot">Claude generated - Not financial advice</p>`;
   const a = $("smSub").querySelector('[aria-selected="true"]'); if(a && a.scrollIntoView && $("smSub").scrollWidth > $("smSub").clientWidth) a.scrollIntoView({ block:"nearest", inline:"center" });
   if(t === "bt") smSpark();
 }
+// period + sort pickers (Markets and Portfolio each remember their own)
+const SM_PER = [["d","1D"],["w","1W"],["m","1M"],["3m","3M"],["ytd","YTD"],["y","1Y"]];
+const SM_PERF = { w:"Perf.W", m:"Perf.1M", "3m":"Perf.3M", ytd:"Perf.YTD", y:"Perf.Y" };
+const SM_PF = { w:"1W", m:"1M", "3m":"3M", ytd:"YTD", y:"1Y" };
+const SM_PLONG = { d:"today", w:"in 1 week", m:"in 1 month", "3m":"in 3 months", ytd:"this year", y:"in 1 year", pl:"total P&L" };
+function smPerf(q, k){ if(!q || !isNum(q.close)) return NaN; if(k === "d") return dayChg(q); const v = q[SM_PERF[k]]; return isNum(v) ? v : NaN; }
+function smPerKey(t){ const k = t === "pf" ? (UI.sperP || (UI.spill === "pl" ? "pl" : "d")) : (UI.sperM || "d"); return SM_PER.some(x => x[0] === k) || (t === "pf" && k === "pl") ? k : "d"; }
+function smSortSel(t, cur){
+  const o = t === "pf" ? [["val","Biggest position"],["best","Best performance"],["worst","Worst performance"],["name","Name A to Z"]] : [["mine","My order"],["best","Best performance"],["worst","Worst performance"],["name","Name A to Z"]];
+  return `<label class="ssort"><span>Sort</span><select data-sort="${t}" aria-label="Sort by">${o.map(([k, l]) => `<option value="${k}"${k === cur ? " selected" : ""}>${l}</option>`).join("")}</select></label>`;
+}
+function smSort(rows, how, perf, name, val){
+  const nn = v => isNum(v) ? v : null;
+  if(how === "name") return rows.sort((a, b) => name(a).localeCompare(name(b)));
+  if(how === "best" || how === "worst"){ const s = how === "best" ? -1 : 1; return rows.sort((a, b) => { const x = nn(perf(a)), y = nn(perf(b)); return x === null ? (y === null ? 0 : 1) : y === null ? -1 : s * (y - x) * -1; }); }
+  if(how === "val") return rows.sort((a, b) => (val(b) || 0) - (val(a) || 0));
+  return rows;
+}
 function smPortfolio(){
-  const b = pfSel(), rows = openPositions(b).map(p => ({ p, c: calc(p) })).sort((x, y) => (y.c.valueBase || 0) - (x.c.valueBase || 0));
+  const b = pfSel(), k = smPerKey("pf"), rows = openPositions(b).map(p => ({ p, c: calc(p) }));
   const sum = f => rows.reduce((a, r) => a + (isNum(r.c[f]) ? r.c[f] : 0), 0);
   const tot = sum("valueBase"), cost = sum("costBase"), day = sum("dayBase"), unreal = tot - cost;
   const dayPct = tot - day ? day / (tot - day) * 100 : NaN;
   const realized = allSales(b).reduce((a, { p, s }) => { const v = saleBase(s, p); return a + (isNum(v) ? v : 0); }, 0) + allDivs(b).reduce((a, { p, d }) => { const v = divBase(d, p); return a + (isNum(v) ? v : 0); }, 0);
-  const has = allPos(b).length > 0, m1 = LASTPF && LASTPF["1M"], m1ok = m1 && !m1.clipped && isNum(m1.p);
-  const live = $("statusTxt").textContent.split(" · ").slice(0, 2).join(" · ");
+  const has = allPos(b).length > 0, live = $("statusTxt").textContent.split(" · ").slice(0, 2).join(" · ");
+  // the coloured line under the value follows the chosen period
+  let line = "", bLab = "S&amp;P 500", bVal = NaN, bSub = "";
+  if(k === "d"){ line = rows.length ? `<b class="${cls(day)}">${smSigned(day)} (${fSigned(dayPct, 2, "%")})</b>` : ""; bVal = smPerf(Q["SP:SPX"], "d"); bSub = "today"; }
+  else if(k === "pl"){ const all = LASTPF && LASTPF.ALL; line = has ? `<b class="${cls(unreal + realized)}">${smSigned(unreal + realized)}</b>` : ""; bLab = "Since start"; bVal = all ? all.p : NaN; bSub = all && isNum(all.b) ? esc(benchName(all.bsym)) + " " + fSigned(all.b, 1, "%") : ""; }
+  else { const pf = LASTPF && LASTPF[SM_PF[k]]; line = pf && !pf.clipped ? `<b class="${cls(pf.p)}">${fSigned(pf.p, 2, "%")}</b>` : `<b>–</b> <span>(portfolio is younger than this)</span>`; bVal = smPerf(Q["SP:SPX"], k); bSub = SM_PLONG[k]; }
   let h = `<section class="scard"><div class="ss-l">${esc(BOOKS[b].label)} · value</div>
     <div class="ss-v">${rows.length ? smMoney(tot) : "–"}</div>
-    <div class="ss-d ${cls(day)}">${rows.length ? `${smSigned(day)} (${fSigned(dayPct, 2, "%")})` : ""} <span>${rows.length ? "today" : "no open positions"}</span></div>
+    <div class="ss-d">${line} <span>${rows.length || k === "pl" ? SM_PLONG[k] : "no open positions"}</span></div>
     <div class="ss-g"><div><span>Unrealized P&amp;L</span><b class="${cls(unreal)}">${rows.length ? smSigned(unreal, 0) : "–"}</b><i>${rows.length && cost ? fSigned(unreal / cost * 100, 1, "%") + " on cost" : ""}</i></div>
       <div><span>Realized P&amp;L</span><b class="${cls(realized)}">${has ? smSigned(realized, 0) : "–"}</b><i>sales + dividends</i></div>
-      <div><span>1 month</span><b class="${cls(m1ok ? m1.p : NaN)}">${m1ok ? fSigned(m1.p, 1, "%") : "–"}</b><i>${m1ok && isNum(m1.b) ? esc(benchName(m1.bsym)) + " " + fSigned(m1.b, 1, "%") : m1 && m1.clipped ? "held under a month" : ""}</i></div></div></section>`;
+      <div><span>${bLab}</span><b class="${cls(bVal)}">${fSigned(bVal, 1, "%")}</b><i>${bSub}</i></div></div></section>`;
   if(!rows.length) return h + smEmpty(`No open positions in ${esc(BOOKS[b].label)}.<br>Tap + to add one.`);
-  const pl = UI.spill === "pl";
-  h += `<section class="slist"><div class="shd">Positions <span class="n">${rows.length}</span><span class="stg" role="group" aria-label="Show"><button type="button" data-spill="d" aria-pressed="${!pl}">Today</button><button type="button" data-spill="pl" aria-pressed="${pl}">Total P&amp;L</button></span></div>`;
-  h += rows.map(({ p, c }) => smRow(p.sym, c.q, `${coFlag(c.q)}${esc(tick(p.sym))}`, esc(shortName(c.q, p.sym) || p.name || ""),
-    fPx(c.q.close), pl ? `<span class="${cls(c.gainPct)}">${smSigned(toBase(c.gain, p.ccy), 0)}</span>` : smMoney(c.valueBase, 0), pl ? c.gainPct : c.dayPct)).join("");
-  return h + `</section><div class="sfoot">${esc(live)}</div>`;
+  const pl = k === "pl", how = ["best","worst","name"].includes(UI.ssortP) ? UI.ssortP : "val";
+  const perf = r => pl ? r.c.gainPct : smPerf(r.c.q, k);
+  smSort(rows, how, perf, r => tick(r.p.sym), r => r.c.valueBase);
+  h += `<section class="slist"><div class="shd">Positions <span class="n">${rows.length}</span>${smSortSel("pf", how)}</div>`;
+  h += rows.map(r => { const { p, c } = r; return smRow(p.sym, c.q, `${coFlag(c.q)}${esc(tick(p.sym))}`, esc(shortName(c.q, p.sym) || p.name || ""),
+    fPx(c.q.close), pl ? `<span class="${cls(c.gainPct)}">${smSigned(toBase(c.gain, p.ccy), 0)}</span>` : smMoney(c.valueBase, 0), perf(r)); }).join("");
+  return h + `</section><div class="sfoot">${pl ? "Total P&amp;L of each position since you bought it" : `Stock price change ${SM_PLONG[k]}`} · ${esc(live)}</div>`;
 }
 function smMarkets(){
+  const k = smPerKey("mk"), how = ["best","worst","name"].includes(UI.ssortM) ? UI.ssortM : "mine";
   if(UI.smk === "ix"){
     const IX = ["SP:SPX","NASDAQ:NDX","SP:SPXEW","TVC:RUT","EURONEXT:IWDA","STOXX:SX5E","STOXX:SXXP","XETR:DAX","INDEX:FTSEMIB"];
     const rows = IX.map(sym => ({ sym, q: Q[sym], o: BENCH_PRESETS.find(x => x[0] === sym) })).filter(r => r.q);
-    return rows.length ? `<section class="slist">${rows.map(({ sym, q, o }) => smRow(sym, q, esc(o ? o[1] : tick(sym)), esc(o ? (o[3] === "US" ? "United States" : o[3]) : ""), fPx(q.close), "", dayChg(q))).join("")}</section>` : smEmpty("Loading indices…");
+    if(!rows.length) return smEmpty("Loading indices…");
+    smSort(rows, how, r => smPerf(r.q, k), r => r.o ? r.o[1] : tick(r.sym));
+    return `<section class="slist"><div class="shd">Indices <span class="n">${rows.length}</span>${smSortSel("mk", how)}</div>${rows.map(({ sym, q, o }) => smRow(sym, q, esc(o ? o[1] : tick(sym)), esc(o ? (o[3] === "US" ? "United States" : o[3]) : ""), fPx(q.close), "", smPerf(q, k))).join("")}</section><div class="sfoot">Change ${SM_PLONG[k]}</div>`;
   }
   const list = DB.watch || [];
   if(!list.length) return smEmpty("Your watchlist is empty.<br>Add stocks in Detail → Watchlist.");
-  const held = new Set(openAll().map(p => p.sym));
-  return `<section class="slist"><div class="shd">Watchlist <span class="n">${list.length}</span></div>${list.map(w => { const q = Q[w.sym] || {};
-    return smRow(w.sym, q, `${coFlag(q)}${esc(tick(w.sym))}${held.has(w.sym) ? '<span class="stag">HELD</span>' : ""}`, esc(shortName(q, w.sym) || w.name || ""), fPx(q.close), esc(normCcy(q.currency)) + (q.exchange ? " · " + esc(q.exchange) : ""), dayChg(q)); }).join("")}</section>`;
+  const held = new Set(openAll().map(p => p.sym)), rows = list.map(w => ({ w, q: Q[w.sym] || {} }));
+  smSort(rows, how, r => smPerf(r.q, k), r => tick(r.w.sym));
+  return `<section class="slist"><div class="shd">Watchlist <span class="n">${list.length}</span>${smSortSel("mk", how)}</div>${rows.map(({ w, q }) =>
+    smRow(w.sym, q, `${coFlag(q)}${esc(tick(w.sym))}${held.has(w.sym) ? '<span class="stag">HELD</span>' : ""}`, esc(shortName(q, w.sym) || w.name || ""), fPx(q.close), esc(normCcy(q.currency)) + (q.exchange ? " · " + esc(q.exchange) : ""), smPerf(q, k))).join("")}</section><div class="sfoot">Price change ${SM_PLONG[k]}</div>`;
 }
 function smNews(){
   if(!SYNC) return smEmpty("News needs sync.<br>Switch to Detail → Settings to connect.");
@@ -3475,9 +3512,10 @@ function initSimple(){
     else if(BOOKS[v]){ UI.book = v; UI.pfsel = v; ls.set(LS_UI, UI); render(); return; }
     ls.set(LS_UI, UI); renderSimple(); };
   $("smBody").onclick = e => {
-    const tg = e.target.closest("[data-spill]"); if(tg){ UI.spill = tg.dataset.spill; ls.set(LS_UI, UI); renderSimple(); return; }
     const ev = e.target.closest("[data-smev]"); if(ev){ const x = SMEV[+ev.dataset.smev]; if(x) openStock(x.sym, x); return; }
     const r = e.target.closest("[data-sym]"); if(r) openStock(r.dataset.sym); };
+  $("smPer").onclick = e => { const b = e.target.closest("[data-per]"); if(!b) return; UI[UI.stab === "mk" ? "sperM" : "sperP"] = b.dataset.per; ls.set(LS_UI, UI); renderSimple(); };
+  $("smBody").onchange = e => { const sel = e.target.closest("[data-sort]"); if(!sel) return; UI[sel.dataset.sort === "mk" ? "ssortM" : "ssortP"] = sel.value; ls.set(LS_UI, UI); renderSimple(); };
   $("smAdd").onclick = () => openPos(null);
   $("smRefresh").onclick = () => { refresh(); if(UI.stab === "bt") loadBtc(true); };
   $("smUpd").onclick = () => $("updBtn").click();
